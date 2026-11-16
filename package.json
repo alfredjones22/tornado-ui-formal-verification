@@ -1,0 +1,35 @@
+{
+  "name": "tornado-ui-formal-verify",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "verify": "node scripts/run-verify.mjs",
+    "baseline:check": "python3 scripts/check-baseline.py",
+    "extract": "node pilot/extract-validator.mjs",
+    "test:conformance": "node --test pilot/conformance.test.mjs",
+    "verify:continuation": "sh scripts/verify-continuation.sh",
+    "setup": "sh scripts/setup.sh",
+    "verify:release": "sh scripts/verify-release.sh"
+  },
+  "devDependencies": {
+    "@noble/curves": "2.2.0",
+    "@noble/hashes": "2.2.0",
+    "@reduxjs/toolkit": "2.12.0",
+    "@vue/compiler-sfc": "3.5.44",
+    "blockstore-core": "7.0.1",
+    "ipfs-unixfs-importer": "17.1.1",
+    "micro-zk-proofs": "0.3.1",
+    "sdk-viem": "npm:viem@2.54.1",
+    "typescript": "5.9.3",
+    "viem": "2.55.19",
+    "vue": "3.5.44"
+  },
+  "overrides": {
+    "reselect": "5.2.0",
+    "immer": "11.1.9"
+  }
+}

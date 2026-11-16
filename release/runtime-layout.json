@@ -1,0 +1,488 @@
+{
+  "packages": {
+    "packages/mimc-tree": {
+      "name": "@kohaku-eth/mimc-tree",
+      "version": "0.0.3",
+      "dependencies": {
+        "fixed-merkle-tree": "node_modules/.pnpm/fixed-merkle-tree@0.7.3/node_modules/fixed-merkle-tree",
+        "micro-wrkr": "node_modules/.pnpm/micro-wrkr@0.2.0/node_modules/micro-wrkr",
+        "micro-zk-proofs": "node_modules/.pnpm/micro-zk-proofs@0.3.1/node_modules/micro-zk-proofs"
+      },
+      "source": "release/sdk-toolchain/node_modules/@kohaku-eth/mimc-tree",
+      "contentDigest": "534e53edfefda15b25d76becadcd04791a6933f2bb499482f7afacf344fe6600",
+      "files": [
+        "LICENSE",
+        "dist/MimcMerkleTree.d.ts",
+        "dist/MimcMerkleTree.js",
+        "dist/MimcMerkleTreeBrowserWorker.d.ts",
+        "dist/MimcMerkleTreeBrowserWorker.js",
+        "dist/MimcMerkleTreeWorker.d.ts",
+        "dist/MimcMerkleTreeWorker.js",
+        "dist/index.d.ts",
+        "dist/index.js",
+        "package.json"
+      ]
+    },
+    "packages/plugins": {
+      "name": "@kohaku-eth/plugins",
+      "version": "0.0.1-alpha.20",
+      "dependencies": {
+        "@kohaku-eth/provider": "packages/provider",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes",
+        "@scure/bip32": "node_modules/.pnpm/@scure+bip32@2.2.0/node_modules/@scure/bip32",
+        "@scure/bip39": "node_modules/.pnpm/@scure+bip39@2.2.0/node_modules/@scure/bip39",
+        "ox": "node_modules/.pnpm/ox@0.12.4_typescript@5.9.3_zod@4.4.3/node_modules/ox"
+      },
+      "source": "release/sdk-toolchain/node_modules/@kohaku-eth/plugins",
+      "contentDigest": "d0e92a24dbba8719a4363d089ce60e32b0950fd5852683a8d09d19af3fdc702c",
+      "files": [
+        "dist/base.d.ts",
+        "dist/base.d.ts.map",
+        "dist/base.js",
+        "dist/base.js.map",
+        "dist/broadcaster/base.d.ts",
+        "dist/broadcaster/base.d.ts.map",
+        "dist/broadcaster/base.js",
+        "dist/broadcaster/base.js.map",
+        "dist/errors.d.ts",
+        "dist/errors.d.ts.map",
+        "dist/errors.js",
+        "dist/errors.js.map",
+        "dist/host/derivation-path.d.ts",
+        "dist/host/derivation-path.d.ts.map",
+        "dist/host/derivation-path.js",
+        "dist/host/derivation-path.js.map",
+        "dist/host/index.d.ts",
+        "dist/host/index.d.ts.map",
+        "dist/host/index.js",
+        "dist/host/index.js.map",
+        "dist/host/memory-storage.d.ts",
+        "dist/host/memory-storage.d.ts.map",
+        "dist/host/memory-storage.js",
+        "dist/host/memory-storage.js.map",
+        "dist/host/mnemonic-keystore.d.ts",
+        "dist/host/mnemonic-keystore.d.ts.map",
+        "dist/host/mnemonic-keystore.js",
+        "dist/host/mnemonic-keystore.js.map",
+        "dist/host/scoped-keystore.d.ts",
+        "dist/host/scoped-keystore.d.ts.map",
+        "dist/host/scoped-keystore.js",
+        "dist/host/scoped-keystore.js.map",
+        "dist/index.d.ts",
+        "dist/index.d.ts.map",
+        "dist/index.js",
+        "dist/index.js.map",
+        "dist/shared.d.ts",
+        "dist/shared.d.ts.map",
+        "dist/shared.js",
+        "dist/shared.js.map",
+        "package.json"
+      ],
+      "packageJsonOverride": "release/package-metadata/plugins.json"
+    },
+    "packages/provider": {
+      "name": "@kohaku-eth/provider",
+      "version": "0.1.0-alpha.14",
+      "dependencies": {
+        "@anon-rpc/browser-harness": "node_modules/.pnpm/@anon-rpc+browser-harness@0.3.0/node_modules/@anon-rpc/browser-harness",
+        "ox": "node_modules/.pnpm/ox@0.12.4_typescript@5.9.3_zod@4.4.3/node_modules/ox"
+      },
+      "source": "release/sdk-toolchain/node_modules/@kohaku-eth/provider",
+      "contentDigest": "527755e703598670fba0d52bcd01fb4ba914a6341c4b57a1a3e4f5bcb5c78ae5",
+      "files": [
+        "dist/_esm-ILMWGOVA.js",
+        "dist/_esm-ILMWGOVA.js.map",
+        "dist/anon.cjs",
+        "dist/anon.cjs.map",
+        "dist/anon.d.cts",
+        "dist/anon.d.ts",
+        "dist/anon.js",
+        "dist/anon.js.map",
+        "dist/ccip-6KQOG5ZJ.js",
+        "dist/ccip-6KQOG5ZJ.js.map",
+        "dist/chunk-4DSBSW7I.js",
+        "dist/chunk-4DSBSW7I.js.map",
+        "dist/chunk-DOKXZHMX.js",
+        "dist/chunk-DOKXZHMX.js.map",
+        "dist/chunk-PR4QN5HX.js",
+        "dist/chunk-PR4QN5HX.js.map",
+        "dist/chunk-VI6UCGA2.js",
+        "dist/chunk-VI6UCGA2.js.map",
+        "dist/colibri.cjs",
+        "dist/colibri.cjs.map",
+        "dist/colibri.d.cts",
+        "dist/colibri.d.ts",
+        "dist/colibri.js",
+        "dist/colibri.js.map",
+        "dist/ethers.cjs",
+        "dist/ethers.cjs.map",
+        "dist/ethers.d.cts",
+        "dist/ethers.d.ts",
+        "dist/ethers.js",
+        "dist/ethers.js.map",
+        "dist/helios.cjs",
+        "dist/helios.cjs.map",
+        "dist/helios.d.cts",
+        "dist/helios.d.ts",
+        "dist/helios.js",
+        "dist/helios.js.map",
+        "dist/index.cjs",
+        "dist/index.cjs.map",
+        "dist/index.d.cts",
+        "dist/index.d.ts",
+        "dist/index.js",
+        "dist/index.js.map",
+        "dist/raw.cjs",
+        "dist/raw.cjs.map",
+        "dist/raw.d.cts",
+        "dist/raw.d.ts",
+        "dist/raw.js",
+        "dist/raw.js.map",
+        "dist/secp256k1-IA7SLYFD.js",
+        "dist/secp256k1-IA7SLYFD.js.map",
+        "dist/viem.cjs",
+        "dist/viem.cjs.map",
+        "dist/viem.d.cts",
+        "dist/viem.d.ts",
+        "dist/viem.js",
+        "dist/viem.js.map",
+        "dist/wait-D0W4ApIC.d.cts",
+        "dist/wait-D0W4ApIC.d.ts",
+        "package.json"
+      ],
+      "packageJsonOverride": "release/package-metadata/provider.json"
+    },
+    "node_modules/.pnpm/@noble+curves@2.2.0/node_modules/@noble/curves": {
+      "name": "@noble/curves",
+      "version": "2.2.0",
+      "dependencies": {
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-03",
+      "contentDigest": "4ba73fb4634abd002a1799f885ea1f22e5480f94d9dea744dabae56cbd681190"
+    },
+    "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes": {
+      "name": "@noble/hashes",
+      "version": "2.2.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-04",
+      "contentDigest": "e303687ac0af7b50c40a73be5f8a77a4ace976f20b0bd5aa2b424beacd581773"
+    },
+    "node_modules/.pnpm/@reduxjs+toolkit@2.12.0_react@19.3.1/node_modules/@reduxjs/toolkit": {
+      "name": "@reduxjs/toolkit",
+      "version": "2.12.0",
+      "dependencies": {
+        "@standard-schema/spec": "node_modules/.pnpm/@standard-schema+spec@1.1.0/node_modules/@standard-schema/spec",
+        "@standard-schema/utils": "node_modules/.pnpm/@standard-schema+utils@0.3.0/node_modules/@standard-schema/utils",
+        "immer": "node_modules/.pnpm/immer@11.1.9/node_modules/immer",
+        "redux": "node_modules/.pnpm/redux@5.0.1/node_modules/redux",
+        "redux-thunk": "node_modules/.pnpm/redux-thunk@3.1.0_redux@5.0.1/node_modules/redux-thunk",
+        "reselect": "node_modules/.pnpm/reselect@5.2.0/node_modules/reselect"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-05",
+      "contentDigest": "0ce9f35c928c6966ca10b9d32e0bb1b1a960fdbe263edd4f5de0b815c81c08c4"
+    },
+    "node_modules/.pnpm/comlink@4.4.2/node_modules/comlink": {
+      "name": "comlink",
+      "version": "4.4.2",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-06",
+      "contentDigest": "d7b0dfedd9c18c1c3a7118a1d1d999a354afdbcf3e169a9911ebf2c6a791e766"
+    },
+    "node_modules/.pnpm/micro-zk-proofs@0.3.1/node_modules/micro-zk-proofs": {
+      "name": "micro-zk-proofs",
+      "version": "0.3.1",
+      "dependencies": {
+        "@noble/ciphers": "node_modules/.pnpm/@noble+ciphers@2.2.0/node_modules/@noble/ciphers",
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@2.2.0/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes",
+        "micro-packed": "node_modules/.pnpm/micro-packed@0.9.0/node_modules/micro-packed",
+        "micro-wrkr": "node_modules/.pnpm/micro-wrkr@0.2.0/node_modules/micro-wrkr"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-07",
+      "contentDigest": "9013de8487ca9a381b87c16b1b9854104881b0f84dd2dd33d27c0bb34e044853"
+    },
+    "node_modules/.pnpm/ox@0.12.4_typescript@5.9.3_zod@4.4.3/node_modules/ox": {
+      "name": "ox",
+      "version": "0.12.4",
+      "dependencies": {
+        "@adraffy/ens-normalize": "node_modules/.pnpm/@adraffy+ens-normalize@1.11.1/node_modules/@adraffy/ens-normalize",
+        "@noble/ciphers": "node_modules/.pnpm/@noble+ciphers@1.3.0/node_modules/@noble/ciphers",
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@1.9.1/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes",
+        "@scure/bip32": "node_modules/.pnpm/@scure+bip32@1.7.0/node_modules/@scure/bip32",
+        "@scure/bip39": "node_modules/.pnpm/@scure+bip39@1.6.0/node_modules/@scure/bip39",
+        "abitype": "node_modules/.pnpm/abitype@1.2.4_typescript@5.9.3_zod@4.4.3/node_modules/abitype",
+        "eventemitter3": "node_modules/.pnpm/eventemitter3@5.0.1/node_modules/eventemitter3"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-08",
+      "contentDigest": "f47e292ea3fc7e87d2fdb6fe9c5fb7441ec3960311c2de7d1d3630b6af631084"
+    },
+    "node_modules/.pnpm/viem@2.54.1_typescript@5.9.3_zod@4.4.3/node_modules/viem": {
+      "name": "viem",
+      "version": "2.54.1",
+      "dependencies": {
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@1.9.1/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes",
+        "@scure/bip32": "node_modules/.pnpm/@scure+bip32@1.7.0/node_modules/@scure/bip32",
+        "@scure/bip39": "node_modules/.pnpm/@scure+bip39@1.6.0/node_modules/@scure/bip39",
+        "abitype": "node_modules/.pnpm/abitype@1.2.3_typescript@5.9.3_zod@4.4.3/node_modules/abitype",
+        "isows": "node_modules/.pnpm/isows@1.0.7_ws@8.20.1/node_modules/isows",
+        "ox": "node_modules/.pnpm/ox@0.14.29_typescript@5.9.3_zod@4.4.3/node_modules/ox",
+        "ws": "node_modules/.pnpm/ws@8.20.1/node_modules/ws"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-09",
+      "contentDigest": "05a4cc552fd034d3e655a4dc6909a139a9ddca7b69af7a301e11d8df970a4d57"
+    },
+    "node_modules/.pnpm/fixed-merkle-tree@0.7.3/node_modules/fixed-merkle-tree": {
+      "name": "fixed-merkle-tree",
+      "version": "0.7.3",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-10",
+      "contentDigest": "ca0e738abeeffa9f7ce53dc11ec2e9ad72d894f872b418d02f4c922f8eb9ae36"
+    },
+    "node_modules/.pnpm/micro-wrkr@0.2.0/node_modules/micro-wrkr": {
+      "name": "micro-wrkr",
+      "version": "0.2.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-11",
+      "contentDigest": "9b7944809ef1a4a01a7f4da6734f773db35f9a3b65a9a7a0a42b30051117f4ab"
+    },
+    "node_modules/.pnpm/@scure+bip32@2.2.0/node_modules/@scure/bip32": {
+      "name": "@scure/bip32",
+      "version": "2.2.0",
+      "dependencies": {
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@2.2.0/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes",
+        "@scure/base": "node_modules/.pnpm/@scure+base@2.2.0/node_modules/@scure/base"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-12",
+      "contentDigest": "e24269137adbd9924c0c6567e6531e63cbf56f48b5cc2d4fdf960d0552e576d9"
+    },
+    "node_modules/.pnpm/@scure+bip39@2.2.0/node_modules/@scure/bip39": {
+      "name": "@scure/bip39",
+      "version": "2.2.0",
+      "dependencies": {
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes",
+        "@scure/base": "node_modules/.pnpm/@scure+base@2.2.0/node_modules/@scure/base"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-13",
+      "contentDigest": "62d900cb0c042c7ab9cc3d42ec3021543593a26124c994d3926f5d1d7712dcdc"
+    },
+    "node_modules/.pnpm/@anon-rpc+browser-harness@0.3.0/node_modules/@anon-rpc/browser-harness": {
+      "name": "@anon-rpc/browser-harness",
+      "version": "0.3.0",
+      "dependencies": {
+        "@kpstreams/webrtc-client": "node_modules/.pnpm/@kpstreams+webrtc-client@0.2.1/node_modules/@kpstreams/webrtc-client",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-14",
+      "contentDigest": "7646b129958bcaefcebf1a2d583dc0faa3a9e5f8f20356528dc2473569438c63"
+    },
+    "node_modules/.pnpm/@standard-schema+spec@1.1.0/node_modules/@standard-schema/spec": {
+      "name": "@standard-schema/spec",
+      "version": "1.1.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-15",
+      "contentDigest": "0d65b53e683bf4669c5df6153719f1b11012f53e1da4bbb0a00cb706522318ac"
+    },
+    "node_modules/.pnpm/@standard-schema+utils@0.3.0/node_modules/@standard-schema/utils": {
+      "name": "@standard-schema/utils",
+      "version": "0.3.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-16",
+      "contentDigest": "fa03ea51a216d258393fd1759f9b02b66fe3ef2d3845d0b0a598fb7f0cc7cb9d"
+    },
+    "node_modules/.pnpm/immer@11.1.9/node_modules/immer": {
+      "name": "immer",
+      "version": "11.1.9",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-17",
+      "contentDigest": "829f3809aae763a7f2c65d3e634ae5db2427a0e8f8eeadf3beaf2c1be1ad58c8"
+    },
+    "node_modules/.pnpm/redux@5.0.1/node_modules/redux": {
+      "name": "redux",
+      "version": "5.0.1",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-18",
+      "contentDigest": "cf3caed1f0cee8d47559d88f3bdbf4728d2ff3bc6364f5abc6f8e50f74a162c9"
+    },
+    "node_modules/.pnpm/redux-thunk@3.1.0_redux@5.0.1/node_modules/redux-thunk": {
+      "name": "redux-thunk",
+      "version": "3.1.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-19",
+      "contentDigest": "8be11954aed67f93ef387f28bf0f43c7ede9a042d0deda335494a2ea5dbe3686"
+    },
+    "node_modules/.pnpm/reselect@5.2.0/node_modules/reselect": {
+      "name": "reselect",
+      "version": "5.2.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-20",
+      "contentDigest": "9e53861280ea95ea339d4ca4abc6744944e72b6da22d754f67365445757f2d90"
+    },
+    "node_modules/.pnpm/@noble+ciphers@2.2.0/node_modules/@noble/ciphers": {
+      "name": "@noble/ciphers",
+      "version": "2.2.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-21",
+      "contentDigest": "d86a441d8358583baf1a2b5c40cde5999386876ee3e6af3409888f70b1d3efca"
+    },
+    "node_modules/.pnpm/micro-packed@0.9.0/node_modules/micro-packed": {
+      "name": "micro-packed",
+      "version": "0.9.0",
+      "dependencies": {
+        "@scure/base": "node_modules/.pnpm/@scure+base@2.2.0/node_modules/@scure/base"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-22",
+      "contentDigest": "4db774c8dddebc326b3d624fbb1c158778ad7363f89f750ab0758ccc4dd596ad"
+    },
+    "node_modules/.pnpm/@adraffy+ens-normalize@1.11.1/node_modules/@adraffy/ens-normalize": {
+      "name": "@adraffy/ens-normalize",
+      "version": "1.11.1",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-23",
+      "contentDigest": "8cadf9fb48fdc3e82ac968c6bb7adfae17cb5fd97cc5ef45ee83c2c12d36d10b"
+    },
+    "node_modules/.pnpm/@noble+ciphers@1.3.0/node_modules/@noble/ciphers": {
+      "name": "@noble/ciphers",
+      "version": "1.3.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-24",
+      "contentDigest": "0ec0e6a5b3beb0c0d0fb722cbfe63bbd3ca848ab1ccb844d0805adb23b894d9b"
+    },
+    "node_modules/.pnpm/@noble+curves@1.9.1/node_modules/@noble/curves": {
+      "name": "@noble/curves",
+      "version": "1.9.1",
+      "dependencies": {
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-25",
+      "contentDigest": "91220f3989a4bef892b0c4521f55576be6c32a193872057bc46a22dff5f94ca3"
+    },
+    "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes": {
+      "name": "@noble/hashes",
+      "version": "1.8.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-26",
+      "contentDigest": "db8d1a6228ae91906110ca7001ac68b2cf737a8b4443ccbe77219f5c52cd859d"
+    },
+    "node_modules/.pnpm/@scure+bip32@1.7.0/node_modules/@scure/bip32": {
+      "name": "@scure/bip32",
+      "version": "1.7.0",
+      "dependencies": {
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@1.9.1/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes",
+        "@scure/base": "node_modules/.pnpm/@scure+base@1.2.6/node_modules/@scure/base"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-27",
+      "contentDigest": "4756e078309b780e785fc3fccda7ec87f3c95cc924bd60815194b14a5232beac"
+    },
+    "node_modules/.pnpm/@scure+bip39@1.6.0/node_modules/@scure/bip39": {
+      "name": "@scure/bip39",
+      "version": "1.6.0",
+      "dependencies": {
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes",
+        "@scure/base": "node_modules/.pnpm/@scure+base@1.2.6/node_modules/@scure/base"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-28",
+      "contentDigest": "b698bd236a800e8b0b6de4e37e6c8f140856c35f04641c42a9c028601448349f"
+    },
+    "node_modules/.pnpm/abitype@1.2.4_typescript@5.9.3_zod@4.4.3/node_modules/abitype": {
+      "name": "abitype",
+      "version": "1.2.4",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-29",
+      "contentDigest": "9e3e7cd19b182d8af447a1bc6f25cb30cd4508c19a83e56abc8555c455ea9ccd"
+    },
+    "node_modules/.pnpm/eventemitter3@5.0.1/node_modules/eventemitter3": {
+      "name": "eventemitter3",
+      "version": "5.0.1",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-30",
+      "contentDigest": "b1091b394ae3d4f96e6cd2ba003d965b721d6af7d148da510160c21000b8d80a"
+    },
+    "node_modules/.pnpm/abitype@1.2.3_typescript@5.9.3_zod@4.4.3/node_modules/abitype": {
+      "name": "abitype",
+      "version": "1.2.3",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-31",
+      "contentDigest": "fd118046685bbfab3603afc1c70e059fa937de704d12aac22ddcf65a36b6168c"
+    },
+    "node_modules/.pnpm/isows@1.0.7_ws@8.20.1/node_modules/isows": {
+      "name": "isows",
+      "version": "1.0.7",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-32",
+      "contentDigest": "0bd38f3b5200aaeacd2593ab5a6200b7a530778a2824ba94659c7c1bea059ead"
+    },
+    "node_modules/.pnpm/ox@0.14.29_typescript@5.9.3_zod@4.4.3/node_modules/ox": {
+      "name": "ox",
+      "version": "0.14.29",
+      "dependencies": {
+        "@adraffy/ens-normalize": "node_modules/.pnpm/@adraffy+ens-normalize@1.11.1/node_modules/@adraffy/ens-normalize",
+        "@noble/ciphers": "node_modules/.pnpm/@noble+ciphers@1.3.0/node_modules/@noble/ciphers",
+        "@noble/curves": "node_modules/.pnpm/@noble+curves@1.9.1/node_modules/@noble/curves",
+        "@noble/hashes": "node_modules/.pnpm/@noble+hashes@1.8.0/node_modules/@noble/hashes",
+        "@scure/bip32": "node_modules/.pnpm/@scure+bip32@1.7.0/node_modules/@scure/bip32",
+        "@scure/bip39": "node_modules/.pnpm/@scure+bip39@1.6.0/node_modules/@scure/bip39",
+        "abitype": "node_modules/.pnpm/abitype@1.2.3_typescript@5.9.3_zod@4.4.3/node_modules/abitype",
+        "eventemitter3": "node_modules/.pnpm/eventemitter3@5.0.1/node_modules/eventemitter3"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-33",
+      "contentDigest": "dc5adfd19450a665359c22f54247f3c8e8efc5fa65d44f45f33aaddf7268b47c"
+    },
+    "node_modules/.pnpm/ws@8.20.1/node_modules/ws": {
+      "name": "ws",
+      "version": "8.20.1",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-34",
+      "contentDigest": "3b997433fcfb83a6e5e6bfb81fae2d49494ff04f725e5a36dfdb1edffe45838b"
+    },
+    "node_modules/.pnpm/@scure+base@2.2.0/node_modules/@scure/base": {
+      "name": "@scure/base",
+      "version": "2.2.0",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-35",
+      "contentDigest": "9494727928ceba69882e6bd703d056360b75a96d2b6c6860d759a5424777cf2b"
+    },
+    "node_modules/.pnpm/@kpstreams+webrtc-client@0.2.1/node_modules/@kpstreams/webrtc-client": {
+      "name": "@kpstreams/webrtc-client",
+      "version": "0.2.1",
+      "dependencies": {
+        "@kpstreams/core": "node_modules/.pnpm/@kpstreams+core@0.2.1/node_modules/@kpstreams/core"
+      },
+      "source": "release/sdk-toolchain/node_modules/release-runtime-36",
+      "contentDigest": "0651e2c59739e4d04ed83cc1ff261699ac2e8b07b6c39fb9430851b9fc0f86b5"
+    },
+    "node_modules/.pnpm/@scure+base@1.2.6/node_modules/@scure/base": {
+      "name": "@scure/base",
+      "version": "1.2.6",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-37",
+      "contentDigest": "f8594f321b2c19922d7546e6b49b062f0c02ca8bbfd99b8729059866e2eabb80"
+    },
+    "node_modules/.pnpm/@kpstreams+core@0.2.1/node_modules/@kpstreams/core": {
+      "name": "@kpstreams/core",
+      "version": "0.2.1",
+      "dependencies": {},
+      "source": "release/sdk-toolchain/node_modules/release-runtime-38",
+      "contentDigest": "b0b36a6688e937f80f3fc1c7c81dba051c9a10303ca22db29205e7a729b5484a"
+    }
+  },
+  "sdkLinks": {
+    "@kohaku-eth/mimc-tree": "packages/mimc-tree",
+    "@kohaku-eth/plugins": "packages/plugins",
+    "@kohaku-eth/provider": "packages/provider",
+    "@noble/curves": "node_modules/.pnpm/@noble+curves@2.2.0/node_modules/@noble/curves",
+    "@noble/hashes": "node_modules/.pnpm/@noble+hashes@2.2.0/node_modules/@noble/hashes",
+    "@reduxjs/toolkit": "node_modules/.pnpm/@reduxjs+toolkit@2.12.0_react@19.3.1/node_modules/@reduxjs/toolkit",
+    "comlink": "node_modules/.pnpm/comlink@4.4.2/node_modules/comlink",
+    "micro-zk-proofs": "node_modules/.pnpm/micro-zk-proofs@0.3.1/node_modules/micro-zk-proofs",
+    "ox": "node_modules/.pnpm/ox@0.12.4_typescript@5.9.3_zod@4.4.3/node_modules/ox",
+    "viem": "node_modules/.pnpm/viem@2.54.1_typescript@5.9.3_zod@4.4.3/node_modules/viem"
+  },
+  "missingUnusedDependencies": [],
+  "schemaVersion": 1,
+  "reason": "Preserve original package identities, dependency bindings and relative pnpm/workspace paths embedded by esbuild; output bytes are never normalized."
+}

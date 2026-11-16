@@ -1,0 +1,130 @@
+{
+  "schemaVersion": 1,
+  "id": "basic-direct-withdrawal-v1",
+  "status": "COMPLETE_WITH_EXPLICIT_ASSUMPTIONS",
+  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "scope": "Frozen basic single-note ERC-4337/paymaster withdrawal; excludes other UI routes.",
+  "confirmation": {
+    "option": "A",
+    "assumptionId": "A_CONFIRMATION_REPORTING",
+    "assumption": "Only the interpretation of confirmed as an actual successful withdrawal assumes a well-formed, truthful bundler receipt associated with the intended operation, transaction and chain. This is not an assumption that all bundler inputs are honest.",
+    "independentInclusionVerification": false,
+    "finalityVerification": false,
+    "confirmationImplementationChanges": "NONE"
+  },
+  "claims": [
+    {
+      "id": "C01",
+      "title": "Direct recipient and no execution calls",
+      "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
+      "validator": [
+        "P01_direct_recipient",
+        "P02_no_execution_or_nonce"
+      ]
+    },
+    {
+      "id": "C02",
+      "title": "Configured transport, pool, asset, paymaster and chain metadata",
+      "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
+      "validator": [
+        "P03_transport_pool_asset",
+        "P04_paymaster_refund_chain"
+      ]
+    },
+    {
+      "id": "C03",
+      "title": "Positive fee and exact proceeds arithmetic",
+      "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
+      "validator": [
+        "P05_fee_proceeds",
+        "P08_returned_fee_matches_proof"
+      ]
+    },
+    {
+      "id": "C04",
+      "title": "Sponsor tuple agrees with supplied proof fields",
+      "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
+      "validator": [
+        "P06_sponsor_tuple"
+      ]
+    },
+    {
+      "id": "C05",
+      "title": "Restricted estimation and fallback metadata",
+      "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
+      "validator": [
+        "P07_estimation_policy"
+      ]
+    },
+    {
+      "id": "C06",
+      "title": "Per-quote explicit-send exclusion and retained recovery information",
+      "evidenceKind": "CONDITIONAL_PROTOCOL_PROOF_MODEL_CHECK_AND_TESTS",
+      "lifecycle": [
+        "L01_one_explicit_send_per_quote",
+        "L02_send_requires_review_and_validation",
+        "L04_no_automatic_resubmission",
+        "L06_known_hash_is_retained"
+      ],
+      "continuation": [
+        "U01_caller_initial_state",
+        "U02_begin_send",
+        "U02_send_effect",
+        "U02_settle_or_preflight_error",
+        "U02_other_work_begin",
+        "U02_other_work_end",
+        "U02_blocked_click_or_background_event",
+        "U03_at_most_one_send"
+      ]
+    },
+    {
+      "id": "C07",
+      "title": "Confirmation reports the configured bundler response",
+      "evidenceKind": "SOURCE_INSPECTION_AND_IMPLEMENTATION_TESTS",
+      "assumptionsForChainMeaning": [
+        "A_CONFIRMATION_REPORTING"
+      ],
+      "lifecycle": [
+        "L03_confirmation_requires_known_submission"
+      ]
+    },
+    {
+      "id": "C08",
+      "title": "Disposed frame cannot restore review; released authority is not revoked",
+      "evidenceKind": "MODEL_CHECK_AND_IMPLEMENTATION_TESTS",
+      "lifecycle": [
+        "L05_disposed_frame_cannot_restore_review",
+        "L07_release_is_irreversible"
+      ]
+    }
+  ],
+  "notClaimed": [
+    "End-to-end UI correctness",
+    "Independent or finalized on-chain confirmation",
+    "Cryptographic proof or circuit correctness",
+    "Full SDK semantic proof or Vue/browser refinement",
+    "Revocation of candidates released during estimation",
+    "Compiler correctness, gateway delivery or full deployed-UI semantics"
+  ],
+  "releaseCorrespondence": {
+    "required": true,
+    "inputManifestSHA256": "6d555b800c4339e3dd01d537e19bc68fb4903bda2177f447aa36c16bcaedf73e",
+    "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+    "deploymentStatus": "PUBLISHER_REPORTED_CID_MATCH",
+    "deploymentRecord": "release/deployment.json"
+  },
+  "releaseRevision": "REGISTRY_SDK_ALPHA_37",
+  "registrySDK": {
+    "version": "0.1.0-alpha.37",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.37.tgz",
+    "integrity": "sha512-Ub4kHobA+Rk4lh+OtOsAek/sfP/GEyUcL8OwWUHaz9cPb716uC5tuZctvgy8LzP82tWA2a47Yed2I557wn1rqQ==",
+    "name": "@kohaku-eth/tornado-cash",
+    "sourceRebuiltArtifacts": 14,
+    "packageFileCount": 17,
+    "additionalDeclaration": "dist/merkle-tree.node.d.ts"
+  },
+  "uiSourceRevision": {
+    "manifest": "release/ui-source-revision.json",
+    "sha256": "83afaffdc7b70769070bf23f2ab67bc52ea9fdf2906689ac8192cd60d7d5bb36"
+  }
+}

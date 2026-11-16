@@ -1,0 +1,350 @@
+import type { EthereumProvider } from '@kohaku-eth/provider';
+/* eslint-disable max-lines */
+import { ChainId, Storage } from "@kohaku-eth/plugins";
+import { Store, unwrapResult } from "@reduxjs/toolkit";
+
+import { Address } from "../interfaces/types.interface";
+import {
+  IDepositOperationParams,
+  IGetNotesParams,
+  IStateManager,
+  IWithdrawapOperationParams,
+  StoreKey,
+  StoreStorageKey,
+  IWithdrawalPayload,
+  TCProtocolConfig,
+  IChainsPaymastersConfig,
+} from "../plugin/interfaces/protocol-params.interface";
+import { IRelayerClient } from "../relayer/interfaces/relayer-client.interface";
+import { ITornadoProver } from "../utils/tornado-prover.js";
+import { ISecretManager } from "../account/keys";
+import {
+  specificAssetsBalanceSelector,
+  SpecificAssetBalanceFn,
+} from "./selectors/balance.selector";
+import { allNotesSelector } from "./selectors/notes.selector";
+import { PublicRootState, storeFactory } from "./store";
+import { syncThunk } from "./thunks/syncThunk";
+import { syncRelayersThunk } from "./thunks/syncRelayersThunk";
+import { withdrawThunk } from "./thunks/withdrawThunk";
+import { paymasterWithdrawThunk } from "./thunks/paymasterWithdrawThunk";
+import { getDepositPayloadThunk } from "./thunks/getDepositPayloadThunk";
+import { importLegacyNotesThunk } from "./thunks/importLegacyNotesThunk";
+import { IDataService } from "../data/interfaces/data.service.interface";
+import { ISyncService } from "../data/interfaces/sync.service.interface";
+import { DEFAULT_MAINNET_FEE_CONFIG, DEFAULT_OTHER_FEE_CONFIG, IRelayerFeeConfig, setRelayerFeeConfig } from "./slices/relayersSlice";
+import { ProtocolConfigState } from "./slices/protocolConfigSlice";
+import { removePools } from "./slices/poolsSlice";
+import { poolsSelector } from "./selectors/slices.selectors";
+import { catalogInstanceFor, instanceCatalog, ITornadoInstance } from "../instances";
+
+const ETH_SEPOLIA_CHAIN_ID = 11155111n;
+
+export interface StoreFactoryParams {
+  /** Host RPC for independent fee-market checks; does not extend IDataService. */
+  provider?: EthereumProvider;
+  secretManagerFactory: () => Promise<ISecretManager>;
+  dataService: IDataService;
+  syncService: ISyncService;
+  relayerClient: IRelayerClient;
+  paymasterConfig: IChainsPaymastersConfig;
+  storageToSyncTo?: Storage;
+  protocolConfig: TCProtocolConfig;
+  relayerConfig?: IRelayerFeeConfig;
+  proverFactory: () => Promise<ITornadoProver>;
+  initialState?: () => Promise<Record<
+    string,
+    PublicRootState
+  >>;
+}
+
+interface GetChainStoreParams {
+  chainId: ChainId;
+  protocolConfig: ProtocolConfigState;
+  relayerConfig: IRelayerFeeConfig;
+}
+
+const getStoreKey = ({
+  chainId,
+  protocolConfig: { instanceRegistry: { address } },
+}: GetChainStoreParams): StoreKey => `${chainId.toString()}-${address}`;
+
+const getStoreStorageKey = (
+  params: GetChainStoreParams,
+): StoreStorageKey => `tornado-cash-state-${getStoreKey(params)}`;
+
+const initializeSelectors = <const T extends Store>(store: T) => ({
+  ...store,
+  selectors: {
+    specificAssetsBalanceSelector: ((assets: Address[] | Address | undefined) =>
+      Promise.resolve(specificAssetsBalanceSelector(store.getState(), assets as Address[]))) as unknown as SpecificAssetBalanceFn<true>,
+    getAllNotes: () => allNotesSelector(store.getState()),
+  },
+  getPublicState: () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { userSecrets, legacySecrets, signatureSecrets, ...publicState } = store.getState();
+
+    return publicState;
+  },
+  getPrivateState: () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { userSecrets, signatureSecrets, ...publicState } = store.getState();
+
+    return publicState;
+  }
+});
+
+const storeByChainAndEntrypoint = ({
+  storageToSyncTo,
+  initialState: initialStateCallback,
+  instances,
+}: Pick<StoreFactoryParams, 'storageToSyncTo' | 'initialState'> & { instances?: readonly ITornadoInstance[] }) => {
+
+  // The callback returns the full record for all chains at once.
+  // Cache it so multiple chains lacking stored state only trigger one fetch.
+  let cachedInitialState: Awaited<ReturnType<NonNullable<StoreFactoryParams['initialState']>>> | undefined;
+
+  const resolveInitialState = initialStateCallback
+    ? async () => {
+        if (!cachedInitialState) {
+          cachedInitialState = await initialStateCallback();
+        }
+
+        return cachedInitialState;
+      }
+    : undefined;
+
+  const chainStoreMap = new Map<
+    StoreKey,
+    ReturnType<typeof initializeSelectors<ReturnType<typeof storeFactory>>>
+  >();
+
+  return {
+    getChainStore: async (getChainStoreParams: GetChainStoreParams) => {
+      const {
+        protocolConfig,
+        relayerConfig
+      } = getChainStoreParams;
+      const computedChainKey = getStoreKey(getChainStoreParams);
+      let storeWithSelectors = chainStoreMap.get(computedChainKey);
+
+      if (!storeWithSelectors) {
+        const storageKey = getStoreStorageKey(getChainStoreParams);
+        const rawStoredState = storageToSyncTo ? await storageToSyncTo.get(storageKey) : undefined;
+        const storedState: PublicRootState | undefined = rawStoredState ? JSON.parse(rawStoredState) : undefined;
+        const snapshotInitialState = storedState || !resolveInitialState
+          ? undefined
+          : (await resolveInitialState())[storageKey];
+        let initialState: PublicRootState | undefined = storedState || snapshotInitialState;
+
+        if (!initialState && getChainStoreParams.chainId === ETH_SEPOLIA_CHAIN_ID) {
+          initialState = await import('./initial-states/state.11155111.minimal.json').then((a) => a["tornado-cash-state-11155111-447664927873626138772898946646079239273904189887"] as never);
+        }
+
+        const store = storeFactory({
+          protocolConfig,
+          initialState,
+        });
+
+        store.dispatch(setRelayerFeeConfig(relayerConfig));
+
+        // Pools saved by an older version (or a poisoned RPC) may not be
+        // catalog instances; drop them so nothing downstream can use them.
+        const catalog = instanceCatalog(getChainStoreParams.chainId, instances);
+
+        if (catalog) {
+          const outsideCatalog = [...poolsSelector(store.getState()).values()]
+            .filter((pool) => !catalogInstanceFor(catalog, pool))
+            .map((pool) => pool.address);
+
+          if (outsideCatalog.length > 0) store.dispatch(removePools(outsideCatalog));
+        }
+
+        storeWithSelectors = initializeSelectors(store);
+        chainStoreMap.set(computedChainKey, storeWithSelectors);
+      }
+
+      return storeWithSelectors;
+    },
+    getAllStores: (): ReturnType<IStateManager['dumpState']> => {
+      return Array.from(chainStoreMap).reduce(
+        (completeState, [chainKey, state]) => {
+          return {
+            ...completeState,
+            [`tornado-cash-state-${chainKey}`]: state.getPublicState()
+          };
+        },
+        {} as ReturnType<IStateManager['dumpState']>,
+      );
+    },
+  };
+};
+
+export const storeStateManager = async ({
+  secretManagerFactory,
+  dataService,
+  provider,
+  syncService,
+  relayerClient,
+  paymasterConfig,
+  proverFactory,
+  storageToSyncTo,
+  initialState,
+  protocolConfig: { instances, ...protocolConfig },
+  relayerConfig,
+}: StoreFactoryParams): Promise<IStateManager> => {
+  const secretManager = await secretManagerFactory();
+  const { getChainStore, getAllStores } = storeByChainAndEntrypoint({
+    storageToSyncTo,
+    initialState,
+    instances,
+  });
+
+  const getChainInfo = async () => {
+    const chainId = await dataService.getChainId();
+    const actualRelayerConfig = relayerConfig ?? (chainId === 1n ? DEFAULT_MAINNET_FEE_CONFIG : DEFAULT_OTHER_FEE_CONFIG);
+
+    return {
+      chainId,
+      relayerConfig: actualRelayerConfig,
+      protocolConfig: {
+        ...protocolConfig,
+        chainId,
+      },
+    };
+  }
+
+  const persistStateIfAvailable = async (
+    chainInfo: GetChainStoreParams,
+    store: Awaited<ReturnType<typeof getChainStore>>,
+  ): Promise<void> => {
+    if (storageToSyncTo) {
+      await storageToSyncTo.set(
+        getStoreStorageKey(chainInfo),
+        JSON.stringify(store.getPrivateState()),
+      );
+    }
+  };
+
+  return {
+    sync: async (): Promise<void> => {
+      const chainInfo = await getChainInfo();
+      const store = await getChainStore(chainInfo);
+
+      unwrapResult(
+        await store.dispatch(
+          syncThunk({
+            dataService,
+            syncService,
+            relayerClient,
+            secretManager,
+            instances,
+            ...store.selectors,
+          }),
+        ),
+      );
+
+      await persistStateIfAvailable(chainInfo, store);
+    },
+    getBalances: async (assets) => {
+      const { selectors: { specificAssetsBalanceSelector } } =
+        await getChainStore(await getChainInfo());
+
+      return specificAssetsBalanceSelector(assets);
+    },
+    getNotes: async ({
+      includeSpent = false,
+      assets = [],
+    }: IGetNotesParams) => {
+      const store = await getChainStore(await getChainInfo());
+      let notes = store.selectors.getAllNotes();
+
+      if (!includeSpent) {
+        notes = notes.filter((note) => note.balance > 0n);
+      }
+
+      if (assets.length > 0) {
+        const assetSet = new Set(assets);
+
+        notes = notes.filter((note) => assetSet.has(note.assetAddress));
+      }
+
+      return notes;
+    },
+    getDepositPayload: async ({ asset, amount, strategy }: IDepositOperationParams) => {
+      const store = await getChainStore(await getChainInfo());
+
+      return unwrapResult(
+        await store.dispatch(
+          getDepositPayloadThunk({ secretManager, asset, amount, strategy, instances }),
+        ),
+      );
+    },
+    getWithdrawalPayloads: async (params: IWithdrawapOperationParams): Promise<IWithdrawalPayload[]> => {
+      const chainInfo = await getChainInfo();
+      const store = await getChainStore(chainInfo);
+      const { asset, amount, recipient } = params;
+
+      if (params.mode === 'paymaster') {
+        return unwrapResult(
+          await store.dispatch(
+            paymasterWithdrawThunk({
+              proverFactory,
+              recipient,
+              dataService,
+              assetAddress: asset,
+              amount,
+              paymasterSettings: {
+                ...paymasterConfig,
+                delegation: params.delegation,
+              },
+              secretManager,
+              tailCalls: params.tailCalls,
+              tailCallsGasEstimate: params.tailCallsGasEstimate,
+              gasEstimationPolicy: params.gasEstimationPolicy,
+              executionGasRetry: params.executionGasRetry,
+              maxGasLimits: params.maxGasLimits,
+              bundlerPost: params.bundlerPost,
+              provider,
+            }),
+          ),
+        );
+      }
+
+      // ENS/TORN-staked relayers are only needed for traditional withdrawals.
+      // Balances, shields and paymaster withdrawals must not depend on them.
+      unwrapResult(await store.dispatch(syncRelayersThunk({ dataService, syncService })));
+      await persistStateIfAvailable(chainInfo, store);
+
+      return unwrapResult(
+        await store.dispatch(
+          withdrawThunk({
+            proverFactory,
+            recipient,
+            relayerClient,
+            dataService,
+            assetAddress: asset,
+            amount,
+            preferredRelayersEns: params.preferredRelayersEns ? new Set(params.preferredRelayersEns) : undefined,
+            paymasterConfig,
+            instances,
+          }),
+        ),
+      );
+
+    },
+    importNotes: async ({ notes }) => {
+      const chainInfo = await getChainInfo();
+      const store = await getChainStore(chainInfo);
+
+      const result = unwrapResult(
+        await store.dispatch(importLegacyNotesThunk({ notes })),
+      );
+
+      await persistStateIfAvailable(chainInfo, store);
+
+      return result;
+    },
+    dumpState: () => getAllStores(),
+  };
+};

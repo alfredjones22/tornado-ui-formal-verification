@@ -1,0 +1,80 @@
+import { TxData } from "@kohaku-eth/provider";
+import { Address } from "ox/Address";
+import { Hex } from "ox/Hex";
+import { DelegatorAccount, ExecutionAccountConfig } from "../account/delegation.interface";
+
+export interface SerializedAuth {
+    address: Address;
+    chainId: Hex;
+    nonce: Hex
+    r: Hex;
+    s: Hex;
+    yParity: Hex;
+}
+
+
+/**
+ * A userOp serialized to the hex shape expected by `eth_sendUserOperation`, so
+ * it can be carried as plain (JSON-serializable) data from the prepare phase
+ * (thunk) to the broadcast phase.
+ */
+export interface SerializedUserOperation {
+  sender: `0x${string}`;
+  nonce: `0x${string}`;
+  callData: `0x${string}`;
+  callGasLimit: `0x${string}`;
+  verificationGasLimit: `0x${string}`;
+  preVerificationGas: `0x${string}`;
+  maxFeePerGas: `0x${string}`;
+  maxPriorityFeePerGas: `0x${string}`;
+  paymaster?: `0x${string}`;
+  paymasterVerificationGasLimit?: `0x${string}`;
+  paymasterPostOpGasLimit?: `0x${string}`;
+  paymasterData?: `0x${string}`;
+  signature: `0x${string}`;
+  eip7702Auth?: SerializedAuth;
+  factory?: `0x${string}`;
+  factoryData?: `0x${string}`;
+}
+
+export interface UserOpGasLimits {
+  callGasLimit: bigint;
+  verificationGasLimit: bigint;
+  preVerificationGas: bigint;
+  paymasterVerificationGasLimit: bigint;
+  paymasterPostOpGasLimit: bigint;
+}
+
+export interface BuildSignedTornadoUserOpParams {
+  /**
+   * The account that becomes the userOp sender: it signs both the EIP-7702
+   * authorization and the userOp hash. Injection seam — a viem `LocalAccount`
+   * (via `privateKeyToAccount`) or a host-supplied hardware/remote signer.
+   */
+  signer: DelegatorAccount;
+  executionAccount?: ExecutionAccountConfig;
+  chainId: number;
+  paymasterAddress: Address;
+  paymasterData: Hex;
+  gas: UserOpGasLimits;
+  maxFeePerGas: bigint;
+  maxPriorityFeePerGas: bigint;
+  tailCalls?: (address: Address) => Promise<TxData[]>;
+  /** EntryPoint nonce for this sender. Paymaster withdrawals use 0 so a sender
+   *  cannot be reused for a second UserOperation. */
+  nonce?: bigint;
+  /** EOA transaction-count nonce for the EIP-7702 authorization. Defaults to
+   *  `nonce` (0 for a fresh sender). An explicit wallet-path delegator may have
+   *  prior EOA transactions, so its authorization uses the current EOA nonce
+   *  while the EntryPoint nonce remains 0. */
+  authorizationNonce?: bigint;
+}
+/** Best effort permits marked fallback for direct single-note withdrawals
+ * (including random/external senders), or recoverable execution-phase withdrawals
+ * without user tail calls, on mainnet/Sepolia. Known invalidity still fails. */
+export type GasEstimationPolicy = 'required' | 'best-effort';
+
+/** Preparation quality; fallback is not a claim that simulation succeeded. */
+export type PaymasterGasEstimation =
+  | { status: 'estimated' }
+  | { status: 'fallback'; reason: 'transport-unavailable' | 'bundler-internal'; message: string };

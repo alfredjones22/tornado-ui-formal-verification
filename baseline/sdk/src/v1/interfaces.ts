@@ -1,0 +1,110 @@
+import type { PaymasterGasLimits } from '../paymaster/gas-bounds';
+import type { GasEstimationPolicy } from '../interfaces/user-ops.interface';
+import { AssetAmount, ERC20AssetId, PluginInstance, UnshieldOptions } from "@kohaku-eth/plugins";
+import { TCPrivateOperation, TCPublicOperation, TCProtocolParams, ITornadoArtifacts, TCProtocolConfig, DelegationConfig, IChainsPaymastersConfig, TCNote, ImportNoteResult } from '../plugin/interfaces/protocol-params.interface.js';
+import { Address } from 'ox/Address';
+import { IRelayerClient, ITornadoWithdrawResponse } from "../relayer/interfaces/relayer-client.interface.js";
+import { DepositStrategy } from '../state/thunks/getDepositPayloadThunk.js';
+import { IRelayerFeeConfig } from "../state/slices/relayersSlice.js";
+import { IPaymasterBroadcasterClient, PaymasterBroadcastResult } from "../relayer/interfaces/paymaster-client.interface.js";
+export { DepositStrategy };
+export type { TCNote, ImportNoteResult };
+
+export type TCBroadcasterParameters = {
+    relayerClientFactory?: () => IRelayerClient;
+    paymasterConfig?: IChainsPaymastersConfig;
+    paymasterClientFactory?: () => IPaymasterBroadcasterClient
+};
+/** `id` is the userOp hash, known as soon as the bundler accepts the userOp. */
+export interface TCPaymasterBroadcastResponse extends ITornadoWithdrawResponse, Pick<PaymasterBroadcastResult, 'wait'> {}
+
+export type TCBroadcaster = {
+    /** @throws {PaymasterBroadcastError} If the bundler did not accept a userOp. */
+    broadcast(operation: TCPrivateOperation<'paymaster'>): Promise<TCPaymasterBroadcastResponse[]>;
+    broadcast(operation: TCPrivateOperation<'relayer'>): Promise<ITornadoWithdrawResponse[]>;
+    broadcast(operation: TCPrivateOperation): Promise<(TCPaymasterBroadcastResponse | ITornadoWithdrawResponse)[]>;
+};
+interface TCBaseCredential {
+    accountIndex: number;
+}
+export interface TCPluginParameters extends TCBroadcasterParameters, TCBaseCredential, Pick<TCProtocolParams, 'initialState' | 'minExternalSyncBlocksAmount' | 'useExtendedEthPools'> {
+    secretManagerFactory?: TCProtocolParams['secretManagerFactory'];
+    protocolConfig: TCProtocolConfig;
+    relayerConfig?: IRelayerFeeConfig;
+    stateManagerWorkerUrl?: string;
+    artifactsLoader?: () => Promise<ITornadoArtifacts>;
+};
+
+export type TCAddress = Address;
+
+export type TCAssetAmount<Tag extends string | undefined = undefined> = AssetAmount<ERC20AssetId, bigint, Tag>;
+export type TCAssetBalance = TCAssetAmount;
+
+export interface TCRelayerUnshieldOptions extends UnshieldOptions {
+    mode: 'relayer';
+    preferredRelayersEns?: string[];
+}
+
+export interface TCPaymasterUnshieldOptions extends UnshieldOptions {
+    /**
+     * Single notes without tail calls pay the recipient and gas refund directly,
+     * with zero execution gas, independently of the sender's account family.
+     * Default 'best-effort': on mainnet/Sepolia, these
+     * direct withdrawals (including random/external senders), or execution-phase
+     * withdrawals with a recoverable sender and no user tail calls, may return
+     * marked fallback on bundler unavailability or the zero-execution estimator
+     * incompatibility. Use 'required' to require successful bundler estimation.
+     * Other validation rejections and gas/fee bounds violations always fail.
+     */
+    gasEstimationPolicy?: GasEstimationPolicy;
+    mode: 'paymaster';
+    delegation?: DelegationConfig;
+    /**
+     * Optional baseline for the execution-phase gas of user `tailCalls` (not
+     * including per-note direct withdraws). Successful bundler estimation is
+     * still required and can increase this budget. Defaults to the SDK's
+     * static callGasLimit.
+     */
+    tailCallsGasEstimate?: bigint;
+    /**
+     * Opt in to at most three extra probes for recognized execution out-of-gas
+     * errors. Requires a positive maxGasLimits.callGasLimit. Rebuilds the fee,
+     * proof and signature for each probe; defaults to false.
+     */
+    executionGasRetry?: boolean;
+    /** Absolute gas ceilings after buffering. Execution gas is uncapped unless explicitly limited here. */
+    maxGasLimits?: PaymasterGasLimits;
+}
+
+export type TCPrepareUnshieldOptions = TCRelayerUnshieldOptions | TCPaymasterUnshieldOptions;
+
+export interface TCPrepareShieldOptions {
+    strategy: DepositStrategy;
+}
+
+export type TCInstance = PluginInstance<
+    TCAddress,
+    {
+        features: {
+            prepareShield: true,
+            prepareUnshield: true,
+        },
+        assetAmounts: {
+            input: TCAssetAmount,
+            internal: TCAssetAmount,
+            output: TCAssetAmount,
+            read: TCAssetBalance,
+        },
+        note: TCNote,
+        extras: {
+            sync(): Promise<void>,
+            prepareShield(asset: TCAssetAmount, options: TCPrepareShieldOptions): Promise<TCPublicOperation>;
+            prepareUnshield(asset: TCAssetAmount, to: Address, options: TCRelayerUnshieldOptions): Promise<TCPrivateOperation<'relayer'>>,
+            prepareUnshield(asset: TCAssetAmount, to: Address, options: TCPaymasterUnshieldOptions): Promise<TCPrivateOperation<'paymaster'>>,
+            importNotes(notes: string | string[]): Promise<ImportNoteResult[]>,
+
+        },
+        publicOp: TCPublicOperation,
+        privateOp: TCPrivateOperation,
+    }
+>;

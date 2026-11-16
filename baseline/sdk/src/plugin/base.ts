@@ -1,0 +1,353 @@
+import { readEntryPointNonce } from '../account/execution-account';
+import { bundlerPostVia } from '../paymaster/utils';
+/* eslint-disable max-lines */
+import {
+  AccountId,
+  AssetAmount,
+  ERC20AssetId,
+  Host,
+  scopeKeystore,
+  toExternalSyncClient,
+} from "@kohaku-eth/plugins";
+import { loadStateManagerWorker } from '#worker-loader';
+import { exposeCall, exposeOnly } from './host-bridge';
+import {
+  bundlerPostCheck,
+  externalSyncPolicy,
+  keystorePolicy,
+  providerPolicy,
+  relayerClientPolicy,
+  secretManagerPolicy,
+  storagePolicy,
+  tailCallsCheck,
+} from './worker-host-policy';
+import { TORNADO_KEYSTORE_PREFIX } from '../account/keys';
+import { externalSignerPolicy } from './external-signer-policy';
+import { RelayerClient } from '../relayer/relayer-client';
+
+import { addressToHex, } from "../utils.js";
+import {
+  DepositStrategy,
+  TCAssetAmount,
+  TCAssetBalance,
+  TCInstance,
+  TCPaymasterUnshieldOptions,
+  TCPrepareShieldOptions,
+  TCPrepareUnshieldOptions,
+  TCRelayerUnshieldOptions,
+} from "../v1/interfaces.js";
+import {
+  IPaymasterWithdrawParams,
+  IStateManager,
+  TCPrivateOperation,
+  TCPublicOperation,
+  TCProtocolParams,
+  TCNote,
+  ImportNoteResult,
+} from "./interfaces/protocol-params.interface";
+import { E_ADDRESS_BIGINT, TornadoPaymasterConfigs } from "../config";
+import { defaultArtifactsLoader } from "../utils/default-artifacts-loader";
+
+type RequireOnly<T, Keys extends keyof T> = Partial<T> & Pick<T, Keys>;
+
+export class TornadoCashProtocol implements TCInstance {
+  private stateManager: Promise<IStateManager>;
+
+  constructor(
+    readonly host: Host,
+    {
+      accountIndex = 0,
+      initialState = async () => ({}),
+      protocolConfig,
+      artifactsLoader = defaultArtifactsLoader,
+      stateManagerWorkerUrl,
+      relayerConfig,
+      paymasterConfig = TornadoPaymasterConfigs,
+      relayerClientFactory = () => new RelayerClient(host),
+      minExternalSyncBlocksAmount,
+      useExtendedEthPools = false,
+      secretManagerFactory,
+    }: RequireOnly<TCProtocolParams, 'protocolConfig'>,
+  ) {
+    const delegationPaths = new Set<string>();
+
+    this.stateManager = (async () => {
+      const { remote, onError } = loadStateManagerWorker(stateManagerWorkerUrl);
+
+      const workerReady = new Promise<void>((_resolve, reject) => {
+        onError((err: Error) => {
+          console.error('[worker crash]', err);
+          reject(err);
+        });
+      });
+
+      // Adapt the host's streaming provider to a materialized-array client on the
+      // main thread: async iterators can't cross the Comlink worker boundary, so
+      // we drain the stream here before exposing the result to the worker.
+      const externalSyncClient = host.externalSyncProvider
+        ? toExternalSyncClient(host.externalSyncProvider)
+        : undefined;
+
+      // Tornado's subtree, plus wallet paths the integrator names in `delegation.path`.
+      const keystore = scopeKeystore(host.keystore, { prefixes: [TORNADO_KEYSTORE_PREFIX], paths: delegationPaths });
+
+      const resolvedSecretManager = secretManagerFactory
+        ? await secretManagerFactory({ host: { keystore }, accountIndex })
+        : undefined;
+
+      // Host objects reach the worker through the host bridge: only the listed
+      // methods are callable, never field reads, writes or constructors.
+      await Promise.race([
+        remote.init(
+          exposeOnly(host.provider, providerPolicy),
+          exposeOnly(relayerClientFactory(), relayerClientPolicy),
+          exposeOnly(keystore, keystorePolicy),
+          exposeOnly(host.storage, storagePolicy),
+          exposeCall(initialState),
+          exposeCall(artifactsLoader),
+          resolvedSecretManager ? exposeOnly(resolvedSecretManager, secretManagerPolicy(delegationPaths)) : undefined,
+          externalSyncClient ? exposeOnly(externalSyncClient, externalSyncPolicy) : undefined,
+          {
+            protocolConfig: { ...protocolConfig, useExtendedEthPools },
+            accountIndex,
+            relayerConfig,
+            paymasterConfig,
+            minExternalSyncBlocksAmount,
+          },
+        ),
+        workerReady,
+      ]);
+
+      return {
+        sync: () => remote.sync(),
+        getBalances: ((assets: bigint[] | undefined) => remote.getBalances(assets)) as unknown as IStateManager['getBalances'],
+        getNotes: (params) => remote.getNotes(params),
+        getDepositPayload: (params) => remote.getDepositPayload(params),
+        importNotes: (params) => remote.importNotes(params),
+        getWithdrawalPayloads: async (params) => {
+          if (params.mode === 'paymaster') {
+            const { tailCalls, delegation, ...rest } = params as IPaymasterWithdrawParams;
+
+            // The integrator named this wallet key, so the worker may derive exactly it.
+            if (delegation?.mode === 'deterministic' && delegation.path) {
+              delegationPaths.add(delegation.path);
+            }
+
+            if (delegation?.mode === 'external' || delegation?.mode === 'smart-account') {
+              const chainId = Number(await host.provider.getChainId());
+              const config = paymasterConfig[chainId];
+
+              if (!config) throw new Error('No paymaster configuration for the external signer chain.');
+
+              const address = delegation.signer.address;
+              const nonce = delegation.mode === 'smart-account' ? '0x0' : await host.provider.request({ method: 'eth_getTransactionCount', params: [address, 'latest'] });
+              const sender = delegation.mode === 'smart-account' ? delegation.account.address : address;
+              const userOpNonce = await readEntryPointNonce(host.provider, config.entryPointAddress, sender, delegation.nonce);
+              const code = delegation.mode === 'smart-account' ? await host.provider.request({ method: 'eth_getCode', params: [sender, 'latest'] }) : '0x';
+              const smartAccount = delegation.mode === 'smart-account' ? { ...delegation.account, ...(code !== '0x' ? { factory: undefined } : {}) } : undefined;
+              const policy = externalSignerPolicy({ address, chainId, nonce: BigInt(nonce as string), ...config,
+                implementation: delegation.mode === 'external' ? delegation.implementation : undefined,
+                sender: delegation.mode === 'smart-account' ? delegation.account.address : address,
+                userOpNonce, smartAccount: delegation.mode === 'smart-account',
+                factory: smartAccount?.factory });
+
+              // A dedicated top-level host bridge exposes only the two signing
+              // methods. The signer/account object is never structured-cloned.
+              return remote.getWithdrawalPayloads(
+                { ...rest, delegation: delegation.mode === 'smart-account'
+                  ? { mode: 'smart-account', owner: address, account: smartAccount!, nonce: userOpNonce, allowUsed: delegation.allowUsed }
+                  : { mode: 'external', address, implementation: delegation.implementation, nonce: userOpNonce, allowUsed: delegation.allowUsed } },
+                tailCalls ? exposeCall(tailCalls, tailCallsCheck) : undefined,
+                exposeCall(bundlerPostVia(host.network), bundlerPostCheck(Object.values(paymasterConfig).map(c => c.bundlerUrl))),
+                exposeOnly(delegation.signer, policy),
+              );
+            }
+
+            // tailCalls must be a top-level comlink arg (not nested in an object) so
+            // the host-bridge transfer handler can wrap it in a MessagePort instead of
+            // trying to structuredClone the function.
+            return (remote.getWithdrawalPayloads)(
+              { ...rest, delegation },
+              tailCalls ? exposeCall(tailCalls, tailCallsCheck) : undefined,
+              exposeCall(bundlerPostVia(host.network), bundlerPostCheck(Object.values(paymasterConfig).map(c => c.bundlerUrl))),
+            );
+          }
+
+          return remote.getWithdrawalPayloads(params);
+        },
+        dumpState: (() => remote.dumpState()) as unknown as IStateManager['dumpState'],
+      } as IStateManager;
+    })();
+  }
+
+  instanceId = () => Promise.resolve("0x1" as const);
+
+  /**
+   * Only process supported assets or error out?
+   * Returns the balances of the requested assets.
+   * The assets retain the provided order. If an asset is not supported its balance will be 0
+   */
+  async balance(assets: ERC20AssetId[] = []): Promise<TCAssetBalance[]> {
+    const stateManager = await this.stateManager;
+
+    await stateManager.sync();
+    const parsedDesiredAssets = assets.map(({ contract }) => {
+      const parsedAddress = BigInt(contract);
+
+      return parsedAddress === E_ADDRESS_BIGINT ? 0n : parsedAddress;
+    });
+
+    const balances = await stateManager.getBalances(
+      assets.length > 0 ? parsedDesiredAssets : undefined,
+    );
+    
+    const actuallySelectedAssets = assets.length > 0 ? assets.map((a) => a.contract) : [...balances.keys()].map((a) => addressToHex(a))
+
+    return actuallySelectedAssets.map((assetAddress, index) => {
+      const parsedSelectedAsset = BigInt(actuallySelectedAssets[index]!);
+      const balance = balances.get(parsedSelectedAsset === E_ADDRESS_BIGINT ? 0n : parsedSelectedAsset) || 0n;
+
+      const asset: ERC20AssetId = {
+        contract: assetAddress,
+        __type: 'erc20'
+      }; 
+
+      return {
+        asset,
+        amount: balance,
+      };
+    });
+  }
+
+  /**
+   * Returns all notes for the account.
+   * @param assets - Filter by specific assets (optional, if empty returns all)
+   * @param includeSpent - Include notes with zero balance (default: false)
+   */
+  async notes(
+    assets: ERC20AssetId[] = [],
+    includeSpent = false,
+  ): Promise<TCNote[]> {
+    const stateManager = await this.stateManager;
+
+    await stateManager.sync();
+
+    const assetAddresses = assets.map(({ contract }) => {
+      const parsedAddress = BigInt(contract);
+
+      return parsedAddress === E_ADDRESS_BIGINT ? 0n : parsedAddress;
+    });
+
+    return stateManager.getNotes({
+      includeSpent,
+      assets: assetAddresses.length > 0 ? assetAddresses : undefined,
+    });
+  }
+
+  /**
+   * Parses legacy (pre-SDK) Tornado Cash note strings and registers any that
+   * match a synced on-chain deposit on the current chain as user secrets.
+   */
+  async importNotes(notes: string | string[]): Promise<ImportNoteResult[]> {
+    const stateManager = await this.stateManager;
+
+    await stateManager.sync();
+
+    return stateManager.importNotes({ notes: Array.isArray(notes) ? notes : [notes] });
+  }
+
+  async prepareShield(
+    assets: TCAssetAmount,
+    options?: TCPrepareShieldOptions | `0x${string}`
+  ): Promise<TCPublicOperation> {
+    const { asset, amount } = assets;
+    const strategy = typeof options === 'string' ? DepositStrategy.MinFee : options?.strategy ?? DepositStrategy.MinFee;
+    const stateManager = await this.stateManager;
+
+    await stateManager.sync();
+
+    const parsedAsset = BigInt(asset.contract);
+
+    const tx = await stateManager.getDepositPayload({
+      asset: parsedAsset === E_ADDRESS_BIGINT ? 0n : parsedAsset,
+      amount,
+      strategy,
+    });
+
+    return { txns: tx } as TCPublicOperation;
+  }
+
+  async prepareUnshield(
+    assets: AssetAmount,
+    to: AccountId,
+  ): Promise<TCPrivateOperation<'relayer'>>
+  async prepareUnshield(
+    assets: AssetAmount,
+    to: AccountId,
+    options?: TCRelayerUnshieldOptions,
+  ): Promise<TCPrivateOperation<'relayer'>>
+  async prepareUnshield(
+    assets: AssetAmount,
+    to: AccountId,
+    options?: TCPaymasterUnshieldOptions,
+  ): Promise<TCPrivateOperation<'paymaster'>>
+  async prepareUnshield(
+    assets: AssetAmount,
+    to: AccountId,
+    options: TCPrepareUnshieldOptions = { mode: 'relayer' },
+  ): Promise<TCPrivateOperation<'paymaster' | 'relayer'>> {
+    if (options.mode === 'relayer' && options.tailCalls !== undefined) {
+      throw new Error('Tail Calls are only supported when using paymaster mode.');
+    }
+
+    const { asset, amount } = assets;
+    const parsedAsset = BigInt((asset as ERC20AssetId).contract || E_ADDRESS_BIGINT);
+    const stateManager = await this.stateManager;
+
+    await stateManager.sync();
+
+    const baseParams = {
+      asset: parsedAsset === E_ADDRESS_BIGINT ? 0n : parsedAsset,
+      amount,
+      recipient: BigInt(to),
+    };
+
+    let withdrawals: Awaited<ReturnType<IStateManager['getWithdrawalPayloads']>>;
+
+    if (options && options.mode === 'paymaster') {
+      withdrawals = await stateManager.getWithdrawalPayloads({
+        ...baseParams,
+        mode: 'paymaster',
+        delegation: options.delegation,
+        tailCalls: options.tailCalls,
+        tailCallsGasEstimate: options.tailCallsGasEstimate,
+        gasEstimationPolicy: options.gasEstimationPolicy,
+        executionGasRetry: options.executionGasRetry,
+        maxGasLimits: options.maxGasLimits,
+      });
+    } else {
+      withdrawals = await stateManager.getWithdrawalPayloads({
+        ...baseParams,
+        mode: 'relayer',
+        preferredRelayersEns: options?.preferredRelayersEns,
+      });
+    }
+
+    return {
+      __type: 'privateOperation',
+      withdrawals
+    } as TCPrivateOperation;
+  }
+
+  async sync() {
+    const stateManager = await this.stateManager;
+
+    return stateManager.sync();
+  }
+
+  async dumpState() {
+    const stateManager = await this.stateManager;
+
+    return stateManager.dumpState();
+  }
+}

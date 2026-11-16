@@ -1,0 +1,2369 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUTC": "2026-11-16T14:38:37.845890+00:00",
+  "releaseId": "registry-sdk-alpha.37-2026-11-16",
+  "contentDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "cidCorrespondence": "NOT_CHECKED",
+  "sourceBuildCorrespondence": "NOT_CHECKED",
+  "ui": {
+    "originalPath": "/Users/x/dev/personal/tornado-ui-new-era",
+    "commit": "0f4c7e97d73a716f74a1353d0e387be69438d3ed",
+    "status": " M README.md\n M package-lock.json\n M package.json\n M scripts/check-ipfs-build.mjs\n M src/App.vue\n M src/MultiWithdrawal.vue\n M src/TransactionBuilder.vue\n M src/core/app-assets.ts\n M src/core/smart-withdrawal.ts\n M src/core/withdrawal-simulation.ts\n M src/style.css\n M tests/app-assets.test.ts\n M tests/smart-withdrawal-ui.test.ts\n M tests/smart-withdrawal.test.ts\n M tests/withdrawal-simulation.test.ts\n M vite.config.ts\n?? compliance/\n?? src/Compliance.vue\n?? src/WithdrawalSimulation.vue\n?? src/core/compliance-pdf.ts\n?? src/core/compliance.ts\n?? src/core/routes.ts\n?? tests/compliance-navigation-ui.test.ts\n?? tests/compliance-pdf.test.ts\n?? tests/compliance-ui.test.ts\n?? tests/compliance.test.ts\n?? tests/fixtures/compliance.ts\n"
+  },
+  "sdk": {
+    "originalPath": "/Users/x/dev/personal/kohaku/packages/tornado-cash",
+    "repositoryPath": "/Users/x/dev/personal/kohaku",
+    "commit": "706355156b1a4662738fad4f961aabed2f7f1d9d",
+    "status": "",
+    "sourceCapture": "Retained original source; every published SDK JavaScript artifact must reproduce byte for byte. The separate sdk-package namespace captures the registry package actually installed by the UI."
+  },
+  "omittedPrivateOrEnvironmentPaths": [
+    "sdk/.env.e2e.tests"
+  ],
+  "files": [
+    {
+      "namespace": "build",
+      "path": "LICENSE.classic",
+      "bytes": 1069,
+      "sha256": "04b56f55097e704315278a93e016e56590d845f55e6d4d5d8d9ea8145b665e9e"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/ccip-uNHizP_C.js",
+      "bytes": 2869,
+      "sha256": "49ca9cd1f96f941948a7cb2d70b724d161090b32b63efa719324fa77cb4226f2"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/compliance-pdf-CkDQBS6Z.js",
+      "bytes": 402629,
+      "sha256": "bb35f594931caf7fc7e5c7d5bd330443f6dfb6415f081b88b7faf3f4a196a44e"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/html2canvas-Bw0OShmD.js",
+      "bytes": 199409,
+      "sha256": "45da258667658d3dcf1d97298cdf19ad8e15379a0215849fb3d20c5264d85e8b"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/index.es-DXIYuBWj.js",
+      "bytes": 151426,
+      "sha256": "8a7356a09f7e549e23c86e6314ef1ecb92a7dc417c6a86fb1b34b5fc59ccea9a"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/localBatchGatewayRequest-BM_FRvCZ.js",
+      "bytes": 109004,
+      "sha256": "51654555a0a6dbe98da3b5bc21c98daf1850786c0e75c19426f0358399beb99d"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/main-CdXsLQtC.css",
+      "bytes": 45086,
+      "sha256": "24fdea31cd48ad08519d5f16523d4fbc4ef66184eb2a00c45ca6684e57e559c2"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/main-DRJ8g_-U.js",
+      "bytes": 256991,
+      "sha256": "3faf76ee4f028846cbfce9bcfd3700524e1f387f561d50b1e483d8bf47edbec2"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/purify.es-Dqk5qvad.js",
+      "bytes": 29023,
+      "sha256": "1cedd641cf71c424a9a1da85d51ce5d898e35d915fea81ac037f16d532a769ea"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/relayers-CnswWIcJ.js",
+      "bytes": 325486,
+      "sha256": "f3f986a01976c738253b38a26cf1bd065fd4fd151a6a6a61801f22f854489bfc"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/rolldown-runtime-XKyaHtl9.js",
+      "bytes": 726,
+      "sha256": "548d1dbf321e7d2ae804fcc158b588706a7c52f8ca175de1490c6ccb4dbe55b7"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/state-manager.worker-DlHe8TwH.js",
+      "bytes": 889914,
+      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/utils-B6fas3FB.js",
+      "bytes": 4352,
+      "sha256": "96bfe32988a55517189c0722cc624d4e8749e551aa513e7bb2862d68520d20ff"
+    },
+    {
+      "namespace": "build",
+      "path": "assets/withdraw-BPfLiOhC.js",
+      "bytes": 13995,
+      "sha256": "d3aadf98140246a5567a0eaa8de9c6787b3f8d44304c8809a411b5fd763012e6"
+    },
+    {
+      "namespace": "build",
+      "path": "compliance/index.html",
+      "bytes": 1014,
+      "sha256": "81b7018d4a4966b25ed1ea9edb83ed800e2cb28306cb43afe9d2743777b71f13"
+    },
+    {
+      "namespace": "build",
+      "path": "fonts/PTMono-Bold.woff2",
+      "bytes": 23376,
+      "sha256": "af350af8fce0a38b7cb7bf394ad982310ead6047e4d035ffc8db96229d35ddad"
+    },
+    {
+      "namespace": "build",
+      "path": "fonts/PTMono-Regular.woff2",
+      "bytes": 22940,
+      "sha256": "e81bc68ab2f0e53540576f36438691b6610ee39f44784151228efb2620449889"
+    },
+    {
+      "namespace": "build",
+      "path": "index.html",
+      "bytes": 1003,
+      "sha256": "5afa064878549c6d6eb3faa54d55ad2da757140ce88fc034de6de174fa90c6b2"
+    },
+    {
+      "namespace": "build",
+      "path": "logo.svg",
+      "bytes": 450,
+      "sha256": "36b63def2dce7919c0241706233125654214d5093af8867b336cb68d428cfdbd"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x03893a7c7463ae47d46bc7f091665f1893656003-57c54062ff2e1196.json.gz",
+      "bytes": 12502,
+      "sha256": "656225c651d6befdec62ee27386e1c02e267c00c85ff1f42551a0c45df165677"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x07687e702b410fa43f4cb4af7fa097918ffd2730-1179312088fa5cb9.json.gz",
+      "bytes": 416645,
+      "sha256": "0c9dc0dd00c97b5835fe3ad953b3a92eef7bfeee026bea95a5ec8c261ea6df41"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x0836222f2b2b24a3f36f98668ed8f0b38d1a872f-c5e282ed35f9dcfe.json.gz",
+      "bytes": 244712,
+      "sha256": "59176f0a5617365dd92213f9a0aa1160c48f7acf2eb4d28e7b9d63728efbacc1"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x12d66f87a04a9e220743712ce6d9bb1b5616b8fc-bef5b2902b75a21f.json.gz",
+      "bytes": 8796209,
+      "sha256": "a4754f9125eeb176699bc98de7863d36074a703be9c2368fed110642e4fab2fb"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x169ad27a470d064dede56a2d3ff727986b15d52b-56bdcc8781667050.json.gz",
+      "bytes": 120145,
+      "sha256": "8fa906ba0a4e3e73c4455d824ce5ba8a685f66080e7670dc801e91394fdafbbe"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x178169b423a011fff22b9e3f3abea13414ddd0f1-cf034d1805d4fe72.json.gz",
+      "bytes": 19465,
+      "sha256": "a04b986c1961610187f392e0384b88f9938c581e8c5450dd12d54a328335bb6f"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x199112eb461ea7eec1d75b33343542e1d069b41c-306b948d71dbe716.json.gz",
+      "bytes": 2373,
+      "sha256": "e067acdd25500a71e8dde0679371f1ffedd53d015555e122e29716f9a5c473bf"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x22aaa7720ddd5388a3c0a3333430953c68f1849b-44be6b3fbd127143.json.gz",
+      "bytes": 1235,
+      "sha256": "0704bf7ef88beee64b6c6819abdda37cf1bd6d175b4cdd868bc9839fb0ac4f7f"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x23773e65ed146a459791799d01336db287f25334-d18a56bd73c40e90.json.gz",
+      "bytes": 510037,
+      "sha256": "dc85f5ebd2de22e813bb331bac9800cf08044025807fbd327c400769e24a2eaf"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x2717c5e28cf931547b621a5dddb772ab6a35b701-1036b14a6bdfe4a1.json.gz",
+      "bytes": 10094,
+      "sha256": "31e360ca944bf80f829929754593e1b9202101ee404ee2d8211b3d8b3f7ff0f1"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x398971a7ae0fed4ae435f353ef00d3d4e4c18fd4-1a1b06131849e5ef.json.gz",
+      "bytes": 873,
+      "sha256": "64e9b3530bf812f0411d32d8c5c80df89c6de0caef204cb42acd5aad9a427159"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x4736dcf1b7a3d580672cce6e7c65cd5cc9cfba9d-4100c02b9561f020.json.gz",
+      "bytes": 111373,
+      "sha256": "446f55311988e92ed4822219040e3014945c7d7200626d6ad17828902cb2ce05"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x47ce0c6ed5b0ce3d3a51fdb1c52dc66a7c3c2936-421565c76a137fb5.json.gz",
+      "bytes": 11350072,
+      "sha256": "d0b62995673a983311e6d25dd2cbf2215f9ceba532784189b66da793a25a1513"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x610b717796ad172b316836ac95a2ffad065ceab4-17fc85e7b0dd86e4.json.gz",
+      "bytes": 108935,
+      "sha256": "8bb12d8bb99348f3c8b1a404ad01ab437347a27b9f8d24e35cdd7119c462f090"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x74185a3f30b873c0ce1f4257298d1cda61be2f9f-3b7e6d049028c9e9.json.gz",
+      "bytes": 582,
+      "sha256": "38e8600097a77b4ae63d2585a45d0a6c1625e896305770ef3f61ec02c4888aeb"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0x910cbd523d972eb0a6f4cae4618ad62622b39dbf-2c8a5d553a9d1328.json.gz",
+      "bytes": 9433160,
+      "sha256": "298402ed5e0345efc950875f8a1e3b3a5ec730f025633ccbe7ade99b4f089b59"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xa160cdab225685da1d56aa342ad8841c3b53f291-eb3560206871deca.json.gz",
+      "bytes": 5730747,
+      "sha256": "f0da1a4ae48b425ffa425d7a5dc3431fa5da80e897e6c8c2afa874c118ccd812"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xbb93e510bbcd0b7beb5a853875f9ec60275cf498-c40f49fc5e765bf5.json.gz",
+      "bytes": 128430,
+      "sha256": "95875d2743dbe589717d01657c2443d2c241a76e5d77e971c9532f15b8be9111"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xc11197f71c7730c8b5db7c84191e07575f1db896-82913a5a502be148.json.gz",
+      "bytes": 583,
+      "sha256": "9e55f6e42bb80c707d74df36cda8eb5ab2744787f1579a9b346c3a9dd9a00c8f"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xd21be7248e0197ee08e0c20d4a96debdac3d20af-2a93ef73809b938e.json.gz",
+      "bytes": 13282,
+      "sha256": "7f9c4db82ea877b7dcd6a129e5c53b6b456bd0f4bcdefac246e6d3a55d76d478"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xd4b88df4d29f5cedd6857912842cff3b20c8cfa3-1b59042738ef049e.json.gz",
+      "bytes": 59170,
+      "sha256": "29c9971dc3e414d5079792b2418fbc8bf0f4b979971dcc7a8c2a041b769891d1"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xd96f2b1c14db8458374d9aca76e26c3d18364307-66bedf03c46cc430.json.gz",
+      "bytes": 49170,
+      "sha256": "cbd3b90276745d751c4bb83dcd4724d429847eaba21dbf7859173d6f9a536090"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xf22487b84a618192aa68c0e1da24e9bbd892f774-35d8e1f4715f84d0.json.gz",
+      "bytes": 580,
+      "sha256": "b78aa2da2ebb2de9dc48ef27d08df5c573207aa316f1de07477ead70973706be"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/1/0xfd8610d20aa15b7b2e3be39b396a1bc3516c7144-26aec1fd8135c661.json.gz",
+      "bytes": 162986,
+      "sha256": "d71be6545f6213bb83c7f0067f1fa3add278e11cac68951060e0ed82773d09a7"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x0e999c5285141ccb6dfae68a0921f37abd3e6a87-6ac12c3cdf215493.json.gz",
+      "bytes": 5162,
+      "sha256": "737a84e869bc643b6c84784e1784704cc356ceefa38ca20e3f641290886a6fd5"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x3d1c943dfb2c8d9905b0da0afd18615915ff343a-9d8b31c456aa03bd.json.gz",
+      "bytes": 592,
+      "sha256": "5e1107fe34b8c2b640f3147730d0175d1b2811fa81126f8733f1caca10b38f50"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x6921fd1a97441dd603a997ed6ddf388658daf754-364c228163859be7.json.gz",
+      "bytes": 11453,
+      "sha256": "fb33c99e9b5ef379e539732550f6853d6cb58dbd81533996c3856c4d75848621"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x7ee90edc51c3739af3ee277e09ade3f3d6bad4af-16c70734c312c18a.json.gz",
+      "bytes": 592,
+      "sha256": "277a146da498ba37b82cf3b5c7493988c25d0857cb276d0f6c5e29256db8d0ea"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x83091415b54d764e215153ff54b36ccd44122e6e-9d67d34e77947ebc.json.gz",
+      "bytes": 1761,
+      "sha256": "91c681815bf0066b8732cbf12c0cf5ca9b4cf00836d74e4dac08d14456ccaaea"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x8c4a04d872a6c1be37964a21ba3a138525dff50b-ceb6fa3aadea3bf4.json.gz",
+      "bytes": 320553,
+      "sha256": "d716d61458f3f30b458302da5f595b7745fffb5ebbc5a302c39e184b7a50b994"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x8cc930096b4df705a007c4a039bdfa1320ed2508-d8b706c462583256.json.gz",
+      "bytes": 22195,
+      "sha256": "722b0204e1925ea8ed65e60a1d136ae06383a037c2b2c9e49a5cf4aeb40df0f1"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x8d10d506d29fc62abb8a290b99f66db27fc43585-4c2d8491cca8b9f4.json.gz",
+      "bytes": 4161,
+      "sha256": "4522db2498b269de2378b2423b4d886c3216a2c90bbd10e6e65038166fa4aeed"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/history/11155111/0x9480be3964642efcd6cebdb3570db8dc0f788908-976c3b43d178bae6.json.gz",
+      "bytes": 2065,
+      "sha256": "3dd1227833388603164da106f8acd2a1dae3bc602c02aae1074ca0c18f998526"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/proving/tornado-3ddd61dbff09caee.json.gz",
+      "bytes": 1734869,
+      "sha256": "22b240a07985e1f7f5e4520029b65cce0276eafd35d67080c70a3990aa892ed6"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/proving/tornadoProvingKey-8e2d2f22beafb5a9.bin.gz",
+      "bytes": 9629455,
+      "sha256": "806676308b1fc825a97aad47eaec0499f665a1da3f3d0a0e35f7bbf6796bcd32"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/06fec9421a4a3fa87adf9ee2a59ec4850602e79cb794d7883c31b091da73f273.jsonl.gz",
+      "bytes": 310771,
+      "sha256": "06fec9421a4a3fa87adf9ee2a59ec4850602e79cb794d7883c31b091da73f273"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/13b2b514175e6f905a897f47ec3506709177599e8d4b50c8d4c02276633cc3c1.jsonl.gz",
+      "bytes": 310057,
+      "sha256": "13b2b514175e6f905a897f47ec3506709177599e8d4b50c8d4c02276633cc3c1"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/36f55320855e51dbaa432581d458f3ec307617c504fa892be328cf7af454cb73.jsonl.gz",
+      "bytes": 158511,
+      "sha256": "36f55320855e51dbaa432581d458f3ec307617c504fa892be328cf7af454cb73"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/50adf6acb21030198454142fcd677f4fb98d3ac515085b1d3849d3d9afa71252.jsonl.gz",
+      "bytes": 312449,
+      "sha256": "50adf6acb21030198454142fcd677f4fb98d3ac515085b1d3849d3d9afa71252"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/51bf9bf24837d5e0b4980707a22428f407d4d350115bc0c067da369e868de3e8.jsonl.gz",
+      "bytes": 334640,
+      "sha256": "51bf9bf24837d5e0b4980707a22428f407d4d350115bc0c067da369e868de3e8"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/7703e7390949a3ab8575d9e7e6cbbe34a64c2cd7196b9c35d5b4a440fc05ab62.jsonl.gz",
+      "bytes": 334113,
+      "sha256": "7703e7390949a3ab8575d9e7e6cbbe34a64c2cd7196b9c35d5b4a440fc05ab62"
+    },
+    {
+      "namespace": "build",
+      "path": "offline/relayers/93ad9fe7716c114bc2986c5b10f3244e9a15870d472f96f254fe59d073d42dde.jsonl.gz",
+      "bytes": 309674,
+      "sha256": "93ad9fe7716c114bc2986c5b10f3244e9a15870d472f96f254fe59d073d42dde"
+    },
+    {
+      "namespace": "build",
+      "path": "sdk/merkle-tree-worker.browser.js",
+      "bytes": 119847,
+      "sha256": "ece06423b5318a0e785f68eb35b9003b3ed63663135234aff993b5ebf678d396"
+    },
+    {
+      "namespace": "build",
+      "path": "sdk/msm-worker.browser.js",
+      "bytes": 91115,
+      "sha256": "e1a7abce6399ffcd4dffda601390a5f80a6264428813f07dc4a34375f1c3d78e"
+    },
+    {
+      "namespace": "build",
+      "path": "sdk/state-manager.worker.js",
+      "bytes": 889914,
+      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+    },
+    {
+      "namespace": "build",
+      "path": "withdraw-frame.html",
+      "bytes": 582,
+      "sha256": "906ee058e503fa3bd090d3f115123ffba27b00260b9604d27796685960d378b1"
+    },
+    {
+      "namespace": "sdk",
+      "path": "CHANGELOG.md",
+      "bytes": 11999,
+      "sha256": "dd8378a318c86412fbdd0f8cbdfbadbfa1d3ea7e3d43543aa06d80e96c3f7bbf"
+    },
+    {
+      "namespace": "sdk",
+      "path": "README.md",
+      "bytes": 9622,
+      "sha256": "bedbcc121e537cb2406d3f0c400c9d825248066fc280b6046c75d083412db227"
+    },
+    {
+      "namespace": "sdk",
+      "path": "package.json",
+      "bytes": 4042,
+      "sha256": "ec7eee91c0cd4a725f2613844dd131dadd6366cb247722a49654ff231c1474ee"
+    },
+    {
+      "namespace": "sdk",
+      "path": "scripts/check-simple-account.mts",
+      "bytes": 6395,
+      "sha256": "77714b947c2891baa5986baf7afbd10231e070dbaeca7f5f7af39b6bde64cbf7"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/delegation.interface.ts",
+      "bytes": 4550,
+      "sha256": "b34fba0c215eef6bff0c5e5fe4dbaedf6ccb264372568698046c22494622cb4d"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/execution-account.ts",
+      "bytes": 6740,
+      "sha256": "e559ff7a1f555792fd88d50f0ca2d2eff72e4600bbed99843061ec84842b330b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/external-delegator.ts",
+      "bytes": 2486,
+      "sha256": "1553b58e23038ea68e3c3e84a45c59ef3b967bcef19b6777aca04cb13ea86e91"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/keys.ts",
+      "bytes": 7020,
+      "sha256": "067dcdc570de0bcb9bfcdc414fbe7842178fe2afd787eb099e469c928176ef90"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/legacyNote.ts",
+      "bytes": 1691,
+      "sha256": "ec7059fb54b723495b9cd2b3fc2be54c738a073bf9b2fda07c877df0b126c198"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/signature-keys.ts",
+      "bytes": 6488,
+      "sha256": "4c2528acc1ebc046bdff84c9ca3e407b2ac43a47e38d2a72b7ec83f0884f100c"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/tx/shield.ts",
+      "bytes": 1271,
+      "sha256": "836f164ffc31a27df14f662dc9daebd2f4b8ec649b1009a048f26db219a2e431"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/account/types.ts",
+      "bytes": 519,
+      "sha256": "aa5a60a92607b05047120f664405d7931953f5229736a74a21bb4bacb5d35a28"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/config.ts",
+      "bytes": 4865,
+      "sha256": "7b61501341a8bfd099687904094482fa436de51cc163aa34829c6efe2f29651b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/account.abi.ts",
+      "bytes": 708,
+      "sha256": "6771e0fd7c33101b3880b6e039c3bfe714685c97f3671e295d826a94b277e626"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/aggregator.abi.ts",
+      "bytes": 646,
+      "sha256": "d15a1c3a0a765e836e9dbaf5e770544eeed426a7c148c58ed8d9a661c1d3c987"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/events.abi.ts",
+      "bytes": 1081,
+      "sha256": "2a89cd2a47ce0d66ac736462a5856e366da159d7dba0ef53005170d0dfa60260"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/instance-registry.abi.ts",
+      "bytes": 1358,
+      "sha256": "691e4f5603bd87d102f3187c7097a0469cdf7029f34e08cee11919237612161a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/paymaster.abi.ts",
+      "bytes": 348,
+      "sha256": "f40106ce022be7d9f0fca31aeae85b4a98f693888264202a5314ff37fc3f951b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/abis/pool.abi.ts",
+      "bytes": 2115,
+      "sha256": "9419046431d609f772c2fcacebed01b5beeca57bb86413c8bcaff548df0ee7b6"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/data.service.ts",
+      "bytes": 12648,
+      "sha256": "bb153399da5a6b3fb3d80dc89f881f7e1aecf78a6bca0b599548fd99570a7ae7"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/eth-client.ts",
+      "bytes": 3875,
+      "sha256": "aedce6c235c66506db466fed11a4584d077ae438f86c7f19ff934c68322fb03a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/interfaces/data.service.interface.ts",
+      "bytes": 3583,
+      "sha256": "4ab61694b4bd3b632b6b0777744bd212eb47311304997b9ad73d5beeda06907b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/interfaces/events.interface.ts",
+      "bytes": 2393,
+      "sha256": "f225946934fe6c004da1dce28606b835349c78b2a766d4efd85674b3fe2be11d"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/interfaces/sync.service.interface.ts",
+      "bytes": 2243,
+      "sha256": "b6a2508a153c71763ff930e6685056d21a24055599bfd1b202136f8483960e15"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/sync.service.ts",
+      "bytes": 5420,
+      "sha256": "26cfc12b3c05c673f0a1aa78f6371ecd1236be4d34170a7ec039a9560620cc33"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/data/utils/events-parsers.util.ts",
+      "bytes": 1826,
+      "sha256": "dd5912a473f343d0bb955ebb30d3dc8783376cf234bf13ef3f6a8a9f4db89bb8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/index.ts",
+      "bytes": 1520,
+      "sha256": "3819f72c61e50296093f4b9ff20643828dd63fbe1b1a9e02c8fc7efd7cbd19f8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/instances.ts",
+      "bytes": 6433,
+      "sha256": "501dd6c5599c6114daa24a9ceff118009940cc53513d90bee68a14e7ca1ab77c"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/interfaces/types.interface.ts",
+      "bytes": 365,
+      "sha256": "1cc7a8e7b487279dd8efbc90951f66ff50b00a5ac8db23a542976125fb3bf8cf"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/interfaces/user-ops.interface.ts",
+      "bytes": 2902,
+      "sha256": "0d8a4ca3983ea2b8e59cbeaef02b95134fea1a5e292939a435851b6e2b8775e8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/merkle-tree-worker.browser.ts",
+      "bytes": 41,
+      "sha256": "ca163bec352528fd7b529f6d4f1395fea8085ea8aee6d91d50b2c1ed6c4a3fec"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/merkle-tree-worker.node.ts",
+      "bytes": 41,
+      "sha256": "ca163bec352528fd7b529f6d4f1395fea8085ea8aee6d91d50b2c1ed6c4a3fec"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/msm-worker.browser.ts",
+      "bytes": 40,
+      "sha256": "7308ca3b453258e4316f0465e3255f185dc9a40e2c40f3e3a639ff72aad37e18"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/msm-worker.ts",
+      "bytes": 40,
+      "sha256": "7308ca3b453258e4316f0465e3255f185dc9a40e2c40f3e3a639ff72aad37e18"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/config.ts",
+      "bytes": 1202,
+      "sha256": "c34c4b13bd51156ddda700fad1a82b287aab0185fc9dd8165833ebb55d5c60e4"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/estimate.ts",
+      "bytes": 5832,
+      "sha256": "79a87fb8dc75313a54403cb2c073798623635aab14ef0dace08f066d39709ebe"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/estimation-retry.ts",
+      "bytes": 4801,
+      "sha256": "04a3733e49ff58c525e610413419f5cbb18cc0c857e2eeb852b80b64d8a6a9a2"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/execution-gas-retry.ts",
+      "bytes": 1599,
+      "sha256": "56ce42a517412b512211d0a5f858c4d6d83266e1c27638b324bbed95a6f1f381"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/fallback.ts",
+      "bytes": 2535,
+      "sha256": "5ae20455b01fb216cdb23dc71939e49511cdfd14a703cc5e9654db31b35f15ae"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/fee.ts",
+      "bytes": 4961,
+      "sha256": "4d15b169cf6c9e10b426c75516ae9145588729927c5a5cebf4520ceb6137e01b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/gas-bounds.ts",
+      "bytes": 6268,
+      "sha256": "ae6ff59b4ae967bf789a5fdcff603ddc4bbb4a7470380222def49c20e37063a9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/paymaster-broadcaster.ts",
+      "bytes": 4041,
+      "sha256": "e56d1cd644440d7f1833d9465d8429d6c841888a30c41465ddefbbd889a9229b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/utils.ts",
+      "bytes": 13020,
+      "sha256": "f2904508704a0eb9dc8fbbbb89d1b197ad16b403ac46e80778f30f0a81fef37f"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/base.ts",
+      "bytes": 13368,
+      "sha256": "54be5f4c7d16c4cda0e8098b0fb66b255faf1ffd769c30903c7964498fb4cfee"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/broadcaster.ts",
+      "bytes": 3674,
+      "sha256": "3a07c9b2106c2f91dcba84ee6665c503c50c4cfc002297155a45264c92a0cb32"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/external-signer-policy.ts",
+      "bytes": 3244,
+      "sha256": "94f9327c1ed4a02d0e58b2debb6e47a1df20c152520e6854980678ff5c1f2143"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/host-bridge.ts",
+      "bytes": 5311,
+      "sha256": "13ae74b905b1c9f6c95c2911a3dd43d8ab4bc466c82876b9dbccc26cf56af662"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/index.ts",
+      "bytes": 79,
+      "sha256": "ca4bcf987cff4bd9e293de71585395d1b42252ce9c1c062ec9751dd80e015abd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/interfaces/protocol-params.interface.ts",
+      "bytes": 7949,
+      "sha256": "b62e8e356c14aa20737166225b5607cb80dfed7a10f49e30d9d8c6e54d7eafd9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/worker-host-policy.ts",
+      "bytes": 4255,
+      "sha256": "ac91d4ae515b396681c3676ef6d136839d18e8758de2b81ea2edd8b7aeedc408"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/worker-loader.browser.ts",
+      "bytes": 490,
+      "sha256": "beabde6e54fc78b62d49a748038b16dcee48e2bf9b31541461786ab275ad120b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/plugin/worker-loader.node.ts",
+      "bytes": 675,
+      "sha256": "49f814ec12f1f0f71644d6f2ef6f26092985e74f4dff7eae9a851643fad55ae8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/relayer/interfaces/paymaster-client.interface.ts",
+      "bytes": 3375,
+      "sha256": "a0317a4add96cface6d74691d3266b35064e327892dfde8cdae5f7c047880937"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/relayer/interfaces/relayer-client.interface.ts",
+      "bytes": 767,
+      "sha256": "d4b85cfb5ce8e71acd6d1d0f08b6473ef1118d36ba6ac2aa7c1a4e4a808ff109"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/relayer/relayer-client.ts",
+      "bytes": 1129,
+      "sha256": "998a80f019868c568fa735b529cdf34b66edfb0e71ed515f75a9a04d695287a0"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/index.ts",
+      "bytes": 961,
+      "sha256": "41655a7adf3a9a89d00915698ecb613d0af4d9539ac485f2504675c82a6853ba"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/initial-states/state.11155111.minimal.json",
+      "bytes": 3702,
+      "sha256": "7531a2259a206d87407234c5d7d6ca670c4845fc5f7c428821b2e580bb93c6d0"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/interfaces/selectors.interface.ts",
+      "bytes": 233,
+      "sha256": "eec26fe4bba6a71e68dca35fb63d0ccec398b4a8671af527226cf31ad3881628"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/interfaces/utils.interface.ts",
+      "bytes": 2594,
+      "sha256": "dc353a20138dd0cd2e3ce12a5db03bf47c1be1c8f67dcf1581e791c9625c1628"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/assets.selector.ts",
+      "bytes": 561,
+      "sha256": "729c21176cbb8fd1b988fd02cd207b8c56040308b3fce51dc5182399cd5b911d"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/balance.selector.ts",
+      "bytes": 3765,
+      "sha256": "4937695779dc33088471261b31a452ce106522cbdb09c20e32901783e124be7a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/deposits.selector.ts",
+      "bytes": 1250,
+      "sha256": "e8c946b404b91e226e9b5b3eeaaed240710aad8187d0fd36a88feac24e9365e8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/last-synced-block.selector.ts",
+      "bytes": 912,
+      "sha256": "9d5800304e9cd2f68d1e2338f916dead2fe04024e5b28a71a9d7a2499d39826b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/merkle.selector.ts",
+      "bytes": 1023,
+      "sha256": "7049ae8409d9aac016ca2546ce10aba5a78a4704cae26bacfa2024dfefa95435"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/notes.selector.ts",
+      "bytes": 872,
+      "sha256": "6de2777ddd99d84a9f9b4ed41395cc6290b3e5e659be1f322183e6e8cd4c4532"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/pools.selector.ts",
+      "bytes": 1905,
+      "sha256": "00fdaf30c7174f0086b3e895744fa20ef8d4834ff10c7bb3133d07091033c005"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/slices.selectors.ts",
+      "bytes": 4520,
+      "sha256": "815f8befacc99d95deb4677daa116a7efe618b4935fb22cf012bdb8e8ac62ef2"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/selectors/withdrawals.selector.ts",
+      "bytes": 4613,
+      "sha256": "a17c5fab1e09d822e1eb75e12d5ea2664bbb855b07e614951a4887d982146367"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/assetsSlice.ts",
+      "bytes": 1035,
+      "sha256": "aa22d96b6f6b160c94c5042d56822c1d2adbb8f00afb43aada525d92455a6869"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/depositsSlice.ts",
+      "bytes": 1517,
+      "sha256": "6b6d8ffb5d2cd9c9c583ed60551bfd6dec44038de992e3b20e2fdf1b2567c5aa"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/legacySecretsSlice.ts",
+      "bytes": 1254,
+      "sha256": "684077877506cfa895b019004a054474fce9e9f24e252268ad3182ed518b8111"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/poolsSlice.ts",
+      "bytes": 1716,
+      "sha256": "b49a0f8c5c56ad840791f218409ff8a07e00f3594c428ad95e3bc9b69f04db38"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/protocolConfigSlice.ts",
+      "bytes": 1454,
+      "sha256": "d7c4c38ac5a9fbc14e80d5c5c7fe715c8f2d1786d3deb8b23008d0484b301961"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/relayersSlice.ts",
+      "bytes": 2487,
+      "sha256": "e742a0a7509ec3330d20a95d123ac44f5e76771db6c7580be7bc8267c4e03819"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/signatureSecretsSlice.ts",
+      "bytes": 1415,
+      "sha256": "0039089e59c7a72bc06056bd2100c2342bf5134316ce46a027d608d7fdf35a26"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/syncSlice.ts",
+      "bytes": 1027,
+      "sha256": "0c5e1d8d3014e739b0d09de3937d398e56b2e98bf2ab664dba002a8d2e7340be"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/userSecretsSlice.ts",
+      "bytes": 1864,
+      "sha256": "f86a1a65901bd25a1e9815c0bba19e3282f03ab1d45243cca21990717dcf6d66"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/slices/withdrawalsSlice.ts",
+      "bytes": 1190,
+      "sha256": "7dec0bdfc9d5f406049ddf092b69eaac75883a1213278d6519bffe2f7804c668"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/state-manager-api.ts",
+      "bytes": 5951,
+      "sha256": "0a52b8a8d80daa1c7809863be6fff38aef0a7cb5cbd3b126af74e8cc0541e5f9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/state-manager.ts",
+      "bytes": 11900,
+      "sha256": "2f170c496d44e6b4880fbed9cd0c37aa564a30ec8a3e8bbbeca7013cacf8fbce"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/state-manager.worker.node.ts",
+      "bytes": 789,
+      "sha256": "70dcde411bb575002dd66cbdf44c686e46208798ec2a38daf2fede474abf0129"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/state-manager.worker.ts",
+      "bytes": 627,
+      "sha256": "3c29521f8eda4f183b80b9ed0304137299769ae8a506cc703a9777b3cbb48fb9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/store.ts",
+      "bytes": 3440,
+      "sha256": "374f3ff821f5018b38b03a5d5fc847e4e062809f4c65daf805f6d074c0f33fd6"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/discoverUserEventsThunk.ts",
+      "bytes": 2554,
+      "sha256": "7c443ada4279bf4b80b0be5bacd8b4420843ed772bfbbc21f9e4b5aa0e0309a3"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/getDepositPayloadThunk.ts",
+      "bytes": 5434,
+      "sha256": "70ad708f4c8c06101c5e065ed2929e235e2ccfcded89558b3db721cbf6ca1960"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/importLegacyNotesThunk.ts",
+      "bytes": 1720,
+      "sha256": "d56bd1740976fcf1877451c9baa4e79fa69d363acf3e6b0a98f9d439c7baf2b5"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/paymasterWithdrawThunk.ts",
+      "bytes": 15024,
+      "sha256": "0eef0e9f4ff5e09aa17b9719c586d61c7c3d5fc9f3be8c00784e67ca919a4bf9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/quoteThunk.ts",
+      "bytes": 5420,
+      "sha256": "74fc73df09c36477cbf5c187b3bd6913fb0de97944bb78769af9e913679f2567"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/syncAssetsThunk.ts",
+      "bytes": 1041,
+      "sha256": "ee0ef03d713da3817a7ff9d47001d860bef7c40ade6cb50981d9dfd662c7361b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/syncEventsThunk.ts",
+      "bytes": 2825,
+      "sha256": "acd868e241dfb12970354f54b0a3bd1b7c7bdac4d98d681d1092276cfb5aa4f6"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/syncPoolsThunk.ts",
+      "bytes": 4630,
+      "sha256": "80034a61f8ccc8d781e51295d7962995cab48b258cfdd8eee7f5e661692fb1a8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/syncRelayersThunk.ts",
+      "bytes": 3266,
+      "sha256": "cb5a25cf9c845699d0dd0a078cbf1517c92cf98823bfd529489e745db9d95a88"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/syncThunk.ts",
+      "bytes": 1956,
+      "sha256": "f9b8a74ff6172be246a9c177426660cfc912c873b0350d4147e8d419e25ce461"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/verifyRootsThunk.ts",
+      "bytes": 1461,
+      "sha256": "7c6718e5a979e29a6456834089f59697cb5cf9b516c67310a49ce8f55aa00890"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/withdrawThunk.ts",
+      "bytes": 4498,
+      "sha256": "2b8a1230f61818bbb858ca89914a69473d51365fb57699e4b770d8a618a8ab18"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/thunks/withdrawalsProofThunk.ts",
+      "bytes": 1383,
+      "sha256": "bc0e2742481d247ff678cb18c60e53bdbc86e7cf67ce389f956fa958f500a687"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/utils/selectors.utils.ts",
+      "bytes": 766,
+      "sha256": "d3ce7f59a88b00ef16bc15ac21e11c8d9b55ecb977f8042dc80f300c2d35a41b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/utils/serialize.utils.ts",
+      "bytes": 2555,
+      "sha256": "a52bd9c86a55940a9189815bf96dfc32309b5edd31b956c58ccf10cd25b88952"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/types/websnark.d.ts",
+      "bytes": 409,
+      "sha256": "69fc2f779926344b52c48937fba5f6d53f14f0564eefb2ded50c8b856a500245"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils.ts",
+      "bytes": 447,
+      "sha256": "48ee8833bb2715a8cdc8511e8d27facc4ebb5c4f2e52f13c0af070f76849c924"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/artifacts-integrity.ts",
+      "bytes": 1838,
+      "sha256": "addfef0470ea8deeb2881e1a4597a7673225ad0f8f4ab91e143d9d6d8df5623e"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/circuit-loader.ts",
+      "bytes": 558,
+      "sha256": "1469d611c27cb4206c9a83c79edce26721e1e2fdefa20c65d3aa560fe0f16950"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/default-artifacts-loader.ts",
+      "bytes": 591,
+      "sha256": "3962347032b702d2cf80ab4730bdf5c7c76719a3f866af881e07cbb9107069d2"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/merkle-tree/merkle-tree.util.browser.ts",
+      "bytes": 462,
+      "sha256": "b1469f87f3c267a296c6bc06f82243aab167dda528961bcdf8a17bcee6112285"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/merkle-tree/merkle-tree.util.node.ts",
+      "bytes": 424,
+      "sha256": "81ce3d50020faa1be72e883999bf62e05cc7c930cb73643e1522b87c67b0b260"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/proof.util.ts",
+      "bytes": 250,
+      "sha256": "a877488f58dd1bac160916e000f66fa9b1c75a943e09cb9a127bdb706038d175"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/prover-factory.ts",
+      "bytes": 859,
+      "sha256": "4b652093b271024a12357452b3dd7320e55c083ecc402563cbb9147aca14f05a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/tornado-prover.ts",
+      "bytes": 7121,
+      "sha256": "4928366d7555097acc716b562ad9c31b5989631bb3f8610755ba085867c19856"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/v1/factory.ts",
+      "bytes": 754,
+      "sha256": "9e706789fc3e69a0beb0e2c720da7b351d47dd2a05baa22114dbbfb194b13980"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/v1/index.ts",
+      "bytes": 57,
+      "sha256": "1a116be3b40ff56c4b36a8cf01f531e8f714921cc4067c8485486e5abb8dda75"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/v1/interfaces.ts",
+      "bytes": 5291,
+      "sha256": "f186225d972c1ec414b4c6a9550aa2bf083891ee6a346a56255cdee4d8a5091c"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/verification/index.ts",
+      "bytes": 68,
+      "sha256": "5b79e4569792172fbdc119b6d453101cf6efb7340413947e6ebae303cb4899a0"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/verification/root-verification.ts",
+      "bytes": 1182,
+      "sha256": "989f9fc081716fff84f12c830e0cc04e50ebcbe2350f49631a545c8b4efb7d07"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/constants.ts",
+      "bytes": 1355,
+      "sha256": "2b7b26bcd81442e4efe67d446f85591f8c3ee8cc2b8742b9a7cc414df8377210"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/import-legacy-note.test.ts",
+      "bytes": 9217,
+      "sha256": "454de0440c0160bf93a7e810c6296e87cdcd1aa3ed432aa676e0f65d2412dbb4"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/shield.test.ts",
+      "bytes": 6188,
+      "sha256": "4aac780ea9dc2d290150c94ea0b3de72c54b20e908011b629be3d0a7c5adf48e"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/withdraw-paymaster-failures.test.ts",
+      "bytes": 9089,
+      "sha256": "d039766cde74425cfd701d194487ec8ee308995490ebb10769dd76abb27eb109"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/withdraw-paymaster-single-deposit.test.ts",
+      "bytes": 8359,
+      "sha256": "d28b04b54084d7fb66e53262cfe4bde450810014a53b7720c8b311d9315ba762"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/withdraw-paymaster.test.ts",
+      "bytes": 12100,
+      "sha256": "04e04b09c85bc23a66598606ae8259765546e37ee3541dca34d4cc6fd7378ed1"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/e2e/ethers/withdraw.test.ts",
+      "bytes": 10640,
+      "sha256": "c1675cc323553701422ea01fe8f8d9b5603154cad0071603c68e4562480173c2"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/state.11155111.json",
+      "bytes": 1559788,
+      "sha256": "3a34facd1e03ec97376c990e197a14efc312e509d6a770388604f7f5022624a4"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/sync.test.ts",
+      "bytes": 3406,
+      "sha256": "287f08fe42727da03360eb8d5c2931a3e51c275ed973d13a28f021701b64fd36"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/artifacts-integrity.test.ts",
+      "bytes": 2070,
+      "sha256": "b8d397f9a40ddf20272b9a92076acf6ef98cddffad3b171fa7fcbd7850952932"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/discover-user-events.test.ts",
+      "bytes": 6601,
+      "sha256": "b77bd2600c2585e7335f61654259a9ca05c0963854d098352264eab436df3103"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/estimation-transport-retry.test.ts",
+      "bytes": 7001,
+      "sha256": "445304d1d7bf549d277163b9c649c97022f58bf249399459bfd6284e6fbceb73"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/execution-account-config.test.ts",
+      "bytes": 5976,
+      "sha256": "461644b9cb33a2bd06c397332ad55ec80ffb2d986874ae15212db7c7648f6a0b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/execution-gas-retry.test.ts",
+      "bytes": 1372,
+      "sha256": "eb1087e81f45b377bdc8a8f297e334f51ed04397ed3734b91e3c278960117fbe"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/extended-eth-pools.test.ts",
+      "bytes": 13293,
+      "sha256": "888be5e873186d8a63d6fb6596e565dbc51f0c63defb17033c3fbf83e7d94ab0"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/external-signer-policy.test.ts",
+      "bytes": 5392,
+      "sha256": "0e04fa44f12a676324e0d781c62b6f0cf4a6419ce4e13ff1c70faa215133d70b"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/host-bridge.test.ts",
+      "bytes": 12777,
+      "sha256": "83e15b10880c4988523ea99bc68c12e03f8c67939dc345416cac8ee4e443c894"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/instance-catalog.test.ts",
+      "bytes": 9163,
+      "sha256": "1f207e26d15ee6ffac04c5391a06a5e8b72f4b33b7d4f8ad41a1839ca0118b2f"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/is-pool-root-valid.test.ts",
+      "bytes": 1839,
+      "sha256": "93516d34aadf43db39fae7f95fcb07d31f5029c497ed641823e0ffd8f0b48e32"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/parse-pool-events.test.ts",
+      "bytes": 4206,
+      "sha256": "ad7c7c7f2c6c939a9f0d977320b8f293f12e0bfbb4d54cf961e02f326a071169"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/paymaster-broadcaster.test.ts",
+      "bytes": 14798,
+      "sha256": "10e11b56c16238fa07f762ae5721beb62aa766aa1185c41c1fff6ff425b80b48"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/paymaster-config.test.ts",
+      "bytes": 1690,
+      "sha256": "54a54a50e3821f819be0db86fd29da70fc06c8dc60871f62f4f45a9bfeb8ac04"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/paymaster-estimation.test.ts",
+      "bytes": 16886,
+      "sha256": "8d3c7abf7472ab2501f352a66e139bd5f8cf4753ad6a2ad06d49e8e5cf4a1ceb"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/paymaster-fallback-gas.test.ts",
+      "bytes": 5082,
+      "sha256": "d387a6c01261354ef16fa991c68a79d48db0a54e95a90d1c99b4fbe006d35329"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/paymaster-withdraw-estimation.test.ts",
+      "bytes": 37158,
+      "sha256": "f277e5a1a50369f94a1179fca870d852b65a5b2975aebedd32626a80f8802176"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/prepare-shield-strategy.test.ts",
+      "bytes": 1457,
+      "sha256": "aead9273c87926dc782dbd7500983c64f3f8609a1b5ac125a88993c0d25ec33a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/prepare-unshield-policy.test.ts",
+      "bytes": 3519,
+      "sha256": "b0ea57ef87ab64907f1aae4d55a0e78cf66d188b0a34c91a12f66d508800ede0"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/relayer-data-batching.test.ts",
+      "bytes": 6250,
+      "sha256": "1b9bf6ddc28cca20f917c07b0f45d9a81db5eb29ccaae300987c67584f63ad05"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/relayer-fee.test.ts",
+      "bytes": 8532,
+      "sha256": "0eb04b2ee92cff0fd9ad3a06eb61771ea453081c5da58b7c19494e93a6323757"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/relayer-sync-scope.test.ts",
+      "bytes": 3472,
+      "sha256": "820b9cfa9c5755991287d62c9d96a6e949ddc204949214de080cfe5f3b421414"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/root-verification.test.ts",
+      "bytes": 3313,
+      "sha256": "e765c55fcad12163b03e4453a26f4e01d845a971a9b5f5dbcb823ee3a94990c5"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/signature-keys.test.ts",
+      "bytes": 9763,
+      "sha256": "54b90817947a23cdeff19ad5c3db1842df554766b263581639de76eb664e8213"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/sync-service.test.ts",
+      "bytes": 10606,
+      "sha256": "a7c8c24bba4a4ee614b06d79b0e50af3e1986abe1df73fdf53475798438042dd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/verify-roots-thunk.test.ts",
+      "bytes": 5713,
+      "sha256": "ffe7d2835dd9fc3080aad024be69d67b0533930095d8382e4616e3f0262d505c"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/worker-external-signer.test.ts",
+      "bytes": 5922,
+      "sha256": "fa02a55fd49282d5d0e7665bea9e86dad7e1bf1d74f924adc76adf75a6e9c887"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/anvil.ts",
+      "bytes": 3376,
+      "sha256": "0441f8541c59cafe2e0800267a7b57fe82422d38a68e26c594dc0be683d7a9dd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/common.ts",
+      "bytes": 2266,
+      "sha256": "d6562e9fdcfa66ef192425aacdb9fab1d5ce6d158b48460502f68ed9cb57b82a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/mock-fetch.ts",
+      "bytes": 2147,
+      "sha256": "71c00dd8a16e92fc080ef6f842ae0452f73b966042b20e6b9147937c5e7993cc"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/mock-host.ts",
+      "bytes": 1857,
+      "sha256": "fc80b2169f4a66ab3ebbb22883c6ad0e753ae638bad6bcd6930017c854ac16fd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/mock-relayer.ts",
+      "bytes": 2297,
+      "sha256": "b5788b255dd66833f1ef83751f900a027d9fc30badd0b610dad059e404eefa14"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/test-accounts.ts",
+      "bytes": 699,
+      "sha256": "7327a9fbefb84903cb28429c5fe81c325ff82ffae6bcd3642f0e82cfd17ab5ec"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/utils/test-helpers.ts",
+      "bytes": 10553,
+      "sha256": "e851367476316e217b17812c2c23eb7c9c428a6eedd933e4d07f002b02a72e9c"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tsconfig.json",
+      "bytes": 419,
+      "sha256": "728f3dda6e17bcdd425a958be954ca194652af91ab6e881782a69a5fadb55b05"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tsup.config.ts",
+      "bytes": 6039,
+      "sha256": "ee69c8ed5cfcca3ab2a193fb8b52ff7813b2d1d62f88a4e9ecd9c7dea2065a46"
+    },
+    {
+      "namespace": "sdk",
+      "path": "vitest.config.ts",
+      "bytes": 2342,
+      "sha256": "722398a069605bd9f6fdd102727a0a8dea125092551050e039cf536a1abadff9"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "index.d.ts",
+      "bytes": 51901,
+      "sha256": "f3d625bddf63c466c6c1d41d531689e4d9f75a412b4348e2e416892ad0f94cc8"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "index.js",
+      "bytes": 55702,
+      "sha256": "65f0616e8415c13821082d6f15c1752c6ef2cfb136962af98e62bb4aaaa584de"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "merkle-tree-worker.browser.js",
+      "bytes": 119847,
+      "sha256": "ece06423b5318a0e785f68eb35b9003b3ed63663135234aff993b5ebf678d396"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "merkle-tree-worker.node.js",
+      "bytes": 120853,
+      "sha256": "120182c6ca50f945e83ee1601df9571a626eae623a4490d597653a45ed55bae4"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "merkle-tree.browser.js",
+      "bytes": 472,
+      "sha256": "60cb4c8df6d15f05d5fc1926dc1fd2611586534b28a4538e98b147b4d5793996"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "merkle-tree.node.js",
+      "bytes": 431,
+      "sha256": "e47de27264e868702e8880846318e152e5b66b8d397ff75633fdb32edbf6a907"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "msm-worker.browser.js",
+      "bytes": 91115,
+      "sha256": "e1a7abce6399ffcd4dffda601390a5f80a6264428813f07dc4a34375f1c3d78e"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "msm-worker.js",
+      "bytes": 91469,
+      "sha256": "aa4ea9be17e764e69b3a5c8f315d420c1207ecd6802d7447d043c79171155dfa"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "state-manager.worker.js",
+      "bytes": 889914,
+      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "state-manager.worker.node.js",
+      "bytes": 860867,
+      "sha256": "dd18f2845b9d231068b6714b6d4b1a6fba15b86a36ca7584ee92ce5216aab13f"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "worker-loader.browser.d.ts",
+      "bytes": 18263,
+      "sha256": "a95c7153aad445d78076148294cd94e4edd7990c1575ff828e977619aa75e824"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "worker-loader.browser.js",
+      "bytes": 441,
+      "sha256": "f3a94c311259cc60f241656d663e3adaffc5d38ddde5c93943f125a8d00f2490"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "worker-loader.node.d.ts",
+      "bytes": 18306,
+      "sha256": "241db20f77bf58e8d7da06b9a60d4cad23dff0598fa89b67e88f9af398ff7295"
+    },
+    {
+      "namespace": "sdk-dist",
+      "path": "worker-loader.node.js",
+      "bytes": 628,
+      "sha256": "316f874b37c0f2d58643028ef5822b4a6109634fd04fb9bcfe72ee1b35bafab0"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "README.md",
+      "bytes": 9622,
+      "sha256": "bedbcc121e537cb2406d3f0c400c9d825248066fc280b6046c75d083412db227"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/index.d.ts",
+      "bytes": 51901,
+      "sha256": "f3d625bddf63c466c6c1d41d531689e4d9f75a412b4348e2e416892ad0f94cc8"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/index.js",
+      "bytes": 55702,
+      "sha256": "65f0616e8415c13821082d6f15c1752c6ef2cfb136962af98e62bb4aaaa584de"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/merkle-tree-worker.browser.js",
+      "bytes": 119847,
+      "sha256": "ece06423b5318a0e785f68eb35b9003b3ed63663135234aff993b5ebf678d396"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/merkle-tree-worker.node.js",
+      "bytes": 120853,
+      "sha256": "120182c6ca50f945e83ee1601df9571a626eae623a4490d597653a45ed55bae4"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/merkle-tree.browser.js",
+      "bytes": 472,
+      "sha256": "60cb4c8df6d15f05d5fc1926dc1fd2611586534b28a4538e98b147b4d5793996"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/merkle-tree.node.d.ts",
+      "bytes": 348,
+      "sha256": "a7638c9a22e27980e8dfcd450d906a8a04e115f7f6dbe65f11f4b4e2cce12c91"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/merkle-tree.node.js",
+      "bytes": 431,
+      "sha256": "e47de27264e868702e8880846318e152e5b66b8d397ff75633fdb32edbf6a907"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/msm-worker.browser.js",
+      "bytes": 91115,
+      "sha256": "e1a7abce6399ffcd4dffda601390a5f80a6264428813f07dc4a34375f1c3d78e"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/msm-worker.js",
+      "bytes": 91469,
+      "sha256": "aa4ea9be17e764e69b3a5c8f315d420c1207ecd6802d7447d043c79171155dfa"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/state-manager.worker.js",
+      "bytes": 889914,
+      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/state-manager.worker.node.js",
+      "bytes": 860867,
+      "sha256": "dd18f2845b9d231068b6714b6d4b1a6fba15b86a36ca7584ee92ce5216aab13f"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/worker-loader.browser.d.ts",
+      "bytes": 18263,
+      "sha256": "a95c7153aad445d78076148294cd94e4edd7990c1575ff828e977619aa75e824"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/worker-loader.browser.js",
+      "bytes": 441,
+      "sha256": "f3a94c311259cc60f241656d663e3adaffc5d38ddde5c93943f125a8d00f2490"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/worker-loader.node.d.ts",
+      "bytes": 18306,
+      "sha256": "241db20f77bf58e8d7da06b9a60d4cad23dff0598fa89b67e88f9af398ff7295"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "dist/worker-loader.node.js",
+      "bytes": 628,
+      "sha256": "316f874b37c0f2d58643028ef5822b4a6109634fd04fb9bcfe72ee1b35bafab0"
+    },
+    {
+      "namespace": "sdk-package",
+      "path": "package.json",
+      "bytes": 4041,
+      "sha256": "7a1af4f349d1039512ae20251917f0fc212a9f22601d5b86cff0676379bfa591"
+    },
+    {
+      "namespace": "sdk-root",
+      "path": "package.json",
+      "bytes": 762,
+      "sha256": "0fe6dc3543f70bc4b326add7513981f156e56002bc6406d461be5521f3e9e622"
+    },
+    {
+      "namespace": "sdk-root",
+      "path": "pnpm-lock.yaml",
+      "bytes": 656578,
+      "sha256": "3405869822ead057d92643d2aa62dba891fb3e6c070d7e6883a2781a28a66d0c"
+    },
+    {
+      "namespace": "ui",
+      "path": ".gitignore",
+      "bytes": 86,
+      "sha256": "a2beba7adfdb3e7f742828beaea8c0bb0f6578f9381586e05e15a5ea2b3b62b8"
+    },
+    {
+      "namespace": "ui",
+      "path": ".nvmrc",
+      "bytes": 8,
+      "sha256": "8fb7215a78fb2dacb282d6fca135a48bd69892ad6560efa3c5a9c12b0200ac7c"
+    },
+    {
+      "namespace": "ui",
+      "path": "LICENSE.classic",
+      "bytes": 1069,
+      "sha256": "04b56f55097e704315278a93e016e56590d845f55e6d4d5d8d9ea8145b665e9e"
+    },
+    {
+      "namespace": "ui",
+      "path": "PLAN.md",
+      "bytes": 13067,
+      "sha256": "7b93d2937a891b7ce8c0a2a17f8dc18f35d048b815a1066a4afece2978bb43b1"
+    },
+    {
+      "namespace": "ui",
+      "path": "README.md",
+      "bytes": 32236,
+      "sha256": "9929f15bebf08af8767063ab57b65e97246ea702daa38345938be603bfbf3099"
+    },
+    {
+      "namespace": "ui",
+      "path": "TORNADO_WITHDRAWAL_DESIGN.md",
+      "bytes": 40125,
+      "sha256": "8a37ff83b24ac7752f9e60c8abd3cbf46ebb0a5623086c754f797c16bb9e3f69"
+    },
+    {
+      "namespace": "ui",
+      "path": "compliance/index.html",
+      "bytes": 545,
+      "sha256": "18c27719ef65ebaa12ae23809c8f5582fa28d6c22626516f88d934348a52d450"
+    },
+    {
+      "namespace": "ui",
+      "path": "deployment/saga-proxy/worker.js",
+      "bytes": 2624,
+      "sha256": "c7883861400a9ae2ea1ac8dfd89279025cbbfa838aa783f2ed57bf9957445ca9"
+    },
+    {
+      "namespace": "ui",
+      "path": "deployment/saga-proxy/wrangler.jsonc",
+      "bytes": 236,
+      "sha256": "41bdc9b11f10ceee8700151284d9baa86cc4c6453e42a9ad9a156a8a3886f1cc"
+    },
+    {
+      "namespace": "ui",
+      "path": "index.html",
+      "bytes": 541,
+      "sha256": "811b9a5459be29a0260c2b67428a470cae7e7a0347e76a97d17f85a96ef14303"
+    },
+    {
+      "namespace": "ui",
+      "path": "package-lock.json",
+      "bytes": 96955,
+      "sha256": "820f145323a32df7cebbb9a2baf420e42ffe5b3f72495938c1d4468e7269e5b9"
+    },
+    {
+      "namespace": "ui",
+      "path": "package.json",
+      "bytes": 944,
+      "sha256": "1d1a2faba51abaa8b53de3cf90f063173a58c90ac99d637ceb213b21b0068970"
+    },
+    {
+      "namespace": "ui",
+      "path": "public/fonts/PTMono-Bold.woff2",
+      "bytes": 23376,
+      "sha256": "af350af8fce0a38b7cb7bf394ad982310ead6047e4d035ffc8db96229d35ddad"
+    },
+    {
+      "namespace": "ui",
+      "path": "public/fonts/PTMono-Regular.woff2",
+      "bytes": 22940,
+      "sha256": "e81bc68ab2f0e53540576f36438691b6610ee39f44784151228efb2620449889"
+    },
+    {
+      "namespace": "ui",
+      "path": "public/logo.svg",
+      "bytes": 450,
+      "sha256": "36b63def2dce7919c0241706233125654214d5093af8867b336cb68d428cfdbd"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/check-ipfs-build.mjs",
+      "bytes": 2598,
+      "sha256": "dbbc954829e07ded7c28ea7ee9b7c64d6d0fee8567612a7137624781b809c49a"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/export-tornado-snapshot.mjs",
+      "bytes": 9432,
+      "sha256": "9303bce72ef003d56fef747099c436a9bd7d4ce9b6abf1c906edd92f102125ff"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/offline-assets.d.mts",
+      "bytes": 79,
+      "sha256": "b5e8b20a6730088336ec9bc8fa7d83a01ecb52d1c16f822b47c6f737d84db71d"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/offline-assets.mjs",
+      "bytes": 1896,
+      "sha256": "686c5587da12cddf2a8a41940378f029aa8eb03ed19874fec0777d99b142ef2a"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/prepare-offline-assets.mjs",
+      "bytes": 2871,
+      "sha256": "40f2b26569d70986103552b26bbee260885761738d915286234b0e266c0d66b4"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/prepare-tornado-cache.mjs",
+      "bytes": 3784,
+      "sha256": "392e046fdf3cb623c17a508bc154983ed32bcde1daebff52a6e662e7762eb16a"
+    },
+    {
+      "namespace": "ui",
+      "path": "scripts/refresh-tornado-history.mjs",
+      "bytes": 16588,
+      "sha256": "dad0452fdd7fa38fa8a2b012071e68b2e7794e013ec3f84bf41f02cc46040193"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/ActionBudget.vue",
+      "bytes": 2590,
+      "sha256": "fc010dfc241923338bc2134f6ab4d12f69f877cd8149794571e35071f34a2895"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/AddressPrivacyWarnings.vue",
+      "bytes": 1564,
+      "sha256": "cd23bf6891bce37cd499f8551c96daa7bb3aa70838ea89f0447e94f078c74ede"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/App.vue",
+      "bytes": 58929,
+      "sha256": "d00a6a4b847ef6d176b868bbb4a9c1845b74989475676d5937dbc8fbef917037"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/Compliance.vue",
+      "bytes": 9817,
+      "sha256": "8388d75a154b07b0adcc8622a7587c16cd934bfd520d9148341e85c107ddfc4e"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/DepositBalances.vue",
+      "bytes": 6456,
+      "sha256": "8a91a071ca8ad4071282248342c6d4b1fa08459ec7f440240f8bd9909ea96196"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/Icon.vue",
+      "bytes": 1176,
+      "sha256": "4637de997b691bf1751ce07db270747089d5e146b8fb3e84c84a42833fc680bd"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/ManageSmartAccount.vue",
+      "bytes": 8683,
+      "sha256": "95eef6e2ab222aa5523209126049a4f1dd5b6354333c7ba7e8fe33ab72d12cfe"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/MultiWithdraw.vue",
+      "bytes": 15593,
+      "sha256": "66cfa2857a3346d2a1a2f17bbc03127803aee8c49b23320f9a1dc380087156c7"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/MultiWithdrawal.vue",
+      "bytes": 30391,
+      "sha256": "e75fd8f74940c406c65d329b505c9f3af7a6b95da5874ce6960c6f2f190ab05a"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/RecipientPrivacy.vue",
+      "bytes": 1999,
+      "sha256": "9a5762a2cfff816d4806b4fd1777a327e84540048b9f8b6e374bd91cfd5ee243"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/TransactionBuilder.vue",
+      "bytes": 12470,
+      "sha256": "c076fb1934abaeab38521442dd18a604f705b15f4153d7fa227987eddc83570d"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/WithdrawalSimulation.vue",
+      "bytes": 4175,
+      "sha256": "559e17579aa12cd6ffafd3beffe921be7e66683e769f545c6a44bc2d10c6b709"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/action-budget.ts",
+      "bytes": 1414,
+      "sha256": "a363abadcffecad83838f44c962a5dc9e86f922bfb220cda1e6ea810bebe32a9"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/address-privacy.ts",
+      "bytes": 5121,
+      "sha256": "29e9882f95bc6556515d9cb167f8fc7636644d1a0741b9c7a710b7c0b73983f6"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/app-assets.ts",
+      "bytes": 432,
+      "sha256": "ca6d3ca815d3f4e12709980c35bb3a8accb0ed737a7f9136de4dc6cd1ad416b7"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/batch-policy.ts",
+      "bytes": 10338,
+      "sha256": "afc5af3fc305b19989cc3cba12f71aa0bf8f2a31a1dd69cbabe539d96574ae22"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/catalog.ts",
+      "bytes": 4354,
+      "sha256": "77fa656533b04292d1b9b0d5c336ace760615feb1b87c54e913a8bfc57144ccd"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/compliance-pdf.ts",
+      "bytes": 5147,
+      "sha256": "2dc08f6153dac37f54050215b631626a0dd850d3fbde4cb200c335247f70bddb"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/compliance.ts",
+      "bytes": 10458,
+      "sha256": "93a091bd8a605f62ef474c0a8df16e616fdb63a4018f23faf2328fdd9e38252f"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/data-sources.ts",
+      "bytes": 538,
+      "sha256": "1ea9295b07197ea304e4d770ffccb42968009d754248a20b3f75e9959ba13ae5"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/deposit-session.ts",
+      "bytes": 4002,
+      "sha256": "1ec5a34e56edb9ab6cf1997958ca9d7a68e536936f7365fad3d4f97806bf50fd"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/history-bootstrap.json",
+      "bytes": 19544,
+      "sha256": "d294f0d137f9e168fd9508ab217a848340084e8e505fca0b7dd0b7473d30fa7a"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/history-cache.ts",
+      "bytes": 7673,
+      "sha256": "fbd32088045de3f9cbfc6a0df09dd06dd069f9ef67595d84d3b18504a0f93d48"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/history-codec.ts",
+      "bytes": 1461,
+      "sha256": "b94e2001a8d22412acf37412bfc25f9f2c1e885a7d28d4eaf9906cd6b38ada80"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/history-manifest.json",
+      "bytes": 14785,
+      "sha256": "2b3e848d8db92ed48d270083dec8800928a26ef684b5309345e273b2d4d6e8f1"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/multi-withdrawal.ts",
+      "bytes": 6508,
+      "sha256": "7be63710b808d4800b3c02ecc633ce28dc20c317d93384e08d089624ce6d2ced"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/notes.ts",
+      "bytes": 4653,
+      "sha256": "42f511ee97f5ea8690dbd711b95c406caa719d8acf020e93343cbdd8fc63c978"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/pool-history.ts",
+      "bytes": 3781,
+      "sha256": "c399731b17f18a72d2c608cc90f39417a6e8b07c6a11abc49856d3d3c4c8111c"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/proving-artifacts.ts",
+      "bytes": 2542,
+      "sha256": "3d92eaa51e1dddd11ce7074010cb3e959f28a19774efdbaa410e29b6eedf0efc"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/proving-manifest.json",
+      "bytes": 540,
+      "sha256": "8ec770c08261e8783250fff52b2daf0eeb953d179aba64c51a82913941ed5147"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/relayer-history-manifest.json",
+      "bytes": 2038,
+      "sha256": "70eccd873b05827f569959b78f614d4cddfef080fea15a893ca0af43b9f8bde4"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/relayer-history.ts",
+      "bytes": 4528,
+      "sha256": "343ddb4427000b59aa45eda13d5ecc5cdd8ddc6616fb1137764234ded22a8bc2"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/relayers.ts",
+      "bytes": 12376,
+      "sha256": "430756f3ef39a40da0dd93daeceac2fade54fb9e9a220e6b9f1a1c494c49a0c6"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/routes.ts",
+      "bytes": 593,
+      "sha256": "3aee0ded06dded5761406323af516e583f3bb43975ff001cdb688473f8a283ef"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/rpc.ts",
+      "bytes": 9128,
+      "sha256": "d92078fb6ce4fb60faa3f30c262aeff3c9a257d26d325b8383ec439504a97b23"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/saga-history.ts",
+      "bytes": 9072,
+      "sha256": "45c7260bd4034a2f5fecf9ca27d0ef6af0248f49f11b468be64bdd57bab266e6"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/seed-bundle.ts",
+      "bytes": 4013,
+      "sha256": "6090058b71320919ca653d0a3679f741b564a510c7121131cc1664874324383b"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/simulation-errors.ts",
+      "bytes": 4181,
+      "sha256": "cf0a93f96e1b57f4e8a5758af52b711be8752ee93ef657c0f9a206c89ff52ee4"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/smart-account.ts",
+      "bytes": 9072,
+      "sha256": "bfbf8d90f79a0c0f3a4edf2c61a914ecbe8bab405ad299b03ab531806f317744"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/smart-withdrawal-policy.ts",
+      "bytes": 11617,
+      "sha256": "932a56b8a4e6181a6bc2a5798499726827102169afa9de0375d369cc9693ef8a"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/smart-withdrawal.ts",
+      "bytes": 15456,
+      "sha256": "5f627b7194ee194e2d4893dbd5dbeb44704fc084679f6d0652453a69728cf955"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/transaction-builder.ts",
+      "bytes": 8287,
+      "sha256": "f9c451edd24b65da4368c892ee0d79e71f7401d2c71ecf72a453fa13838542b2"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/wallet-connection.ts",
+      "bytes": 7226,
+      "sha256": "b83bd4238f43669bee64e48e5327567a63ca9fa30c4ce2b9321a6a648cbcb88d"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/wallet-rpc.ts",
+      "bytes": 5567,
+      "sha256": "9a119f4f3deb5b2f6783c9eddbfc7e3f3940a173e808f1985897e801ef6188ad"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/wallet-signer.ts",
+      "bytes": 7693,
+      "sha256": "93db8bd8eb46da9342cb1d1fe7095756e03c2d969ef9333a3d24923dfb683139"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/wallet.ts",
+      "bytes": 9276,
+      "sha256": "70596f53d9281f24450caa6dbf3c8690d1e0f719148b09d2bc61b6dd9e4c7b47"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/withdrawal-gas.ts",
+      "bytes": 445,
+      "sha256": "46348357e1cdd636b81273e09d075ffaf9071a754cfa8e3bbf28079a504a6808"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/withdrawal-options.ts",
+      "bytes": 1623,
+      "sha256": "693edac11d3826bea744f6b45e5dbf1a74a1419b45dd77d74c0dcd7a6efac3d8"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/withdrawal-simulation.ts",
+      "bytes": 8061,
+      "sha256": "f393248fef5716a5054c89ab06b2918dd8e704a36e57756fc4477d9533f13577"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/withdrawals.ts",
+      "bytes": 9349,
+      "sha256": "eb48286c773ce70a891886e498c722f2eb2c11dbeefd99f32c37d16ae464a78f"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/main.ts",
+      "bytes": 111,
+      "sha256": "0d42fb6bb74a51d647f20a0cd2bcdcc7b89b146f4cdfbf6f1f7b640e7e036119"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/sdk-frame.ts",
+      "bytes": 9390,
+      "sha256": "52a36a63b08dc6d5c8d677c3e59719585fd6becb58ba79c7f5550944f9ddbced"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/style.css",
+      "bytes": 45653,
+      "sha256": "ec49dfd5adc9a76ef4b9780549f8bf8e33737a526446cd07b3fb55592221b860"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/action-budget-ui.test.ts",
+      "bytes": 2138,
+      "sha256": "3644b3427123d107b2b56f9ccb450de555678a64f42250ace96960b7c9ba0775"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/action-budget.test.ts",
+      "bytes": 2203,
+      "sha256": "a0a5747e601a70a227fa20d825d3debb01c314eb558e2bebf2d7ffa5a752298e"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/address-privacy.test.ts",
+      "bytes": 10906,
+      "sha256": "9da8091f57553fb7d8cc387b76e48c423b2179a2e698135b5b16279c9510f0bc"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/app-assets.test.ts",
+      "bytes": 1932,
+      "sha256": "d8c112dedf88bdbaef4159d64e43f77287fa77ee4f3fa6721191a58acbe35446"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/catalog-notes.test.ts",
+      "bytes": 8634,
+      "sha256": "5f2eaba27eb86fcc025dd4c0e90324f0e79bdd37c46f47992a74b9234b9d3322"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/compliance-navigation-ui.test.ts",
+      "bytes": 3592,
+      "sha256": "f69594d5f50c88904c1af8824f0679b2302fca8740440a941f8cc24bed59de8e"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/compliance-pdf.test.ts",
+      "bytes": 684,
+      "sha256": "0456779c4f4113e780a8de3569ba3448c35e813e116ea76c9ef2e85001149612"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/compliance-ui.test.ts",
+      "bytes": 4608,
+      "sha256": "6dd82781f483508ed4c0c0650aa9c6b4e31006ca024757b72bbc23fbce45fb5a"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/compliance.test.ts",
+      "bytes": 10217,
+      "sha256": "e56e7d86dd3674c5ef637119abd4ca46bb557f6eb5a7a72cdd0b5b2452896c07"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/data-source-settings-ui.test.ts",
+      "bytes": 5113,
+      "sha256": "c9d27efa7b73a35c88191bd4b156ab8a77cb9dc426c3829c95ee88af68f871f6"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/data-sources.test.ts",
+      "bytes": 866,
+      "sha256": "a3b0cb7c2fba161943a751040ab526f7e8b4c28a6bde2077f8f7ff00b45cdd9d"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/deposit-balances-ui.test.ts",
+      "bytes": 5870,
+      "sha256": "ede886660aa8ac90fdcb5aec9f4fab0509be822bf50b6bada941152050304931"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/deposit-checkout-ui.test.ts",
+      "bytes": 9419,
+      "sha256": "abb99a73bc547267c69ebedca4160bed9f81b58acbd8a1970da7c70c4fbd045b"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/deposit-session.test.ts",
+      "bytes": 10680,
+      "sha256": "83d31a9a968b308ab47208d20118edd8a6dba0b2d6157e52b9db14d945b8052e"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/compliance.ts",
+      "bytes": 1414,
+      "sha256": "8703d93c60b922e40a435f8e43faf849789f83eec3f6ace49cd4ddd63d2cb6ab"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/history/0x0e999c5285141ccb6dfae68a0921f37abd3e6a87-6ac12c3cdf215493.json.gz",
+      "bytes": 5162,
+      "sha256": "737a84e869bc643b6c84784e1784704cc356ceefa38ca20e3f641290886a6fd5"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/history/0x8cc930096b4df705a007c4a039bdfa1320ed2508-d8b706c462583256.json.gz",
+      "bytes": 22195,
+      "sha256": "722b0204e1925ea8ed65e60a1d136ae06383a037c2b2c9e49a5cf4aeb40df0f1"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/multi-withdrawal.ts",
+      "bytes": 3631,
+      "sha256": "907d16623280b089fb358a1b61ce5c2b243c071a4b0e96889517da5f674547f8"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/seeded-deposits.json",
+      "bytes": 6450,
+      "sha256": "815bd5608744846f0723cf35872ae28badc16a9971f3828dfc681f30526f1135"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/smart-actions.ts",
+      "bytes": 1220,
+      "sha256": "a3405fc5b0f4f48d3659b43511186d819ed462d14e9eebc14514738a26a6f88f"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/smart-withdrawal.ts",
+      "bytes": 4110,
+      "sha256": "d47af853c91967ed81b8c287e1ba8be837a0c020a7789aa7a8b90d70c7ae9391"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/vue-environment.ts",
+      "bytes": 254,
+      "sha256": "57d28ebe677148b9724dbabb82893ca059d00d3f0aa3341cc1a61ae9dd01c4ec"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/fixtures/vue-renderer.ts",
+      "bytes": 2400,
+      "sha256": "9cebc394c3e23a88f90d9a73e010cd92caa678ad03bd72939ce314e6f851d9e7"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/history-cache.test.ts",
+      "bytes": 8951,
+      "sha256": "c0f36909c5fc81415a186b4195a230edd1d9515ea69811549a813d1ad8c64c20"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/history-refresh.test.js",
+      "bytes": 5259,
+      "sha256": "ecd478f83698851884c61d17608c9896e0c698ec41fe2a6f51ba6665a26d6185"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/manage-smart-account-ui.test.ts",
+      "bytes": 3287,
+      "sha256": "c87364613955618a89fe8f4f25396a241a4182da400ff8a737a3f3843e2f2b4c"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/multi-withdrawal-bridge.test.ts",
+      "bytes": 9663,
+      "sha256": "49a10bdaccf1c9b71d7ffd01bfe437abb868aa72fe0e1eaaf289bf28f556fc1d"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/multi-withdrawal.test.ts",
+      "bytes": 9601,
+      "sha256": "a2b9486711e1bb7c2c402e1bb4cc30d2cb9fd922d4b47b9601a3fbd1b32311e9"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/pool-history.test.ts",
+      "bytes": 6046,
+      "sha256": "a5bcdd259087ada4e6becee4c7c889b544d33e606ddf092b36294e1217f10e1e"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/pool-overview-ui.test.ts",
+      "bytes": 4730,
+      "sha256": "1478a873d645ba19c9871a374cf69e8ab622714800e048d81b262f1faae4843f"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/proving-artifacts.test.ts",
+      "bytes": 3787,
+      "sha256": "60397cb62d4964d107b2e91a3978343841e48fe3cb635889a4704b46c153eb2d"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/recipient-privacy-ui.test.ts",
+      "bytes": 5633,
+      "sha256": "7b13edb239d92374464caf7f21e23eb2e3e740a14a95d8834353c73a68228835"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/relayer-history.test.ts",
+      "bytes": 4710,
+      "sha256": "bf1dc72429ad3864f8417897eee136dd7e4344180809fb96023ee05caa7de1c6"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/relayers.test.ts",
+      "bytes": 11033,
+      "sha256": "2ed372bbf3e2417a2e5426ae2b780814ffde4903fc673960c45380cb0a0b26e0"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/rpc.test.ts",
+      "bytes": 6058,
+      "sha256": "384acc312b1da08b477917e31c09281b5515e69f8328290523d2371b1e2b835a"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/saga-history.test.ts",
+      "bytes": 8849,
+      "sha256": "bbed8c4f82211ad7325df9dfb562b5eb118790f6f9a52ed0e1860d06d989a838"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/saga-proxy.test.js",
+      "bytes": 4761,
+      "sha256": "5a2f74473928beea6d9c3e36d45ce196addc521536da27115356ba7155637fc7"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/seed-bundle.test.ts",
+      "bytes": 6720,
+      "sha256": "09545efe4ca393ef67a2db348ffb6cacf678b9e19d40bfe882e36c72f4233256"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/smart-account.test.ts",
+      "bytes": 8345,
+      "sha256": "efbd89238c8deb639f0257c4ebbf9087224d632436844caf2fd905d82ce79f41"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/smart-actions.test.ts",
+      "bytes": 3985,
+      "sha256": "8c3982010da0119a9bb0037d86db536d61d9901f0aa87b008b8077dc44d1536e"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/smart-withdrawal-ui.test.ts",
+      "bytes": 44185,
+      "sha256": "5901062c4b5e6e13b97a16dfbb0de7e6c6839bc7a678804eae0720ad0772398f"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/smart-withdrawal.test.ts",
+      "bytes": 32389,
+      "sha256": "c21d74edc9515500b7502c104d478bb39f46c1887b7234e583b7d4233c8f3f2f"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/snapshot-export.test.js",
+      "bytes": 5452,
+      "sha256": "68677cc5ee061131bbe2f4c0202a8ca070487346ab839003455a1922942d4fe0"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/transaction-builder.test.ts",
+      "bytes": 3875,
+      "sha256": "282a7b3e73760d24170771bb6ba50d9f25821df4672bda7327ac23eba42c0c2b"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/wallet-connection.test.ts",
+      "bytes": 13935,
+      "sha256": "6726e11bcfd943a277b0297791d249639202f715c1f42ab1b6745c6259240e3d"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/wallet-header-ui.test.ts",
+      "bytes": 6831,
+      "sha256": "b5ff8164c7a2c85d5d95b53f6acd85bb5b33e28dec48ff6476ef49878545b9ab"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/wallet-rpc.test.ts",
+      "bytes": 8372,
+      "sha256": "f9cbf31772422ad64a4fc5d3ab9b03b3b3fbdc7f50d074254dff93c2dc2371ae"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/wallet-signer.test.ts",
+      "bytes": 12543,
+      "sha256": "6c2b50fec122dfc57c5aec223408b2640b0f651eb0252b4a975f06373698429f"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/wallet.test.ts",
+      "bytes": 6274,
+      "sha256": "9ed2e5df7bed30fd496039bfc48aa29cfcef89d16e1f5895a2ee74fdba430b83"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/withdrawal-bridge.test.ts",
+      "bytes": 7727,
+      "sha256": "74fe701617c978dd6436e50877237894c164e8ca066f75062f801143de2d504a"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/withdrawal-options.test.ts",
+      "bytes": 3077,
+      "sha256": "da081f84d2384ecaaff9ff04f6580912636ad6b545d2b9cae3af39277fbe70c0"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/withdrawal-simulation.test.ts",
+      "bytes": 11251,
+      "sha256": "5fbbb8f6f6a6d49b30eb89ecd7b97511e525a540addcae2bdea2d1d10dadd127"
+    },
+    {
+      "namespace": "ui",
+      "path": "tests/withdrawals.test.ts",
+      "bytes": 9514,
+      "sha256": "d58a641d422e9066e7074b264bd45ad0214aead6be298b1049fc72f8e96429b8"
+    },
+    {
+      "namespace": "ui",
+      "path": "tsconfig.json",
+      "bytes": 405,
+      "sha256": "11666ee9d60588a8915c2a61dd804ff8077991677f34a58b467d96a2acbcfc63"
+    },
+    {
+      "namespace": "ui",
+      "path": "vite.config.ts",
+      "bytes": 2290,
+      "sha256": "5cdd70f3942eb8921b107394b3fe4350df79fcb9dd0fb543e6ee48010ca096f4"
+    },
+    {
+      "namespace": "ui",
+      "path": "vitest.config.ts",
+      "bytes": 476,
+      "sha256": "e2cbd629b5136b691433494d5edb7be9871d45c4ddf798635dd2bfd311f4e0e7"
+    },
+    {
+      "namespace": "ui",
+      "path": "withdraw-frame.html",
+      "bytes": 222,
+      "sha256": "dc616061a8784c0eba63b67d3551c1ee1bb16b7c1d199d6585f65c9fa0732ad4"
+    }
+  ],
+  "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+  "deploymentStatus": "AWAITING_INDEPENDENT_DEPLOYMENT_CHECK",
+  "previousRelease": {
+    "path": "history/local-sdk-2026-11-16",
+    "baselineDigest": "afc59995802a90139224447a88b234fa19eeb3d186a0bd2d2524cca4ca41570b",
+    "publishedCID": "bafybeiayzgdn25ckbyxmyujd37esu5h6dhsr4df2jg6jksw3hagivwovxu"
+  },
+  "registrySDK": {
+    "version": "0.1.0-alpha.37",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.37.tgz",
+    "integrity": "sha512-Ub4kHobA+Rk4lh+OtOsAek/sfP/GEyUcL8OwWUHaz9cPb716uC5tuZctvgy8LzP82tWA2a47Yed2I557wn1rqQ==",
+    "name": "@kohaku-eth/tornado-cash",
+    "sourceRebuiltArtifacts": 14,
+    "packageFileCount": 17,
+    "additionalDeclaration": "dist/merkle-tree.node.d.ts"
+  }
+}

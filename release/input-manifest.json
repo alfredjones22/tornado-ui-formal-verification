@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "files": [
+    {
+      "path": "release/runtime-layout.json",
+      "sha256": "b498eeec97c3835999711d7cc1c1a892c65a09e4409665a2241878de33d6942a"
+    },
+    {
+      "path": "release/sdk-tsconfig.base.json",
+      "sha256": "676345fd3724ef0daa6adb462c1dabf609ddacfce6ae6dbeb26d5a24259446d5"
+    },
+    {
+      "path": "release/sdk-toolchain/package.json",
+      "sha256": "bb5e206f3be78e712b0bdf031c32db48448d4ba0ba56ccee05233d3daa84404a"
+    },
+    {
+      "path": "release/sdk-toolchain/package-lock.json",
+      "sha256": "8d53eb48f36dc5d66df66b111fd7b6cbddb875f3f11650e0732332ebf78f80fc"
+    },
+    {
+      "path": "release/deployment.json",
+      "sha256": "c520d51d3de87075899f3fa0beb37a8ace4c7dad7d59e084e009c95a282fa537"
+    },
+    {
+      "path": "release/package-metadata/plugins.json",
+      "sha256": "62f96f861c71bbdbeeedfa9e0ef6b76343fded51afa222cd7634351ea4c11123"
+    },
+    {
+      "path": "release/package-metadata/provider.json",
+      "sha256": "708b9b4bf72fd15a0433e18000465eca40e11da2030d6f724ec3f3e08885c865"
+    }
+  ],
+  "runtimeContentDigests": "Locked npm packages are selected and checked against the original content digests in runtime-layout.json; two original package-metadata files preserve exact SDK build inputs."
+}

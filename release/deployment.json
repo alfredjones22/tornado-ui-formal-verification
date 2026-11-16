@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "recordedAtUTC": "2026-11-16T14:52:33.105785+00:00",
+  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+  "reportedUploadedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+  "result": "MATCH",
+  "evidenceKind": "PUBLISHER_REPORTED_INDEPENDENT_UPLOAD_CID",
+  "reportedBy": "Release publisher, in this conversation",
+  "gatewayDelivery": "NOT_CHECKED",
+  "meaning": "The publisher reported this CID after independently uploading the UI build. It exactly matches the locally computed frozen/rebuilt directory CID. This is a recorded publisher report, not an authenticated external attestation or a gateway-fetch check."
+}

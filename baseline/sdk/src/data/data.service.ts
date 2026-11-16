@@ -1,0 +1,404 @@
+/* eslint-disable max-lines */
+import { EthereumProvider, TxLog } from "@kohaku-eth/provider";
+import { ExternalRawEvent } from "@kohaku-eth/plugins";
+import {
+  GetEventsFn,
+  IDataService,
+  IRelayerAggregatorData,
+  IRelayerRegistryEvents,
+  IPoolConfig,
+  IPoolEvents,
+} from "./interfaces/data.service.interface";
+import { parseEventLogs, pad, toHex, type RpcLog, type Hex, hexToBigInt } from "viem";
+import { IRawDepositEvent, IRawWithdrawalEvent, IRelayerRegisteredEvent } from "./interfaces/events.interface";
+import {
+  RELAYER_REGISTRY_EVENTS_SIGNATURES,
+  EVENTS_SIGNATURES,
+  POOL_EVENTS_SIGNATURES,
+  InstanceRegistryEventTypes,
+} from "./abis/events.abi";
+import { EVENTS_PARSERS } from "./utils/events-parsers.util";
+import { EthClient } from "./eth-client";
+import type { IAsset } from "./interfaces/events.interface";
+import { Address } from "../interfaces/types.interface";
+import { E_ADDRESS } from "../config";
+
+const txLogToRpcLog = ({
+  address,
+  data,
+  topics,
+  blockNumber
+}: TxLog, index = 0): RpcLog => ({
+  address: address as Hex,
+  data: data as Hex,
+  topics: topics as [Hex, ...Hex[]],
+  transactionHash: '0x0',
+  transactionIndex: '0x0',
+  blockHash: '0x0',
+  blockNumber: toHex(blockNumber),
+  logIndex: toHex(index),
+  removed: false,
+});
+
+// Events served by an ExternalSyncProvider already carry hex block/log positions
+// and drop tx/block hashes; faked here to match the existing (hash-agnostic) parse
+// path used for on-chain logs.
+const externalRawToRpcLog = ({
+  contractAddress,
+  data,
+  topics,
+  blockNumber,
+  logIndex,
+}: ExternalRawEvent): RpcLog => ({
+  address: contractAddress as Hex,
+  data: data as Hex,
+  topics: topics as [Hex, ...Hex[]],
+  transactionHash: '0x0',
+  transactionIndex: '0x0',
+  blockHash: '0x0',
+  blockNumber: blockNumber as Hex,
+  logIndex: logIndex as Hex,
+  removed: false,
+});
+
+export interface DataServiceParams {
+  provider: EthereumProvider;
+}
+
+type GenericGetEvents = GetEventsFn<
+  typeof EVENTS_SIGNATURES,
+  IPoolEvents & IRelayerRegistryEvents & InstanceRegistryEventTypes
+>;
+
+// Keep normal reads bounded; split reverting batches to isolate broken ENS.
+const RELAYER_DATA_BATCH_SIZE = 16;
+
+function isExecutionReverted(error: unknown): boolean {
+  const seen = new Set<object>();
+
+  while (error && typeof error === 'object' && !seen.has(error)) {
+    seen.add(error);
+    const cause = error as { message?: unknown; details?: unknown; cause?: unknown };
+
+    if ([cause.message, cause.details].some((value) =>
+      typeof value === 'string' && /\bexecution reverted\b/i.test(value))) return true;
+
+    error = cause.cause;
+  }
+
+  return false;
+}
+
+export class DataService implements IDataService {
+  private readonly ethClient!: EthClient;
+
+  constructor({ provider }: DataServiceParams) {
+    this.ethClient = new EthClient(provider);
+  }
+
+  private getEvents: GenericGetEvents = async ({
+    events,
+    address,
+    fromBlock,
+    toBlock,
+  }) => {
+
+    const { logs, toBlock: resultingToBlock, fromBlock: resultingFromBlock } = await this.ethClient.getLogs({
+      address: pad(toHex(address), { size: 20 }),
+      fromBlock,
+      ...(toBlock ? { toBlock } : {}),
+    });
+    const allEvents = events instanceof Array ? events : [events];
+
+    return allEvents.reduce(
+      (parsedEvents, eventType) => ({
+        ...parsedEvents,
+        [eventType]: parseEventLogs({
+          logs: logs.map(txLogToRpcLog),
+          abi: [EVENTS_SIGNATURES[eventType]] as const,
+          eventName: EVENTS_SIGNATURES[eventType].name as never,
+          strict: true,
+        } as const).map((parsedLog) =>
+          EVENTS_PARSERS[eventType](parsedLog as never),
+        ),
+      }),
+      {
+        fromBlock: resultingFromBlock,
+        toBlock: resultingToBlock,
+      } satisfies Pick<
+        Awaited<ReturnType<GenericGetEvents>>,
+        "fromBlock" | "toBlock"
+      >,
+    ) as Awaited<ReturnType<GenericGetEvents>>;
+  };
+
+  getPoolEvents: GetEventsFn<typeof POOL_EVENTS_SIGNATURES, IPoolEvents> =
+    this.getEvents;
+
+  getRelayerRegistryEvents: GetEventsFn<
+    typeof RELAYER_REGISTRY_EVENTS_SIGNATURES,
+    IRelayerRegistryEvents
+  > = this.getEvents;
+
+  getInstanceRegistryEvents = this.getEvents;
+
+  async getBlockNumber(): Promise<bigint> {
+    return this.ethClient.getBlockNumber();
+  }
+
+  /**
+   * Parses the given event types out of raw events served by an
+   * ExternalSyncProvider. Callers pass events for a single contract (the provider
+   * is queried per contract), so no address routing is done here — `parseEventLogs`
+   * filters by each event signature's topic.
+   */
+  private parseExternalEvents<T extends keyof typeof EVENTS_SIGNATURES>(
+    events: ExternalRawEvent[],
+    eventNames: readonly T[],
+  ) {
+    const logs = events.map(externalRawToRpcLog);
+
+    return eventNames.reduce(
+      (parsed, eventType) => ({
+        ...parsed,
+        [eventType]: parseEventLogs({
+          logs,
+          abi: [EVENTS_SIGNATURES[eventType]] as const,
+          eventName: EVENTS_SIGNATURES[eventType].name as never,
+          strict: true,
+        } as const).map((parsedLog) => EVENTS_PARSERS[eventType](parsedLog as never)),
+      }),
+      {} as { [K in T]: ReturnType<(typeof EVENTS_PARSERS)[K]>[] },
+    );
+  }
+
+  parsePoolEvents(events: ExternalRawEvent[]): {
+    Deposited: IRawDepositEvent[];
+    Withdrawn: IRawWithdrawalEvent[];
+  } {
+    return this.parseExternalEvents(events, ["Deposited", "Withdrawn"]);
+  }
+
+  parseRelayerRegistryEvents(events: ExternalRawEvent[]): {
+    RelayerRegistered: IRelayerRegisteredEvent[];
+  } {
+    return this.parseExternalEvents(events, ["RelayerRegistered"]);
+  }
+
+  async getAsset(address: Address): Promise<IAsset> {
+    if (address === BigInt(E_ADDRESS) || address === 0n) {
+      return {
+        name: "ETH",
+        address,
+        decimals: 18,
+        symbol: "ETH",
+      };
+    }
+
+    const [name, decimals, symbol] = await Promise.all([
+      this.ethClient.makeContractRequest(address, "erc20", "name"),
+      this.ethClient.makeContractRequest(address, "erc20", "decimals"),
+      this.ethClient.makeContractRequest(address, "erc20", "symbol"),
+    ]);
+
+    return { name, decimals, symbol, address };
+  }
+
+  getAllPoolsAddresses(registryAddress: Address): Promise<Address[]> {
+    return this.ethClient.makeContractRequest(registryAddress, 'instanceRegistry', 'getAllInstanceAddresses')
+      .then((addresses) => addresses.map(BigInt))
+  }
+
+  async getPoolAsset(poolAddress: Address) {
+    return this.ethClient.makeContractRequest(poolAddress, "instanceRegistry", "getPoolToken", poolAddress).then(hexToBigInt)
+  }
+
+  async getPoolConfig(
+    registryAddress: Address,
+    poolAddress: Address,
+  ): Promise<IPoolConfig> {
+    const [
+      // `instances` also returns uniswapPoolSwappingFee at index 3 (unused — the
+      // paymaster owns fee pricing); elided to keep protocolFeePercentage aligned.
+      [isERC20, token, state, , protocolFeePercentage],
+      { denomination, rootHistorySize },
+    ] =
+    await Promise.all([
+      this.ethClient.makeContractRequest(
+        registryAddress,
+        'instanceRegistry',
+        'instances',
+        toHex(poolAddress, { size: 20 })
+      ),
+      this.getPoolContractParams(poolAddress),
+    ]);
+
+    return {
+      poolAddress,
+      isERC20,
+      token: BigInt(token),
+      state: state as 0 | 1,
+      protocolFeePercentage,
+      denomination,
+      rootHistorySize
+    };
+  }
+
+  async getUnregisteredNativeEthPoolConfig(poolAddress: Address): Promise<IPoolConfig> {
+    const { denomination, rootHistorySize } = await this.getPoolContractParams(poolAddress);
+
+    return {
+      poolAddress,
+      isERC20: false,
+      token: 0n,
+      state: 1,
+      protocolFeePercentage: 0,
+      denomination,
+      rootHistorySize,
+    };
+  }
+
+  private getPoolContractParams(poolAddress: Address): Promise<{ denomination: bigint; rootHistorySize: number }> {
+    return Promise.all([
+      this.ethClient.makeContractRequest(poolAddress, 'pool', 'denomination'),
+      this.ethClient.makeContractRequest(poolAddress, 'pool', 'ROOT_HISTORY_SIZE'),
+    ]).then(([denomination, rootHistorySize]) => ({ denomination, rootHistorySize }));
+  }
+
+  async getChainId() {
+
+    const chainIdHex = await this.ethClient.request({
+      method: "eth_chainId",
+      params: [],
+    }) as string;
+
+    return BigInt(chainIdHex);
+  }
+
+  isPoolRootValid(poolAddress: Address, root: bigint): Promise<boolean> {
+    return this.ethClient.makeContractRequest(poolAddress, 'pool', 'isKnownRoot', toHex(root, { size: 32 }))
+  }
+
+  async getContractDeploymentBlock(address: Address, fromBlock?: bigint): Promise<bigint> {
+    return this.ethClient.getDeploymentBlock(address, fromBlock);
+  }
+
+  async getPoolStateRoot(poolAddress: Address): Promise<bigint> {
+    return this.ethClient.makeContractRequest(poolAddress, "pool", "getLastRoot").then(hexToBigInt);
+  }
+
+  async getPoolCurrentRootIndex(poolAddress: Address): Promise<number> {
+    return this.ethClient.makeContractRequest(poolAddress, "pool", "currentRootIndex")
+  }
+
+  async getPoolHistoricalRoot(poolAddress: Address, index: number): Promise<bigint> {
+    return this.ethClient.makeContractRequest(poolAddress, "pool", "roots", BigInt(index)).then(hexToBigInt);
+  }
+
+  async getRelayerData(
+    aggregatorAddress: Address,
+    relayerNameHashes: bigint[],
+    subdomains: string[],
+  ): Promise<IRelayerAggregatorData[]> {
+    const hashes = relayerNameHashes.map((h) => toHex(h, { size: 32 }) as `0x${string}`);
+    const relayers: IRelayerAggregatorData[] = [];
+    const readBatch = async (
+      batch: Hex[],
+      lookupSubdomains = subdomains,
+    ): Promise<IRelayerAggregatorData[]> => {
+      try {
+        const results = await this.ethClient.makeContractRequest(
+          aggregatorAddress,
+          'aggregator',
+          'relayersData',
+          batch,
+          lookupSubdomains,
+        );
+
+        return results.map(({ owner, balance, isRegistered, records }) => ({
+          owner: BigInt(owner),
+          balance,
+          isRegistered,
+          records: Array.from(records),
+        }));
+      } catch (error) {
+        if (!isExecutionReverted(error)) throw error;
+
+        if (batch.length > 1) {
+          const middle = Math.floor(batch.length / 2);
+          const left = await readBatch(batch.slice(0, middle), lookupSubdomains);
+          const right = await readBatch(batch.slice(middle), lookupSubdomains);
+
+          return [...left, ...right];
+        }
+
+        // The aggregator calls resolver.text without checking the resolver.
+        // Read a broken ENS entry without URLs, preserving its registry data
+        // and position. Empty URL records exclude it from relayer selection.
+        // If even the registry-only read fails, propagate that failure.
+        if (lookupSubdomains.length > 0) return readBatch(batch, []);
+
+        throw error;
+      }
+    };
+
+    for (let start = 0; start < hashes.length; start += RELAYER_DATA_BATCH_SIZE) {
+      relayers.push(...await readBatch(hashes.slice(start, start + RELAYER_DATA_BATCH_SIZE)));
+    }
+
+    return relayers;
+  }
+
+  async getGasPrice(): Promise<bigint> {
+    const hex = await this.ethClient.request({
+      method: 'eth_gasPrice',
+      params: [],
+    }) as string;
+
+    return BigInt(hex);
+  }
+
+  async getLatestBlockTimestamp(): Promise<bigint> {
+    const block = await this.ethClient.request({
+      method: "eth_getBlockByNumber",
+      params: ["latest", false],
+    }) as { timestamp?: string } | null;
+
+    if (!block?.timestamp) {
+      throw new Error("Failed to fetch latest block timestamp");
+    }
+
+    return BigInt(block.timestamp);
+  }
+
+  async getAccountNonce(accountAddress: Address): Promise<number> {
+    const addressHex = toHex(accountAddress, { size: 20 });
+    const nonce = await this.ethClient.request({
+      method: "eth_getTransactionCount",
+      params: [addressHex, "latest"],
+    }) as `0x${string}` | null;
+
+    if (!nonce) {
+      throw new Error(`Failed to fetch latest nonce for ${addressHex}`);
+    }
+
+    return Number(nonce)
+  }
+
+  /**
+   * Asks the paymaster how much of `feeToken` is required to cover `weiAmount`
+   * of gas — the exact value it enforces in validation (`feePaid >= required`).
+   * Uses the paymaster's own TWAP oracle/pool, so the SDK fee and the on-chain
+   * requirement price against the same source.
+   */
+  async quoteWeiInToken(paymasterAddress: Address, feeToken: Address, weiAmount: bigint): Promise<bigint> {
+    return this.ethClient.makeContractRequest(
+      paymasterAddress,
+      'paymaster',
+      'quoteWeiInToken',
+      toHex(feeToken, { size: 20 }),
+      weiAmount,
+    );
+  }
+
+}
