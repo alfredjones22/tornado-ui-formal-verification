@@ -20,6 +20,10 @@
       "validator": [
         "P01_direct_recipient",
         "P02_no_execution_or_nonce"
+      ],
+      "leanTheorems": [
+        "ValidatorRelease.recipient_matches",
+        "ValidatorRelease.no_execution"
       ]
     },
     {
@@ -38,6 +42,10 @@
       "validator": [
         "P05_fee_proceeds",
         "P08_returned_fee_matches_proof"
+      ],
+      "leanTheorems": [
+        "ValidatorRelease.fee_proceeds",
+        "ValidatorRelease.returned_fee_matches_proof"
       ]
     },
     {
@@ -47,6 +55,9 @@
       "validator": [
         "P06_sponsor_tuple",
         "P09_selected_note_nullifier"
+      ],
+      "leanTheorems": [
+        "ValidatorRelease.selected_nullifier"
       ]
     },
     {
@@ -109,6 +120,21 @@
     "Revocation of signed operations after Submit or independent RPC relay",
     "Compiler correctness, gateway delivery or full deployed-UI semantics"
   ],
+  "leanCertification": {
+    "required": true,
+    "toolchain": "leanprover/lean4:v4.29.1",
+    "generatedProof": "artifacts/ValidatorRelease.lean",
+    "source": "baseline/ui/src/core/withdrawals.ts",
+    "scope": "Kernel-checked implications of selected source-extracted validator guards and fee/net return, conditional on the extractor, JavaScript and primitive semantics.",
+    "theorems": [
+      "ValidatorRelease.recipient_matches",
+      "ValidatorRelease.no_execution",
+      "ValidatorRelease.fee_proceeds",
+      "ValidatorRelease.returned_fee_matches_proof",
+      "ValidatorRelease.selected_nullifier",
+      "ValidatorRelease.selected_path_inhabited"
+    ]
+  },
   "releaseCorrespondence": {
     "required": true,
     "inputManifestSHA256": "43d7481f9fb81fbbd4ce78b6bb35df1d2965d4bee1083a219190150060a0b529",

@@ -2,7 +2,7 @@
 
 This continuation targets the frozen **basic single-note paymaster route** in `tornado-ui-new-era` main, using `@kohaku-eth/tornado-cash@0.1.0-alpha.38`. The executable target digest and published CID are anchored by [verification-profile.json](../verification-profile.json) and [release correspondence](release-correspondence.md). The route checks a host-RPC receipt and exact EntryPoint/pool events before confirmation.
 
-The source-fact mapper, conditional Z3 obligations, finite lifecycle model, captured-source tests and byte-exact rebuild checks remain the existing methods. No Lean or whole-program proof is included. The scope excludes the separate smart-account withdrawal route, deposits, all Vue/browser behaviour, and authenticated chain consensus.
+The source-fact mapper, conditional Z3 obligations, finite lifecycle model, captured-source tests and byte-exact rebuild checks remain the methods for the SDK/caller boundary. The separate [Lean certification](lean-certification.md) covers selected local validator properties; it does not prove the SDK, caller protocol or whole program. The scope excludes the smart-account withdrawal route, deposits, all Vue/browser behaviour, and authenticated chain consensus.
 
 ## Selected note and signed operation
 

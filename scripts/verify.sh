@@ -8,6 +8,9 @@ PY=.venv/bin/python
 "$PY" scripts/check-baseline.py
 node pilot/extract-validator.mjs
 node pilot/make-mutants.mjs
+node lean/generate-validator.mjs
+"$PY" scripts/verify-lean.py
+node lean/check-mutants.mjs
 node pilot/generate-corpus.mjs
 "$PY" pilot/verify-validator.py
 "$PY" scripts/replay-smt.py

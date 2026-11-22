@@ -10,11 +10,11 @@ Expected release CID:
 
 The publisher reported exactly this CID after publication, and the clean main `dist/` directory computed to it with the pinned UnixFS settings. The report is pinned in [release/deployment.json](release/deployment.json); gateway delivery is not checked. See [release correspondence](docs/release-correspondence.md).
 
-Start with [the v1 report](docs/release-verification-v1.md), [the eight claims](docs/claims.md), and [the assumptions](docs/assumptions.md). The [continuation report](docs/continuation-1-2.md) covers SDK/caller boundaries.
+Start with [the v1 report](docs/release-verification-v1.md), [the eight claims](docs/claims.md), [the Lean certificate](docs/lean-certification.md), and [the assumptions](docs/assumptions.md). The [continuation report](docs/continuation-1-2.md) covers SDK/caller boundaries.
 
 ## Run as a consumer
 
-Requires Node >=22.18.0 (recommended version in .nvmrc), Python 3.11+ with venv/pip, and a POSIX shell. No separate UI checkout, SDK checkout, wallet, browser or service credentials are needed.
+Requires Node >=22.18.0 (recommended version in .nvmrc), Python 3.11+ with venv/pip, Elan for pinned Lean 4.29.1, and a POSIX shell. No separate UI checkout, SDK checkout, wallet, browser or service credentials are needed.
 
 ```sh
 nvm use
@@ -22,23 +22,25 @@ npm run setup
 npm run verify
 ```
 
-Setup downloads pinned npm/Python tools and isolated rebuild dependencies into this directory. Verification then uses local frozen snapshots, public synthetic fixtures and mocked transports. It does not request live RPC/bundler/relayer data, execute proof workers, or submit Ethereum transactions. No network is needed after setup. A supported z3-solver wheel is required; the tested environment is recorded in [consumer-check.json](reports/consumer-check.json).
+Setup installs the pinned Lean toolchain through Elan if needed, then downloads pinned npm/Python tools and isolated rebuild dependencies into this directory. Verification uses local frozen snapshots, public synthetic fixtures and mocked transports. It does not request live RPC/bundler/relayer data, execute proof workers, or submit Ethereum transactions. No network is needed after setup. A supported z3-solver wheel and the pinned Lean toolchain are required; the tested environment is recorded in [consumer-check.json](reports/consumer-check.json).
 
 A successful run ends with a fresh, conditional verdict such as:
 
 ```text
 PASS_WITH_ASSUMPTIONS — basic direct withdrawal v1 (host-RPC receipt and event checks)
 23 conditional SMT obligations UNSAT; 9 model properties; implementation tests passed.
+Lean: 6 selected validator theorems kernel-checked with no axioms; mutation checks required.
 Confirmation: host-RPC successful receipt and exact EntryPoint/pool events; actual inclusion assumes truthful chain-RPC reporting, without a finality proof.
 Release correspondence: SDK + UI byte-identical; expected CID MATCH; publisher-reported upload CID MATCH. Full UI proof: NOT CLAIMED.
 ```
 
-C01–C05 have conditional source-linked SMT proofs. C06 adds a conditional caller-protocol proof, C07 is source-inspected/tested, and C08 is model-checked/tested. A passing command does not turn all eight into implementation theorems.
+C01–C05 have conditional source-linked SMT proofs. Five source-derived, kernel-checked Lean property theorems additionally cover selected parts of C01, C03, and C04; a sixth theorem witnesses that the selected Lean path is inhabitable. C06 adds a conditional caller-protocol proof, C07 is source-inspected/tested, and C08 is model-checked/tested. A passing command does not turn all eight into implementation theorems.
 
 - Exit 0 means every required check in [verification-profile.json](verification-profile.json) passed under its scope and assumptions.
 - A nonzero exit means failure or incomplete verification. Missing tools, changed target bytes, unsupported extraction, inconclusive solver results, model violations and failed tests stop the run.
 - [reports/result.json](reports/result.json) contains the fresh verdict, target digest, expected CID, deployment status, per-claim evidence kinds and exclusions. Starting a run replaces prior success with RUNNING; failure writes FAIL.
 - [reports/release-correspondence.json](reports/release-correspondence.json) records the source-built SDK artifacts, exact registry-package comparison, all 65 UI files and the computed CID.
+- [reports/lean.json](reports/lean.json) records the fresh Lean theorem checks and source binding; [reports/lean-mutants.json](reports/lean-mutants.json) records changed-source checks. See [Lean certification](docs/lean-certification.md) for the theorem statements and trust boundary.
 - [reports/summary.json](reports/summary.json) records tool versions, counts, verification-file hashes and detailed evidence. Proof artifacts, reports and logs are generated locally and ignored by Git. Report links resolve after running verification; no precomputed PASS is needed.
 
 The dishonest-chain-RPC and post-Submit nonrevocation counterexamples remain explicit limits. They are excluded stronger claims, not failed obligations ignored by a passing verdict.
@@ -65,7 +67,7 @@ All 14 retained SDK build artifacts must reproduce byte for byte and match the p
 
 The clean-main snapshot permits no source-file exceptions.
 
-This is a conditional source-linked pilot plus conditional dataflow/protocol proofs, finite model checks and implementation tests. Translators, mappings, primitive contracts, compilers and normal runtime semantics remain trusted. It is not an end-to-end UI, SDK, Vue/browser, cryptographic-circuit or whole-deployed-UI semantic proof. `A_CHAIN_RPC_REPORTING` applies specifically to confirmation's chain meaning. [The assumptions](docs/assumptions.md) and [remaining work](docs/next-steps.md) are part of the result. Hashes are integrity anchors, not authenticated publisher signatures. No Lean proof is part of this first pass.
+This is a conditional source-linked pilot with five Lean kernel-checked validator properties and one nonvacuity theorem, conditional dataflow/protocol proofs, finite model checks and implementation tests. Translators, mappings, primitive contracts, compilers and normal runtime semantics remain trusted. It is not an end-to-end UI, SDK, Vue/browser, cryptographic-circuit or whole-deployed-UI semantic proof. `A_CHAIN_RPC_REPORTING` applies specifically to confirmation's chain meaning. [The assumptions](docs/assumptions.md) and [remaining work](docs/next-steps.md) are part of the result. Hashes are integrity anchors, not authenticated publisher signatures.
 
 ## Repository footprint
 
@@ -81,4 +83,4 @@ The large retained input is about 49 MiB of exact compressed proving/history/rel
 - pilot/, model/, continuation/: source-linked extraction, symbolic checks, lifecycle model, captured-source harnesses and mutants.
 - scripts/: setup, consumer runner, integrity checks, replay and summaries.
 - release/: rebuild/CID checks, locked SDK build tools, runtime layout, two original package-metadata files and release records.
-- artifacts/, reports/: regenerated, Git-ignored IR, SMT-LIB, synthetic corpus, verdicts and traces.
+- artifacts/, reports/: regenerated, Git-ignored IR, Lean source, SMT-LIB, synthetic corpus, verdicts and traces.

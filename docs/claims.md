@@ -4,7 +4,7 @@ Continuation evidence and narrowed SDK/caller premises are recorded in [continua
 
 Target: the basic, single-note paymaster route in the frozen release. The recipient is the address supplied to the validator as the reviewed intent; correspondence to the rendered review and the human's intention is a separate obligation. Each local postcondition quantifies over all successful returns in the input domain in [assumptions.md](assumptions.md).
 
-The evidence labels are deliberately separate: **conditional implementation proof**, **model check**, **concrete test**, **source inspection**, and **open/refuted stronger claim**.
+The evidence labels are deliberately separate: **conditional source-linked SMT proof**, **kernel-checked Lean theorem over a source-derived abstraction**, **model check**, **concrete test**, **source inspection**, and **open/refuted stronger claim**. [Lean certification](lean-certification.md) explains the five property theorems, one nonvacuity theorem, and their trusted source bridge.
 
 <a id="c01"></a>
 
@@ -12,7 +12,7 @@ The evidence labels are deliberately separate: **conditional implementation proo
 
 If `validateWithdrawal` returns, the proof recipient equals the supplied reviewed recipient, calldata is `0x`, execution gas is zero, and the UserOperation nonce is zero.
 
-- Evidence: conditional SMT obligations P01 and P02; concrete accepted/rejected inputs.
+- Evidence: conditional SMT obligations P01 and P02; Lean theorems `ValidatorRelease.recipient_matches` and `ValidatorRelease.no_execution`; concrete accepted/rejected inputs. The Lean theorems cover the selected guard abstraction, not actual on-chain payout.
 - Release boundary: `baseline/ui/src/core/withdrawals.ts#validateWithdrawal`.
 - Assumptions: normal input values and native conversion/address semantics. No claim that the recipient is nonzero at this boundary; `prepareWithdrawal` performs that upstream check, which is not symbolically verified here.
 - Exclusions: actual transfer, signature authority, proof validity, subsequent recipient contract behaviour, gas-refund routing on chain, and displayed-review correspondence.
@@ -34,7 +34,7 @@ On successful return, the transport is the configured paymaster route and bundle
 
 On successful return, the returned fee equals the proof fee, `0 < fee < denomination`, and `net = denomination - fee`, with `0 < net < denomination`.
 
-- Evidence: P05 and P08, including arbitrary mathematical integer reasoning within the declared uint256 input ranges; concrete near-boundary and large-integer cases.
+- Evidence: conditional SMT obligations P05 and P08; Lean theorems `ValidatorRelease.fee_proceeds` and `ValidatorRelease.returned_fee_matches_proof` certify the same stated bounds, net subtraction and returned-fee equality in the source-derived abstraction; concrete near-boundary and large-integer cases. The mathematical integer reasoning is conditional on the declared input/conversion domain.
 - Release boundary: `withdrawals.ts#validateWithdrawal`.
 - Exclusions: a 20% fee ceiling, market fairness, correct gas estimation, final gas refunds, and decimal formatting. The host validator enforces less than the whole note; stronger SDK fee limits are outside this proof.
 
@@ -44,7 +44,7 @@ On successful return, the returned fee equals the proof fee, `0 < fee < denomina
 
 On successful ABI decoding and validator return, the sponsor tuple has the expected pool and recipient, and the same proof bytes, root, nullifier hash and fee as the supplied proof fields. The proof nullifier is also required to equal `noteIdentity(note).nullifierHash` for the selected note.
 
-- Evidence: P06 and P09_selected_note_nullifier; actual viem decoding and note identity in concrete and differential checks.
+- Evidence: conditional SMT obligations P06 and P09_selected_note_nullifier; Lean theorem `ValidatorRelease.selected_nullifier` for the selected-note equality only; actual viem decoding and note identity in concrete and differential checks. The decoded sponsor-tuple relationships have no Lean theorem.
 - Release boundary: `withdrawals.ts#validateWithdrawal`.
 - Assumptions: viem's decoder faithfully maps raw ABI bytes to this tuple. The symbolic backend represents an arbitrary correctly typed decoded tuple rather than proving the decoder.
 - Boundary limitation: the source-linked equality is conditional on the faithful implementation of `noteIdentity` and its Pedersen/nullifier derivation. A field-equality theorem is not a cryptographic proof that a deposit exists, belongs to the user, or remains unspent.

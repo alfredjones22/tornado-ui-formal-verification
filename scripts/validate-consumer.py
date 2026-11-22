@@ -28,6 +28,9 @@ positive=read(clone/'reports/result.json')
 assert positive['status']=='PASS_WITH_ASSUMPTIONS'
 assert positive['baselineDigest']==read(ROOT/'baseline/manifest.json')['contentDigest']
 assert positive['expectedCID']==read(ROOT/'verification-profile.json')['releaseCorrespondence']['expectedCID']
+assert positive['leanCertification']['status']=='KERNEL_CHECKED_NO_AXIOMS'
+assert len(positive['leanCertification']['theorems'])==6
+assert read(clone/'reports/lean.json')['runId']==positive['runId']
 print('Fresh offline verification passed',flush=True)
 # Preserve the actual successful verdict as a stale prior result before each failing run.
 prior_result=(clone/'reports/result.json').read_bytes();prior_summary=(clone/'reports/summary.json').read_bytes()
@@ -56,6 +59,9 @@ finally:extra.unlink()
 target=clone/'baseline/ui/src/core/withdrawals.ts';original=target.read_bytes();target.write_bytes(original+b'\n')
 try:checks['changed-frozen-source']=negative('changed-frozen-source',['npm','run','verify'])
 finally:target.write_bytes(original)
+target=clone/'lean-toolchain';original=target.read_bytes();target.write_text('leanprover/lean4:v0.0.0\n')
+try:checks['wrong-lean-toolchain']=negative('wrong-lean-toolchain',['npm','run','verify'])
+finally:target.write_bytes(original)
 # Exercise the new package bridge through the complete verifier, not only a helper call.
 target=clone/'.release-work/ui/node_modules/@kohaku-eth/tornado-cash/dist/index.js';original=target.read_bytes();target.write_bytes(original+b'\n')
 try:checks['changed-installed-registry-sdk']=negative('changed-installed-registry-sdk',['npm','run','verify'])
@@ -79,10 +85,10 @@ try:
  assert changed!=positive['expectedCID']
  checks['changed-build-byte']={'result':'DETECTED','expectedCID':positive['expectedCID'],'changedCID':changed}
 finally:target.write_bytes(original)
-versions={'node':subprocess.check_output(['node','--version'],env=env,text=True).strip(),'python':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import platform; print(platform.python_version())'],env=env,text=True).strip(),'z3':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import z3; print(z3.get_version_string())'],env=env,text=True).strip(),'os':platform.system(),'machine':platform.machine()}
+versions={'node':subprocess.check_output(['node','--version'],env=env,text=True).strip(),'python':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import platform; print(platform.python_version())'],env=env,text=True).strip(),'z3':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import z3; print(z3.get_version_string())'],env=env,text=True).strip(),'lean':subprocess.check_output(['elan','run','leanprover/lean4:v4.29.1','lean','--version'],cwd=clone,env=env,text=True).strip(),'os':platform.system(),'machine':platform.machine()}
 report={'schemaVersion':2,'finishedAtUTC':datetime.now(timezone.utc).isoformat(),'status':'PASS','baselineDigest':positive['baselineDigest'],'expectedCID':positive['expectedCID'],
  'freshInstall':{'setupExitCode':0,'priorNodeModules':False,'priorPythonEnvironment':False,'originalCheckoutsRequired':False},'environment':versions,
- 'offlinePositiveRun':{k:positive[k] for k in ['status','runId','baselineDigest','expectedCID','deploymentStatus','sourceBuildCorrespondence','cidCorrespondence','conditionalSMTObligations','modelProperties','implementationTests']},
+ 'offlinePositiveRun':{k:positive[k] for k in ['status','runId','baselineDigest','expectedCID','deploymentStatus','sourceBuildCorrespondence','cidCorrespondence','leanCertification','conditionalSMTObligations','modelProperties','implementationTests']},
  'nodeNetworkingBlocked':True,'externalUISourceExactMatch':True,'negativeChecks':checks,'logs':'reports/consumer/','temporaryExportRemoved':True}
 (ROOT/'reports/consumer-check.json').write_text(json.dumps(report,indent=2)+'\n')
 (ROOT/'reports/source-check.json').write_text(json.dumps({'schemaVersion':1,'baselineDigest':positive['baselineDigest'],'includedUISourceFilesAccepted':len([r for r in read(clone/'baseline/manifest.json')['files'] if r['namespace']=='ui'])-len(source_revision['removedFiles']),'uiSourceRevision':source_revision,'negativeChecks':{k:checks[k] for k in ['changed-readme','changed-runtime-source','additional-ui-file']}},indent=2)+'\n')

@@ -13,7 +13,7 @@ function write(status, fields = {}) {
   writeFileSync(resultPath, JSON.stringify({ ...base, status, ...fields }, null, 2) + '\n');
 }
 write('RUNNING');
-for (const p of ['reports/summary.json', 'reports/continuation/summary.json', 'reports/release-correspondence.json']) rmSync(resolve(root, p), { force: true });
+for (const p of ['reports/summary.json', 'reports/continuation/summary.json', 'reports/release-correspondence.json', 'reports/lean.json', 'reports/lean.log', 'reports/lean-mutants.json']) rmSync(resolve(root, p), { force: true });
 try {
   for (const p of ['artifacts/continuation','reports/continuation']) mkdirSync(resolve(root,p),{recursive:true});
   const args = process.argv.slice(2);
