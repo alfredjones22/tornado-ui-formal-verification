@@ -27,8 +27,8 @@ export interface WithdrawalSimulation {
 }
 export function canSubmitSimulation(result: WithdrawalSimulation | undefined, quote: SmartWithdrawalQuote | null, now = Date.now()) {
   if (!quote) return false
-  // Detailed preview remains optional without custom calls. Once attempted,
-  // a failure must block that exact operation, including in the submit adapter.
+  // Other callers may omit a preview without custom calls; the active UI runs
+  // it on Submit. Once attempted, a failure blocks that exact operation.
   if (!result) return !quote.scope.calls?.length
   return simulationMatches(result, quote, now) && (result.status === 'passed' || result.status === 'unavailable' &&
     ['transport', 'unsupported'].includes(result.availabilityReason ?? '') && quote.withdrawal.gasEstimation?.status === 'estimated')
@@ -40,7 +40,8 @@ export function retainSimulationFailure(previous: WithdrawalSimulation | undefin
 export function simulationMatches(result: WithdrawalSimulation | undefined, quote: SmartWithdrawalQuote | null, now = Date.now()) {
   return !!quote && !!result && result.hash === quote.signedHash && now - result.checkedAt < 5 * 60_000
 }
-export async function simulateSmartWithdrawal(quote: SmartWithdrawalQuote, settings: ConnectionSettings, rpcOverride?: string): Promise<WithdrawalSimulation> {
+export async function simulateSmartWithdrawal(quote: SmartWithdrawalQuote, settings: ConnectionSettings, rpcOverride?: string,
+  onExposure?: () => void): Promise<WithdrawalSimulation> {
   validateSmartWithdrawal(quote.notes, quote.scope, quote.withdrawal, settings)
   const typed = batchTypedData(quote.withdrawal, settings)
   if (hashTypedData(typed) !== quote.signedHash) throw new Error('The prepared operation changed after signing.')
@@ -52,6 +53,9 @@ export async function simulateSmartWithdrawal(quote: SmartWithdrawalQuote, setti
       BigInt(`0x${op.accountGasLimits.slice(34)}`) + BigInt(op.preVerificationGas) +
       BigInt(quote.withdrawal.userOperation.paymasterVerificationGasLimit ?? 0) + BigInt(quote.withdrawal.userOperation.paymasterPostOpGasLimit ?? 0) + 1_000_000n
     const data = encodeFunctionData({ abi: entryAbi, functionName: 'handleOps', args: [[op], simulator] })
+    // A timeout or RPC failure after this point cannot prove the signed
+    // operation was not received and relayed by the endpoint.
+    onExposure?.()
     const blocks = await jsonRpc<SimulatedBlock[]>(endpoint, 'eth_simulateV1', [{
       blockStateCalls: [{ stateOverrides: { [simulator]: { balance: toHex(10n ** 30n) } },
         calls: [{ from: simulator, to: quote.withdrawal.entryPointAddress, data, gas: toHex(gas) }] }],

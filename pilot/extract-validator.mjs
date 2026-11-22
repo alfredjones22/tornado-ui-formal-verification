@@ -34,7 +34,7 @@ export function extractValidator(source) {
       return fail(p);
     })];
     if (ts.isCallExpression(n)) {
-      if (ts.isIdentifier(n.expression) && ['BigInt', 'Boolean', 'Number', 'decodeAbiParameters', 'parseAbiParameters'].includes(n.expression.text)) return ['call', n.expression.text, ...n.arguments.map(expr)];
+      if (ts.isIdentifier(n.expression) && ['BigInt', 'Boolean', 'Number', 'decodeAbiParameters', 'parseAbiParameters', 'noteIdentity'].includes(n.expression.text)) return ['call', n.expression.text, ...n.arguments.map(expr)];
       if (ts.isPropertyAccessExpression(n.expression) && ['toLowerCase', 'includes'].includes(n.expression.name.text)) return ['method', n.expression.name.text, expr(n.expression.expression), !!n.expression.questionDotToken, ...n.arguments.map(expr)];
       return fail(n);
     }

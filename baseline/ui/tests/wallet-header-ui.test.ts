@@ -16,7 +16,7 @@ beforeEach(() => {
 afterEach(() => { cleanup?.(); cleanup = undefined; vi.useRealTimers(); vi.unstubAllGlobals() })
 
 describe('connected account in the actual site header', () => {
-  it.each(['', '#multi-withdraw', '#smart-account'])('never contacts or restores injected wallets on arrival, focus or discovery (%s)', async hash => {
+  it.each(['', '#smart-withdrawal', '#smart-account'])('never contacts or restores injected wallets on arrival, focus or discovery (%s)', async hash => {
     vi.stubGlobal('location', new URL(`http://localhost:4174/${hash}`))
     const provider = { request: vi.fn(async () => [first]), on: vi.fn(), removeListener: vi.fn() }
     const other = { request: vi.fn(async () => [second]), on: vi.fn(), removeListener: vi.fn() }

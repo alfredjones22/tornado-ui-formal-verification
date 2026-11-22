@@ -1,4 +1,4 @@
-import { encodeFunctionData, erc20Abi, isAddress, toHex, type Address, type Hash, type Hex } from 'viem'
+import { decodeEventLog, encodeFunctionData, erc20Abi, isAddress, parseAbi, toHex, type Address, type Hash, type Hex, type TransactionReceipt } from 'viem'
 import type { DepositNote } from './notes'
 import { poolAbi } from './notes'
 import { publicClientFor, validateConnections, type ConnectionSettings } from './rpc'
@@ -10,7 +10,7 @@ export interface WalletProvider {
 }
 export interface WalletOption { id: string; name: string; provider: WalletProvider }
 export type ProgressStatus = 'ready' | 'awaiting-wallet' | 'submitted' | 'confirmed' | 'failed' | 'rejected' | 'unknown'
-export interface Progress { id: string; label: string; status: ProgressStatus; hash?: Hex; transactionHash?: Hex; batchId?: string; depositBatch?: number; relayerJobId?: string; message?: string }
+export interface Progress { id: string; label: string; status: ProgressStatus; hash?: Hex; transactionHash?: Hex; batchId?: string; batchTransactionHashes?: Hash[]; depositBatch?: number; expectedDeposit?: DepositExpectation | null; relayerJobId?: string; message?: string }
 export type DepositMode = 'auto' | 'sequential'
 export type Update = (id: string, patch: Partial<Progress>) => void
 export const pause = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
@@ -54,7 +54,52 @@ export async function atomicBatchAvailable(provider: WalletProvider, account: Ad
   } catch { return false }
 }
 
-export interface DepositCall { id: string; label: string; to: Address; data: Hex; value: bigint }
+export interface DepositExpectation { pool: Address; commitment: Hex }
+export interface DepositCall { id: string; label: string; to: Address; data: Hex; value: bigint; expectedDeposit: DepositExpectation | null }
+const depositEvents = parseAbi(['event Deposit(bytes32 indexed commitment, uint32 leafIndex, uint256 timestamp)'])
+
+/** Only a successful chain receipt with this pool's exact commitment proves a
+ * note was funded. Wallet batch status and transaction success alone do not. */
+export function receiptConfirmsDeposit(receipt: TransactionReceipt, expected: DepositExpectation): boolean {
+  return receipt.logs.some(log => {
+    if (log.removed || log.address.toLowerCase() !== expected.pool.toLowerCase()) return false
+    try {
+      const event = decodeEventLog({ abi: depositEvents, data: log.data, topics: log.topics, strict: true })
+      return event.eventName === 'Deposit' && event.args.commitment.toLowerCase() === expected.commitment.toLowerCase()
+    } catch { return false }
+  })
+}
+
+export function assertReceiptForCall(receipt: TransactionReceipt, hash: Hash, expected: DepositExpectation | null | undefined): void {
+  if (!isHash(receipt.transactionHash) || receipt.transactionHash.toLowerCase() !== hash.toLowerCase()) {
+    throw new Error('The chain RPC returned a receipt for another transaction. Check the deposit before retrying.')
+  }
+  if (receipt.status !== 'success') throw new Error('A deposit transaction reverted. Check the wallet before retrying.')
+  if (expected === undefined) throw new Error('The expected deposit details are missing. Keep the session open and check the original notes.')
+  if (expected && !receiptConfirmsDeposit(receipt, expected)) {
+    throw new Error('The transaction receipt does not show the expected pool Deposit event. Check the note before retrying.')
+  }
+}
+
+/** Wallet batches may span multiple transactions. Verify every chain receipt
+ * and locate each expected deposit in one of them before confirming any row. */
+export async function verifyDepositBatch(calls: readonly { id: string; expectedDeposit?: DepositExpectation | null }[], hashes: readonly Hash[],
+  settings: ConnectionSettings, wait = false): Promise<Map<string, Hash>> {
+  if (!hashes.length) throw new Error('The wallet provided no transaction receipt. Check the batch before retrying.')
+  const client = publicClientFor(settings)
+  const receipts = await Promise.all(hashes.map(async hash => ({ hash, receipt: wait
+    ? await client.waitForTransactionReceipt({ hash, timeout: 180_000 }) : await client.getTransactionReceipt({ hash }) })))
+  for (const { hash, receipt } of receipts) assertReceiptForCall(receipt, hash, null)
+  const matched = new Map<string, Hash>()
+  for (const call of calls) {
+    if (call.expectedDeposit === undefined) throw new Error('The expected deposit details are missing. Keep the session open and check the original notes.')
+    if (!call.expectedDeposit) { matched.set(call.id, hashes[0]!); continue }
+    const hits = receipts.filter(({ receipt }) => receiptConfirmsDeposit(receipt, call.expectedDeposit!))
+    if (hits.length !== 1) throw new Error('The chain receipts do not uniquely confirm every expected pool deposit. Check the notes before retrying.')
+    matched.set(call.id, hits[0]!.hash)
+  }
+  return matched
+}
 export async function depositCalls(notes: DepositNote[], settings: ConnectionSettings, account: Address): Promise<DepositCall[]> {
   const client = publicClientFor(settings)
   const totals = new Map<Address, { token: Address; amount: bigint; symbol: string }>()
@@ -76,21 +121,25 @@ export async function depositCalls(notes: DepositNote[], settings: ConnectionSet
     const allowance = await client.readContract({ address: token, abi: erc20Abi, functionName: 'allowance', args: [account, pool] })
     if (allowance >= amount) continue
     // Exact approvals only. Reset existing allowance for tokens such as USDT.
-    if (allowance > 0n) calls.push({ id: `reset-${pool}`, label: `Reset ${symbol} approval`, to: token, value: 0n,
+    if (allowance > 0n) calls.push({ id: `reset-${pool}`, label: `Reset ${symbol} approval`, to: token, value: 0n, expectedDeposit: null,
       data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [pool, 0n] }) })
-    calls.push({ id: `approve-${pool}`, label: `Approve ${symbol}`, to: token, value: 0n,
+    calls.push({ id: `approve-${pool}`, label: `Approve ${symbol}`, to: token, value: 0n, expectedDeposit: null,
       data: encodeFunctionData({ abi: erc20Abi, functionName: 'approve', args: [pool, amount] }) })
   }
-  return [...calls, ...notes.map(n => ({ id: n.id, label: `${n.pool.denomination} ${n.pool.asset.symbol}`, ...n.call }))]
+  return [...calls, ...notes.map(n => ({ id: n.id, label: `${n.pool.denomination} ${n.pool.asset.symbol}`,
+    ...n.call, expectedDeposit: { pool: n.pool.address, commitment: n.commitment } }))]
 }
 
-export async function waitForWalletBatch(provider: WalletProvider, batchId: string, timeout = 180_000) {
+export async function waitForWalletBatch(provider: WalletProvider, batchId: string, timeout = 180_000): Promise<Hash[]> {
   const end = Date.now() + timeout
   do {
-    const result = await provider.request({ method: 'wallet_getCallsStatus', params: [batchId] }) as { status: number; receipts?: { status: string; transactionHash: Hex }[] }
+    const result = await provider.request({ method: 'wallet_getCallsStatus', params: [batchId] }) as { status: number; receipts?: { status?: string; transactionHash?: Hex }[] }
     if (result.status >= 200 && result.status < 300) {
-      if (result.receipts?.some(r => BigInt(r.status) === 0n)) throw new Error('A batched call reverted.')
-      return result.receipts?.[0]?.transactionHash
+      if (!result.receipts?.length || result.receipts.some(r => !isHash(r.transactionHash))) {
+        throw new Error('The wallet reported completion without transaction receipts. Check the batch before retrying.')
+      }
+      if (result.receipts.some(r => r.status && BigInt(r.status) === 0n)) throw new Error('A batched call reverted.')
+      return [...new Map(result.receipts.map(r => [r.transactionHash!.toLowerCase(), r.transactionHash as Hash])).values()]
     }
     if (result.status >= 400) throw new Error('The wallet batch failed. Check its status in your wallet before starting another session.')
     await pause(2000)
@@ -106,7 +155,7 @@ export async function executeDeposits(options: {
   await validateConnections(settings, false)
   await assertWallet(provider, account, settings)
   if (atomic && calls.length > 0) {
-    calls.forEach(c => update(c.id, { status: 'awaiting-wallet' }))
+    calls.forEach(c => update(c.id, { status: 'awaiting-wallet', expectedDeposit: c.expectedDeposit }))
     let submitted = false
     try {
       const result = await provider.request({ method: 'wallet_sendCalls', params: [{ version: '2.0.0', chainId: toHex(settings.chainId),
@@ -115,8 +164,10 @@ export async function executeDeposits(options: {
       if (typeof batchId !== 'string' || !batchId) throw new Error('The wallet returned no batch identifier.')
       submitted = true
       calls.forEach(c => update(c.id, { status: 'submitted', batchId }))
-      const hash = await waitForWalletBatch(provider, batchId)
-      calls.forEach(c => update(c.id, { status: 'confirmed', hash, transactionHash: hash }))
+      const hashes = await waitForWalletBatch(provider, batchId)
+      calls.forEach(c => update(c.id, { batchTransactionHashes: hashes, hash: hashes[0], transactionHash: hashes[0] }))
+      const confirmed = await verifyDepositBatch(calls, hashes, settings, true)
+      calls.forEach(c => update(c.id, { status: 'confirmed', hash: confirmed.get(c.id), transactionHash: confirmed.get(c.id), message: undefined }))
     } catch (error) {
       const rejected = (error as { code?: number })?.code === 4001
       calls.forEach(c => update(c.id, { status: rejected && !submitted ? 'failed' : 'unknown', message: rejected ? 'Declined in wallet.' : 'Check batch status before retrying.' }))
@@ -127,7 +178,7 @@ export async function executeDeposits(options: {
   const client = publicClientFor(settings)
   for (const call of calls) {
     await assertWallet(provider, account, settings)
-    update(call.id, { status: 'awaiting-wallet' })
+    update(call.id, { status: 'awaiting-wallet', expectedDeposit: call.expectedDeposit })
     let submitted = false
     try {
       const hash = await provider.request({ method: 'eth_sendTransaction', params: [{ from: account, to: call.to, data: call.data, value: toHex(call.value) }] })
@@ -139,6 +190,7 @@ export async function executeDeposits(options: {
         update(call.id, { status: 'failed', message: 'Transaction reverted.' })
         throw new Error('A transaction reverted. Remaining deposits were stopped.')
       }
+      assertReceiptForCall(receipt, hash, call.expectedDeposit)
       update(call.id, { status: 'confirmed' })
     } catch (error) {
       const rejected = (error as { code?: number })?.code === 4001

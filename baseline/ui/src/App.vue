@@ -15,7 +15,7 @@ import { assertWallet, atomicBatchAvailable, discoverWallets, type DepositMode, 
 import { depositBatches, executeDepositSession, reconcileDepositSession } from './core/deposit-session'
 import { checkedSourceUrl, checkedUrl, publicClientFor, safeError, validateConnections, type BundlerKind, type ConnectionSettings } from './core/rpc'
 import { ARTIFACTS_URL, SAGA_URLS } from './core/data-sources'
-import { prepareWithdrawal, reconcileWithdrawal, submitWithdrawal, type WithdrawalQuote } from './core/withdrawals'
+import { prepareWithdrawal, reconcileBasicWithdrawal, submitWithdrawal, type WithdrawalQuote } from './core/withdrawals'
 import { prepareRelayerWithdrawal, reconcileRelayerWithdrawal, submitRelayerWithdrawal, type RelayerQuote } from './core/relayers'
 import { createWalletConnection } from './core/wallet-connection'
 import { setWalletRpcSource } from './core/wallet-rpc'
@@ -110,6 +110,7 @@ const classicRelayerAvailable = computed(() => !parsed.value.note || supportsCla
 const pending = computed(() => progress.value.some(p => ['submitted', 'unknown', 'awaiting-wallet'].includes(p.status)))
 const allConfirmed = computed(() => progress.value.length > 0 && progress.value.every(p => p.status === 'confirmed'))
 const canStartNewDeposit = computed(() => sessionKind.value === 'deposit' && started.value && allConfirmed.value && progress.value.some(p => p.transactionHash))
+const canReopenDeposit = computed(() => sessionKind.value === 'deposit' && !started.value && generated.value.length > 0)
 const inlineWithdrawalFeedback = computed(() => tab.value === 'withdraw' && !dialog.value)
 const settings = (requireBundler = true): ConnectionSettings => {
   let bundlerUrl = ''
@@ -287,7 +288,8 @@ async function recheck() {
             if (!row.relayerJobId) throw new Error('The relayer did not return a job ID. Check the original note before retrying.')
             await reconcileRelayerWithdrawal(quote.value, frozen, row.relayerJobId, update, 10_000)
           } else {
-            const tx = await reconcileWithdrawal(frozen.bundlerUrl, row.hash!, 10_000)
+            if (!quote.value || 'relayer' in quote.value) throw new Error('The reviewed paymaster withdrawal is unavailable. Preserve the note and check the chain.')
+            const tx = await reconcileBasicWithdrawal(quote.value, frozen, row.hash!, 10_000)
             update(row.id, { status: 'confirmed', transactionHash: tx, message: undefined })
           }
         }
@@ -451,7 +453,7 @@ onUnmounted(() => { walletDiscovery?.dispose(); walletConnection.dispose(); setW
           </div>
 
           <div v-else id="withdraw-panel" class="panel-body" role="tabpanel" aria-labelledby="withdraw-tab">
-            <button class="multi-withdraw-banner" :disabled="busy || pending" @click="changePage('multi')"><span>withdraw multiple notes at once? <span class="feature-label feature-label-new">NEW!</span></span><Icon name="arrow" :size="16" /></button>
+            <button class="multi-withdraw-banner" :disabled="busy || pending" @click="changePage('multi')"><span>Withdraw multiple notes or run follow-up actions in one transaction? <span class="feature-label feature-label-new">NEW!</span></span><Icon name="arrow" :size="16" /></button>
             <div class="field-heading"><label for="note">Withdrawal note</label><button class="text-button" :disabled="busy" @click="fileInput?.click()"><Icon name="file" :size="14" /> Import .txt</button></div>
             <input ref="fileInput" type="file" accept=".txt,text/plain" hidden @change="importFile" />
             <textarea id="note" v-model="noteInput" :disabled="busy" rows="4" spellcheck="false" autocomplete="off" autocapitalize="off" placeholder="tornado-eth-0.1-1-0x…&#10;&#10;Paste one note to withdraw." />
@@ -505,6 +507,7 @@ onUnmounted(() => { walletDiscovery?.dispose(); walletConnection.dispose(); setW
         </aside>
       </div>
       <div v-if="started && progress.length && !dialog" class="session-banner"><Icon name="file"/><span>{{ allConfirmed ? 'Your last session is confirmed.' : 'You have a transaction session to review.' }}</span><button class="text-button" @click="dialog = sessionKind">Open session <Icon name="arrow" :size="13"/></button><button v-if="canStartNewDeposit" class="text-button" :disabled="busy || flowBusy || flowPending" @click="startNewDepositSession">Start a new deposit session?</button></div>
+      <div v-else-if="canReopenDeposit && !dialog" class="session-banner"><Icon name="file"/><span>Your generated notes remain available in this tab.</span><button class="text-button" @click="dialog = 'deposit'">Open deposit checkout <Icon name="arrow" :size="13"/></button></div>
       <div v-if="status && !inlineWithdrawalFeedback" class="status-banner" role="status"><span class="spinner"></span>{{ status }}</div>
       <div v-if="error && !dialog && !inlineWithdrawalFeedback" class="error-banner" role="alert"><Icon name="info" />{{ error }}<button class="icon-button" aria-label="Dismiss error" @click="error = ''"><Icon name="close" /></button></div>
       <footer><span><img :src="logoUrl" alt="" />Privacy is a right.</span><div><span class="footer-version">NEW ERA / V0.1</span><button class="text-button" @click="dialog = 'help'">About this interface <Icon name="arrow" :size="13" /></button></div></footer>
@@ -545,9 +548,10 @@ onUnmounted(() => { walletDiscovery?.dispose(); walletConnection.dispose(); setW
         <template v-else-if="!started && dialog === 'deposit'">
           <div class="review-total"><span>{{ generated.length }} {{ depositSeedPhrase ? 'seed-backed' : 'independent' }} note{{ generated.length === 1 ? '' : 's' }}</span><strong>{{ units(generated.reduce((s, n) => s + n.pool.amount, 0n), generated[0]!.pool.asset) }} {{ generated[0]!.pool.asset.symbol }}</strong><small>{{ NETWORKS[sessionSettings!.chainId].name }} · gas paid by your wallet</small></div>
           <div class="note-breakdown"><div v-for="(n, i) in generated" :key="n.id"><span>Note {{ String(i + 1).padStart(2, '0') }}</span><b>{{ n.pool.denomination }} {{ n.pool.asset.symbol }}</b></div></div>
-          <div class="checkout-step-heading"><span class="checkout-step-number" aria-hidden="true">1</span><h3>Save your backup</h3><small v-if="backupDownloaded && backupAcknowledged"><Icon name="check" :size="13" />Saved</small></div>
+          <div class="checkout-step-heading"><span class="checkout-step-number" aria-hidden="true">1</span><h3>Save your backup</h3><small v-if="backupDownloaded && backupAcknowledged"><Icon name="check" :size="13" />Acknowledged</small></div>
           <p v-if="depositSeedPhrase" class="input-hint">Download one backup file containing the seed phrase and all individual notes. Anyone with the phrase can spend all of these notes; anyone with a note string can spend that note. To withdraw here, copy one note line.</p>
           <button class="button full backup-button" @click="downloadNotes"><Icon :name="backupDownloaded ? 'check' : 'download'" />{{ backupDownloaded ? 'Download backup again' : depositSeedPhrase ? 'Download seed phrase & notes (.txt)' : 'Download withdrawal notes (.txt)' }}</button>
+          <p class="input-hint">Check that the file actually saved and opens before depositing. This browser cannot verify a download. You can download the same backup again until you end this session or close the tab.</p>
           <label class="acknowledge"><input v-model="backupAcknowledged" type="checkbox" :disabled="!backupDownloaded" /><span>{{ depositSeedPhrase ? 'I saved the seed phrase and withdrawal notes in a safe place.' : 'I saved every note in a safe place. Losing a note means losing access to its deposit.' }}</span></label>
           <DepositBalances :account="account" :wallet-revision="walletRevision" :asset="generated[0]!.pool.asset" :total="generated.reduce((sum, note) => sum + note.pool.amount, 0n)" :settings="sessionSettings!" :active="true" :disabled="busy" review @connect="chooseDepositWallet" />
           <p class="input-hint">{{ sendMode === 'auto' && canBatch ? `${reviewBatches.length} wallet batch${reviewBatches.length === 1 ? '' : 'es'}, with up to ${depositBatchLimit(generated[0]!.pool.asset)} notes each. Each batch confirms before the next starts.` : 'Sequential mode: one wallet transaction per deposit, plus any token approvals.' }} Token approvals use exact amounts for each batch.{{ depositSeedPhrase ? ' Every batch shares the seed phrase in your backup.' : '' }}</p>
@@ -567,6 +571,8 @@ onUnmounted(() => { walletDiscovery?.dispose(); walletConnection.dispose(); setW
           <div class="progress-list"><div v-for="p in progress" :key="p.id" class="progress-item"><div><b>{{ p.label }}<small v-if="p.depositBatch" class="progress-batch">Batch {{ p.depositBatch }}</small></b><span class="progress-state" :class="p.status">{{ p.status.replace('-', ' ') }}</span></div>
             <a v-if="p.transactionHash" class="transaction-link" :href="`${NETWORKS[sessionSettings!.chainId].explorer}/tx/${p.transactionHash}`" target="_blank" rel="noopener noreferrer" :title="`View transaction ${p.transactionHash} on Etherscan`"><code>{{ shorten(p.transactionHash) }}</code><Icon name="arrow" :size="12" /></a>
             <code v-else-if="p.hash">{{ shorten(p.hash) }}</code><code v-if="p.batchId">Batch {{ shorten(p.batchId) }}</code><code v-if="p.relayerJobId">Relayer job {{ p.relayerJobId }}</code><p v-if="p.message">{{ p.message }}</p></div></div>
+          <button v-if="dialog === 'deposit' && generated.length" class="button full" :disabled="busy" @click="downloadNotes"><Icon name="download" />Download original notes again (.txt)</button>
+          <p v-if="dialog === 'deposit' && generated.length" class="input-hint">The same backup remains available in this tab until you start a new deposit session or close it. Check the saved file before ending this session.</p>
           <button class="button full" :disabled="busy" @click="exportSession"><Icon name="download" />{{ dialog === 'withdraw' ? 'Download session & note' : 'Download session & notes' }}</button><button v-if="pending" class="button full" :disabled="busy" @click="recheck"><Icon name="refresh" />{{ dialog === 'withdraw' ? relayerQuote ? 'Check relayer job' : 'Check UserOperation' : 'Check submitted operations' }}</button>
           <button v-if="dialog === 'deposit' && canStartNewDeposit" class="button primary full" :disabled="busy" @click="startNewDepositSession">Start a new deposit session? <Icon name="arrow" /></button>
           <p v-if="progress.some(p => p.status === 'ready') && !busy" class="input-hint">{{ dialog === 'withdraw' ? 'This withdrawal was not submitted. Prepare a new review before trying again.' : 'Unsubmitted calls were stopped. Start a new session for the remaining deposits after checking submitted operations.' }}</p>

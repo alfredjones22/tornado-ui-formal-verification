@@ -48,7 +48,11 @@ describe('exact full UserOperation preview', () => {
     expect(canSubmitSimulation(result, quote, result.checkedAt + 300_001)).toBe(false)
   })
   it('simulates real handleOps including factory and proof, overriding only the simulated bundler balance', async () => {
-    const quote = setup(), result = await simulateSmartWithdrawal(quote, settings)
+    const quote = setup(), exposed = vi.fn(), result = await simulateSmartWithdrawal(quote, settings, undefined, exposed)
+    expect(exposed).toHaveBeenCalledOnce()
+    const simulationCall = vi.mocked(jsonRpc).mock.calls.findIndex(call => call[1] === 'eth_simulateV1')
+    expect(simulationCall).toBeGreaterThan(-1)
+    expect(exposed.mock.invocationCallOrder[0]).toBeLessThan(vi.mocked(jsonRpc).mock.invocationCallOrder[simulationCall]!)
     expect(result).toMatchObject({ status: 'passed', hash: quote.signedHash, block: 256n, gasUsed: 4096n })
     expect(simulationMatches(result, quote)).toBe(true)
     const params = vi.mocked(jsonRpc).mock.calls.find(call => call[1] === 'eth_simulateV1')![2]!
@@ -81,16 +85,26 @@ describe('exact full UserOperation preview', () => {
     expect(await simulateSmartWithdrawal(quote, settings)).toMatchObject({ status: 'failed' })
   })
   it('rejects operation tampering before using any simulation endpoint', async () => {
-    const quote = setup()
+    const quote = setup(), exposed = vi.fn()
     quote.withdrawal.userOperation.preVerificationGas = '0x1'
-    await expect(simulateSmartWithdrawal(quote, settings)).rejects.toThrow('changed after signing')
+    await expect(simulateSmartWithdrawal(quote, settings, undefined, exposed)).rejects.toThrow('changed after signing')
     expect(jsonRpc).not.toHaveBeenCalled()
+    expect(exposed).not.toHaveBeenCalled()
+  })
+  it('keeps the signed operation unexposed when the simulation RPC is on another chain', async () => {
+    const quote = setup(), exposed = vi.fn()
+    vi.mocked(jsonRpc).mockResolvedValueOnce('0xaa36a7')
+    const result = await simulateSmartWithdrawal(quote, settings, undefined, exposed)
+    expect(result.status).toBe('failed')
+    expect(exposed).not.toHaveBeenCalled()
+    expect(vi.mocked(jsonRpc).mock.calls.map(call => call[1])).toEqual(['eth_chainId'])
   })
   it('allows explicit detailed-preview unavailability while preserving bundler-estimated status', async () => {
-    const quote = setup()
+    const quote = setup(), exposed = vi.fn()
     vi.mocked(jsonRpc).mockRejectedValue(new EndpointRpcError('eth_simulateV1', -32601, undefined, 'method not found'))
-    const result = await simulateSmartWithdrawal(quote, settings, 'https://simulation.example.com')
+    const result = await simulateSmartWithdrawal(quote, settings, 'https://simulation.example.com', exposed)
     expect(result.status).toBe('unavailable')
+    expect(exposed).not.toHaveBeenCalled()
     expect(result.message).toContain('Bundler estimation passed; detailed preview unavailable')
     expect(vi.mocked(jsonRpc)).toHaveBeenLastCalledWith('https://simulation.example.com/', 'eth_chainId')
     expect(simulationMatches({ ...result, checkedAt: Date.now() - 300001 }, quote)).toBe(false)

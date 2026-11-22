@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { decodeFunctionData, encodeFunctionData, erc20Abi, toHex, type Address, type Hex } from 'viem'
+import { decodeFunctionData, encodeAbiParameters, encodeEventTopics, encodeFunctionData, erc20Abi, parseAbi, toHex, type Address, type Hex } from 'viem'
 import { depositBatches, executeDepositSession, reconcileDepositSession } from '../src/core/deposit-session'
 import { poolFor, poolsFor } from '../src/core/catalog'
 import { poolAbi, type DepositNote } from '../src/core/notes'
@@ -14,17 +14,26 @@ const account: Address = '0x1111111111111111111111111111111111111111'
 const hash = `0x${'ab'.repeat(32)}` as Hex
 const settings: ConnectionSettings = { chainId: 1, rpcUrl: 'https://example.com', bundler: 'pimlico', bundlerUrl: 'https://example.com' }
 type Call = { to: Address; data: Hex; value: Hex }
+const depositEvent = parseAbi(['event Deposit(bytes32 indexed commitment, uint32 leafIndex, uint256 timestamp)'])
+let generated: DepositNote[] = []
+function receiptFor(selected: readonly DepositNote[], transactionHash = hash) {
+  return { status: 'success', transactionHash, logs: selected.map(note => ({ address: note.pool.address,
+    topics: encodeEventTopics({ abi: depositEvent, eventName: 'Deposit', args: { commitment: note.commitment } }),
+    data: encodeAbiParameters([{ type: 'uint32' }, { type: 'uint256' }], [0, 0n]) })) }
+}
 
 // Public synthetic note payloads for wallet transport tests; cryptographic
 // derivation and recovery across these boundaries are covered in seed-bundle.
 function notes(count: number, symbol = 'ETH'): DepositNote[] {
   const pool = poolFor(1, symbol === 'ETH' ? '0.01' : '100', symbol)!
-  return Array.from({ length: count }, (_, i) => {
+  const selected = Array.from({ length: count }, (_, i) => {
     const commitment = toHex(BigInt(i + 1), { size: 32 })
     const preimage = toHex(BigInt(i + 1), { size: 62 }).slice(2)
     return { id: `note-${i}`, raw: `tornado-${symbol.toLowerCase()}-${pool.denomination}-1-0x${preimage}`, preimage, commitment, pool,
       call: { to: pool.address, data: encodeFunctionData({ abi: poolAbi, functionName: 'deposit', args: [commitment] }), value: pool.asset.token ? 0n : pool.amount } }
   })
+  generated.push(...selected)
+  return selected
 }
 function progressFor(selected: DepositNote[]) {
   const rows: Progress[] = selected.map(note => ({ id: note.id, label: note.id, status: 'ready' }))
@@ -39,9 +48,11 @@ function wallet(send: (args: { method: string; params?: unknown[] | object }) =>
 }
 beforeEach(() => {
   vi.resetAllMocks()
+  generated = []
   readContract.mockImplementation(async ({ address, functionName }) => functionName === 'denomination'
     ? poolsFor(1).find(pool => pool.address === address)!.amount : 0n)
-  waitForTransactionReceipt.mockResolvedValue({ status: 'success' })
+  waitForTransactionReceipt.mockImplementation(async ({ hash: transactionHash }) => receiptFor(generated, transactionHash))
+  getTransactionReceipt.mockImplementation(async ({ hash: transactionHash }) => receiptFor(generated, transactionHash))
 })
 
 describe('deposit sessions split by note count', () => {
@@ -74,19 +85,61 @@ describe('deposit sessions split by note count', () => {
     expect(progress.rows.every(row => row.status === 'confirmed')).toBe(true)
     expect(readContract).toHaveBeenCalledTimes(3)
   })
+  it('keeps a completed wallet batch unknown when the wallet omits transaction receipts, then reconciles it', async () => {
+    let hasReceipts = false, sends = 0
+    const provider = wallet(({ method }) => {
+      if (method === 'wallet_sendCalls') return { id: `batch-${++sends}` }
+      if (method === 'wallet_getCallsStatus') return hasReceipts
+        ? { status: 200, receipts: [{ status: '0x1', transactionHash: hash }] } : { status: 200 }
+      throw new Error(`Unexpected method: ${method}`)
+    })
+    const selected = notes(13), progress = progressFor(selected)
+    await expect(executeDepositSession({ notes: selected, provider, account, settings, atomic: true, ...progress, onBatch: vi.fn() }))
+      .rejects.toThrow('without transaction receipts')
+    expect(sends).toBe(1)
+    expect(progress.rows.slice(0, 12).every(row => row.status === 'unknown' && row.batchId === 'batch-1')).toBe(true)
+    expect(progress.rows[12]!.status).toBe('ready')
+    hasReceipts = true
+    await reconcileDepositSession({ ...progress, settings, provider, account })
+    expect(progress.rows.slice(0, 12).every(row => row.status === 'confirmed')).toBe(true)
+    expect(progress.rows[12]!.status).toBe('ready')
+    expect(sends).toBe(1)
+  })
+  it('requires a matching pool commitment event for each batch note', async () => {
+    const selected = notes(2), progress = progressFor(selected)
+    const provider = wallet(({ method }) => method === 'wallet_sendCalls' ? { id: 'batch-1' }
+      : { status: 200, receipts: [{ status: '0x1', transactionHash: hash }] })
+    waitForTransactionReceipt.mockResolvedValueOnce({ ...receiptFor(selected), logs: receiptFor(selected).logs.map(log => ({ ...log, address: account })) })
+    await expect(executeDepositSession({ notes: selected, provider, account, settings, atomic: true, ...progress, onBatch: vi.fn() }))
+      .rejects.toThrow('do not uniquely confirm')
+    expect(progress.rows.every(row => row.status === 'unknown' && row.batchTransactionHashes?.[0] === hash)).toBe(true)
+    await reconcileDepositSession({ ...progress, settings })
+    expect(progress.rows.every(row => row.status === 'confirmed')).toBe(true)
+    expect(vi.mocked(provider.request).mock.calls.filter(([args]) => args.method === 'wallet_sendCalls')).toHaveLength(1)
+  })
+  it('matches deposits across every transaction hash returned for a wallet batch', async () => {
+    const selected = notes(2), progress = progressFor(selected)
+    const secondHash = `0x${'cd'.repeat(32)}` as Hex
+    waitForTransactionReceipt.mockImplementation(async ({ hash: transactionHash }) => transactionHash === hash
+      ? receiptFor([selected[0]!], hash) : receiptFor([selected[1]!], secondHash))
+    const provider = wallet(({ method }) => method === 'wallet_sendCalls' ? { id: 'batch-1' }
+      : { status: 200, receipts: [{ status: '0x1', transactionHash: hash }, { status: '0x1', transactionHash: secondHash }] })
+    await executeDepositSession({ notes: selected, provider, account, settings, atomic: true, ...progress, onBatch: vi.fn() })
+    expect(progress.rows.map(row => [row.status, row.transactionHash])).toEqual([['confirmed', hash], ['confirmed', secondHash]])
+  })
   it('does not send the next batch before the current receipt confirms', async () => {
     let confirm!: (value: unknown) => void
     let sends = 0
     const provider = wallet(({ method }) => {
       if (method === 'wallet_sendCalls') return { id: `batch-${++sends}` }
       if (method === 'wallet_getCallsStatus' && sends === 1) return new Promise(resolve => { confirm = resolve })
-      if (method === 'wallet_getCallsStatus') return { status: 200 }
+      if (method === 'wallet_getCallsStatus') return { status: 200, receipts: [{ status: '0x1', transactionHash: hash }] }
       throw new Error(`Unexpected method: ${method}`)
     })
     const running = executeDepositSession({ notes: notes(13), provider, account, settings, atomic: true, update: vi.fn(), onBatch: vi.fn() })
     await vi.waitFor(() => expect(confirm).toBeTypeOf('function'))
     expect(sends).toBe(1)
-    confirm({ status: 200 })
+    confirm({ status: 200, receipts: [{ status: '0x1', transactionHash: hash }] })
     await running
     expect(sends).toBe(2)
   })
@@ -97,7 +150,7 @@ describe('deposit sessions split by note count', () => {
     const sent: Call[][] = []
     readContract.mockImplementation(async ({ functionName }) => functionName === 'denomination' ? pool.amount : allowance)
     const provider = wallet(({ method, params }) => {
-      if (method === 'wallet_getCallsStatus') return { status: 200 }
+      if (method === 'wallet_getCallsStatus') return { status: 200, receipts: [{ status: '0x1', transactionHash: hash }] }
       if (method !== 'wallet_sendCalls') throw new Error(`Unexpected method: ${method}`)
       const calls = (params as { calls: Call[] }[])[0]!.calls
       sent.push(calls)
@@ -150,7 +203,7 @@ describe('deposit sessions split by note count', () => {
       if (method === 'eth_chainId') return '0x1'
       if (method === 'eth_accounts') return [sends ? '0x2222222222222222222222222222222222222222' : account]
       if (method === 'wallet_sendCalls') return { id: `batch-${++sends}` }
-      if (method === 'wallet_getCallsStatus') return { status: 200 }
+      if (method === 'wallet_getCallsStatus') return { status: 200, receipts: [{ status: '0x1', transactionHash: hash }] }
       throw new Error(`Unexpected method: ${method}`)
     }) }
     await expect(executeDepositSession({ notes: notes(13), provider, account, settings, atomic: true, update: vi.fn(), onBatch: vi.fn() })).rejects.toThrow('account changed')
@@ -162,6 +215,19 @@ describe('deposit sessions split by note count', () => {
     await executeDepositSession({ notes: selected, provider, account, settings, atomic: false, ...progress, onBatch: vi.fn() })
     expect(vi.mocked(provider.request).mock.calls.filter(([args]) => args.method === 'eth_sendTransaction')).toHaveLength(25)
     expect(progress.rows.every(row => row.status === 'confirmed')).toBe(true)
+  })
+  it('stops a sequential session when a successful receipt lacks the note event, then reconciles without resending', async () => {
+    const selected = notes(2), progress = progressFor(selected)
+    const provider = wallet(({ method }) => method === 'eth_sendTransaction' ? hash : (() => { throw new Error(`Unexpected method: ${method}`) })())
+    waitForTransactionReceipt.mockResolvedValueOnce(receiptFor([]))
+    await expect(executeDepositSession({ notes: selected, provider, account, settings, atomic: false, ...progress, onBatch: vi.fn() }))
+      .rejects.toThrow('does not show the expected pool Deposit event')
+    expect(progress.rows[0]).toMatchObject({ status: 'unknown', hash })
+    expect(progress.rows[1]!.status).toBe('ready')
+    await reconcileDepositSession({ ...progress, settings })
+    expect(progress.rows[0]!.status).toBe('confirmed')
+    expect(progress.rows[1]!.status).toBe('ready')
+    expect(vi.mocked(provider.request).mock.calls.filter(([args]) => args.method === 'eth_sendTransaction')).toHaveLength(1)
   })
   it('never confirms future notes when an uncertain send returned no identifier', async () => {
     const rows: Progress[] = [{ id: 'sent', label: 'Sent note', status: 'unknown' }, { id: 'future', label: 'Unsent note', status: 'ready' }]

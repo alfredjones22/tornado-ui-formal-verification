@@ -5,11 +5,10 @@ import {sdkHarness,gasFields} from './sdk-harness.mjs';
 import {sdkLoader,sdkViem as v,sdkAA,sdkAccounts,loadedSources,dependencyVersions,root} from './source-loader.mjs';
 const runs=[];
 const stringify=x=>JSON.stringify(x,(_k,v)=>typeof v==='bigint'?'0x'+v.toString(16):v,2)+'\n';
-async function checkCandidate(h,op) {
+function checkEnvelope(h,op) {
   const [data]=v.decodeAbiParameters(v.parseAbiParameters('(address instance, bytes proof, bytes32 root, bytes32 nullifierHash, address recipient, uint256 fee)'),op.paymasterData);
   assert.equal(BigInt(data.instance),h.pool);
   assert.equal(data.recipient.toLowerCase(),h.recipient);
-  assert.equal(BigInt(data.nullifierHash),h.parsed.nullifierHash);
   assert.equal(BigInt(op.eip7702Auth.chainId),BigInt(h.chainId));
   assert.equal(op.eip7702Auth.address.toLowerCase(),'0xe6cae83bde06e4c305530e199d7217f42808555b');
   assert.equal(op.callData,'0x'); assert.equal(BigInt(op.callGasLimit),0n); assert.equal(BigInt(op.nonce),0n);
@@ -19,6 +18,31 @@ async function checkCandidate(h,op) {
   assert(gas.verificationGasLimit<=250000n&&gas.paymasterVerificationGasLimit<=2000000n&&gas.paymasterPostOpGasLimit<=100000n);
   const expected=h.load('src/paymaster/fee.ts').computeMinimumViableFee(gas,BigInt(op.maxFeePerGas));
   assert.equal(data.fee,h.token?expected/10n**10n:expected);
+  return data;
+}
+async function checkProbe(h,op,overrides) {
+  const data=checkEnvelope(h,op);
+  const simulation=h.load('src/paymaster/simulation.ts');
+  assert.equal(op.signature,simulation.DUMMY_SIGNATURE);
+  assert.equal(op.eip7702Auth.r,simulation.dummyAuthorization(op.eip7702Auth.address,h.chainId,BigInt(op.eip7702Auth.nonce)).r);
+  assert.equal(op.eip7702Auth.s,simulation.dummyAuthorization(op.eip7702Auth.address,h.chainId,BigInt(op.eip7702Auth.nonce)).s);
+  assert.equal(data.proof,simulation.DUMMY_PROOF);
+  assert.notEqual(BigInt(data.nullifierHash),h.parsed.nullifierHash);
+  const verifier='0x4444444444444444444444444444444444444444';
+  assert.equal(overrides[verifier].code,simulation.verifierForwarder('0x00000000000000000000000000004b6f68616b75'));
+  assert.equal(overrides['0x00000000000000000000000000004b6f68616b75'].code,'0x6000');
+  const typed=sdkAA.getUserOperationTypedData({chainId:h.chainId,entryPointAddress:h.cfg.entryPointAddress,userOperation:{...op,
+    ...Object.fromEntries(['nonce','maxFeePerGas','maxPriorityFeePerGas',...gasFields].map(k=>[k,BigInt(op[k])]))}});
+  assert.notEqual((await v.recoverTypedDataAddress({...typed,signature:op.signature})).toLowerCase(),op.sender.toLowerCase());
+  const {recoverAuthorizationAddress}=await import('sdk-viem/utils');
+  assert.notEqual((await recoverAuthorizationAddress({authorization:{...op.eip7702Auth,chainId:Number(BigInt(op.eip7702Auth.chainId)),nonce:Number(BigInt(op.eip7702Auth.nonce)),yParity:Number(BigInt(op.eip7702Auth.yParity))}})).toLowerCase(),op.sender.toLowerCase());
+}
+async function checkFinal(h,op) {
+  const data=checkEnvelope(h,op);
+  assert.equal(BigInt(data.nullifierHash),h.parsed.nullifierHash);
+  assert.notEqual(data.proof,h.load('src/paymaster/simulation.ts').DUMMY_PROOF);
+  assert.equal(data.proof,'0x'+'11'.repeat(256));
+  assert.notEqual(op.signature,h.load('src/paymaster/simulation.ts').DUMMY_SIGNATURE);
   const typed=sdkAA.getUserOperationTypedData({chainId:h.chainId,entryPointAddress:h.cfg.entryPointAddress,userOperation:{...op,
     ...Object.fromEntries(['nonce','maxFeePerGas','maxPriorityFeePerGas',...gasFields].map(k=>[k,BigInt(op[k])]))}});
   assert.equal((await v.recoverTypedDataAddress({...typed,signature:op.signature})).toLowerCase(),op.sender.toLowerCase());
@@ -27,7 +51,7 @@ async function checkCandidate(h,op) {
   return data;
 }
 for(const chainId of [1,11155111])for(const token of [false,true])for(const scenario of ['stable','refine','retry-stable','transport','validation','inflated','unstable']) {
-  test(`captured SDK candidate envelope ${chainId}/${token}/${scenario}`,async()=>{
+  test(`captured SDK dummy estimate and final envelope ${chainId}/${token}/${scenario}`,async()=>{
     const h=await sdkHarness({chainId,token,scenario});
     assert.equal(h.imported[0].status,'imported');
     const selected=h.selected(); assert.equal(selected.length,1);
@@ -36,16 +60,17 @@ for(const chainId of [1,11155111])for(const token of [false,true])for(const scen
     try{result=await h.prepare()}catch(e){error=e}
     const fails=['validation','inflated','unstable'].includes(scenario);
     assert.equal(Boolean(error),fails,error?.message);
-    assert(h.captures.length>0); for(const op of h.captures)await checkCandidate(h,op);
+    assert(h.captures.length>0);for(let i=0;i<h.captures.length;i++)await checkProbe(h,h.captures[i],h.stateOverrides[i]);
+    assert.equal(h.proofs.length,fails?0:1);
+    if(result)await checkFinal(h,result[0].userOperation);
     for(const p of h.proofs){assert.equal(p.nullifier,h.parsed.nullifier);assert.equal(p.secret,h.parsed.salt);assert.equal(p.nullifierHash,h.parsed.nullifierHash);assert.equal(p.recipient,BigInt(h.recipient));assert.equal(p.relayer,BigInt(h.cfg.paymasterAddress));assert.equal(p.refund,0n)}
     assert(h.keyCalls.every(x=>x.nullifier===h.parsed.nullifier));
     assert(h.transcript.every(x=>x.method!=='eth_sendUserOperation'));
     if(scenario==='retry-stable'){assert.equal(h.captures.length,2);assert.deepEqual(h.captures[0],h.captures[1]);assert.equal(h.proofs.length,1)}
-    if(scenario==='refine'){assert.equal(h.captures.length,2);assert.notEqual(h.captures[0].signature,h.captures[1].signature);assert.notEqual(h.captures[0].paymasterData,h.captures[1].paymasterData)}
-    if(scenario==='transport'){assert.equal(h.captures.length,2);assert.deepEqual(h.captures[0],h.captures[1]);assert.equal(result[0].gasEstimation.status,'fallback');assert.equal(h.proofs.length,2);await checkCandidate(h,result[0].userOperation)}
-    if(scenario==='inflated')assert.equal(h.proofs.length,1);
+    if(scenario==='refine'){assert.equal(h.captures.length,2);assert.equal(h.captures[0].signature,h.captures[1].signature);assert.notEqual(h.captures[0].paymasterData,h.captures[1].paymasterData)}
+    if(scenario==='transport'){assert.equal(h.captures.length,2);assert.deepEqual(h.captures[0],h.captures[1]);assert.equal(result[0].gasEstimation.status,'fallback')}
     if(scenario==='unstable')assert.equal(h.captures.length,3);
-    runs.push({chainId,token,scenario,candidatesReleased:h.captures.length,proofsBuilt:h.proofs.length,result:result?.[0].gasEstimation??'stopped',
+    runs.push({chainId,token,scenario,dummyEstimates:h.captures.length,proofsBuilt:h.proofs.length,result:result?.[0].gasEstimation??'stopped',
       hostFinalReviewNotReachedDuringCapture:true,events:h.events});
   });
 }
@@ -55,11 +80,11 @@ test('ambiguous commitment in another pool is rejected by the frame pool-match g
   const {assertImportedNotes}=compileModule(pinned('ui','src/core/pool-history.ts'),'pool-history.ts',{});
   assert.throws(()=>assertImportedNotes([{status:'imported',poolAddress:h.pool+1n}],[{pool:{address:v.toHex(h.pool,{size:20})}}]),/expected pool/);
 });
-test('zero fee may leave during estimation before the stricter host fee gate',async()=>{
+test('zero-fee dummy estimate may leave before the stricter host fee gate',async()=>{
   const h=await sdkHarness({feePrice:0n});const [w]=await h.prepare();assert(h.captures.length>0);
   const [data]=v.decodeAbiParameters(v.parseAbiParameters('(address instance, bytes proof, bytes32 root, bytes32 nullifierHash, address recipient, uint256 fee)'),h.captures[0].paymasterData);assert.equal(data.fee,0n);
-  const {runtime}=await import('../pilot/source-runtime.mjs');
-  assert.throws(()=>runtime().validateWithdrawal({pool:{address:v.toHex(h.pool,{size:20}),amount:h.amount,asset:{} }},h.recipient,w,{chainId:h.chainId,bundlerUrl:h.cfg.bundlerUrl}),/quoted fee/);
+  const {runtime,fixture}=await import('../pilot/source-runtime.mjs');
+  assert.throws(()=>runtime().validateWithdrawal(fixture(h.chainId,h.token,h.amount,0n).note,h.recipient,w,{chainId:h.chainId,bundlerUrl:h.cfg.bundlerUrl}),/quoted fee/);
 });
 test('high fees below denomination are allowed on the paymaster path; no relayer 20% cap is implied',async()=>{
   const h=await sdkHarness({feePrice:1_000_000_000n});h.params.dataService.quoteWeiInToken=async()=>h.amount*9n/10n;

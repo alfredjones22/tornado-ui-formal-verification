@@ -42,6 +42,7 @@ for relative,row in layout['packages'].items():
  if digest(target)!=row['contentDigest']:raise RuntimeError(f'Runtime input content differs: {row["name"]}@{row["version"]}')
 for relative,row in layout['packages'].items():
  for name,target in row['dependencies'].items():link(WORK/'kohaku'/relative/'node_modules'/name,WORK/'kohaku'/target)
+ for name,target in row.get('peerLinks',{}).items():link((WORK/'kohaku'/relative).parent/name,WORK/'kohaku'/target)
 for name,target in layout['sdkLinks'].items():link(sdk/'node_modules'/name,WORK/'kohaku'/target)
 # Build/declaration tools are pinned separately; their locations are not runtime inputs.
 for package in (ROOT/'release/sdk-toolchain/node_modules').iterdir():
@@ -54,4 +55,4 @@ for package in (ROOT/'release/sdk-toolchain/node_modules').iterdir():
   target=sdk/'node_modules'/package.name
   if not target.exists():link(target,package)
 link(sdk/'node_modules/.bin',ROOT/'release/sdk-toolchain/node_modules/.bin')
-print(f'Rebuild workspace: frozen UI with five pinned non-runtime removals and exact README, retained SDK source, {len(layout["packages"])} authenticated runtime-package inputs; original relative layout')
+print(f'Rebuild workspace: exact frozen UI main source, retained SDK source, {len(layout["packages"])} authenticated runtime-package inputs; original relative layout')

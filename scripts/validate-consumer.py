@@ -81,7 +81,7 @@ try:
 finally:target.write_bytes(original)
 versions={'node':subprocess.check_output(['node','--version'],env=env,text=True).strip(),'python':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import platform; print(platform.python_version())'],env=env,text=True).strip(),'z3':subprocess.check_output([str(clone/'.venv/bin/python'),'-c','import z3; print(z3.get_version_string())'],env=env,text=True).strip(),'os':platform.system(),'machine':platform.machine()}
 report={'schemaVersion':2,'finishedAtUTC':datetime.now(timezone.utc).isoformat(),'status':'PASS','baselineDigest':positive['baselineDigest'],'expectedCID':positive['expectedCID'],
- 'freshInstall':{'setupExitCode':0,'priorNodeModules':False,'priorPythonEnvironment':False,'originalCheckoutsRequired':False,'historicalArchiveRequired':False},'environment':versions,
+ 'freshInstall':{'setupExitCode':0,'priorNodeModules':False,'priorPythonEnvironment':False,'originalCheckoutsRequired':False},'environment':versions,
  'offlinePositiveRun':{k:positive[k] for k in ['status','runId','baselineDigest','expectedCID','deploymentStatus','sourceBuildCorrespondence','cidCorrespondence','conditionalSMTObligations','modelProperties','implementationTests']},
  'nodeNetworkingBlocked':True,'externalUISourceExactMatch':True,'negativeChecks':checks,'logs':'reports/consumer/','temporaryExportRemoved':True}
 (ROOT/'reports/consumer-check.json').write_text(json.dumps(report,indent=2)+'\n')

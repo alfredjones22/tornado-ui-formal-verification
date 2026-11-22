@@ -10,6 +10,7 @@ const changes = [
   ['sponsor-recipient', 'P06_sponsor_tuple', 'sponsor.recipient.toLowerCase() !== recipient.toLowerCase()', 'false'],
   ['estimation-guard', 'P07_estimation_policy', "estimation?.status !== 'estimated' && !(estimation?.status === 'fallback' &&\n    ['bundler-internal', 'transport-unavailable'].includes(estimation.reason))", 'false'],
   ['returned-fee', 'P08_returned_fee_matches_proof', 'const fee = BigInt(withdrawal.proof.args[4])', 'const fee = BigInt(withdrawal.proof.args[4]) + 1n'],
+  ['selected-nullifier', 'P09_selected_note_nullifier', 'BigInt(withdrawal.proof.args[1]) !== noteIdentity(note).nullifierHash', 'false'],
 ];
 const mutations = changes.map(([name, target, from, to]) => {
   if (source.split(from).length !== 2) throw new Error(`Mutation ${name} not unique`);

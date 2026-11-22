@@ -3,9 +3,10 @@ if not __debug__:
 """Finite lifecycle abstraction of ONE immutable basic-withdrawal quote.
 
 Authored model, NOT extracted Vue/SDK code. Explicit-state exploration reaches a
-fixpoint (no depth cutoff). External bundler claims and real inclusion are
-independent. 'exposed' means at least one signed candidate left the client;
-it deliberately cannot be undone. See docs/model.md for the correspondence gap.
+fixpoint (no depth cutoff). A matching chain-RPC receipt and actual inclusion
+are independent unless the RPC is trusted. 'exposed' means the final signed
+operation may have reached the bundler after explicit Submit; it cannot be
+undone locally. Estimation uses non-executable dummy payloads.
 """
 from dataclasses import dataclass, replace, asdict
 from pathlib import Path
@@ -21,6 +22,7 @@ class State:
     started: bool = False
     sends: int = 0
     known_hash: bool = False
+    chain_evidence: bool = False
     included: bool = False
 
 # Each item is a labelled edge in Next. Unlisted user actions have no effect.
@@ -29,26 +31,29 @@ def successors(s, mutant=None):
     def edge(label, **changes): out.append((label, replace(s, **changes)))
     if s.phase == 'draft': edge('user starts preparation', phase='preparing')
     if s.phase == 'preparing':
-        edge('SDK releases signed estimation candidate', exposed=True)
-        edge('SDK returns candidate; host validator accepts', phase='review', exposed=True, host_checked=True)
-        edge('SDK candidate rejected by host', phase='blocked', exposed=True)
+        edge('SDK estimates with non-executable dummy payload')
+        edge('SDK returns final signed operation; host validator accepts', phase='review', host_checked=True)
+        edge('SDK candidate rejected by host', phase='blocked')
         edge('frame errors or inactivity timeout; frame disposed', phase='aborted')
     if s.phase in ('aborted', 'blocked'):
         edge('late frame message ignored')
-        if mutant == 'accept-late': edge('MUTANT accepts late frame message', phase='review', host_checked=True, exposed=True)
+        if mutant == 'accept-late': edge('MUTANT accepts late frame message', phase='review', host_checked=True)
     if s.phase == 'review':
         edge('user confirms reviewed quote', phase='validating', started=True)
         if mutant == 'skip-validation': edge('MUTANT sends unchecked operation', phase='sending', sends=1, host_checked=False, started=True)
     if s.phase == 'validating':
         edge('quote expires or preflight validation fails', phase='blocked')
-        edge('local checks and connections pass; invoke send once', phase='sending', sends=s.sends+1)
+        edge('local checks pass; retain hash and invoke explicit send once', phase='sending',
+             sends=s.sends+1, known_hash=True, exposed=True)
     if s.phase == 'sending':
-        edge('send returns a hash', phase='pending', known_hash=True)
+        edge('send returns the expected hash', phase='pending')
         edge('send rejects or response is lost', phase='unknown')
     if s.phase in ('pending', 'unknown'):
         edge('bundler pending response')
-        edge('receipt error or polling timeout', phase='unknown')
-        if s.known_hash: edge('bundler claims successful receipt', phase='confirmed')
+        edge('receipt or event missing, error, or polling timeout', phase='unknown')
+        if s.known_hash:
+            edge('bundler locates transaction; chain RPC reports matching successful receipt and events',
+                 phase='confirmed', chain_evidence=True)
         if mutant == 'retry' and s.sends < 2: edge('MUTANT automatically resends', phase='sending', sends=s.sends+1)
     if s.exposed:
         edge('some holder includes released candidate on chain', included=True)
@@ -59,7 +64,9 @@ def successors(s, mutant=None):
 STATE_PROPERTIES = {
     'L01_one_explicit_send_per_quote': lambda s: s.sends <= 1,
     'L02_send_requires_review_and_validation': lambda s: s.sends == 0 or (s.started and s.host_checked and s.exposed),
-    'L03_confirmation_requires_known_submission': lambda s: s.phase != 'confirmed' or (s.known_hash and s.sends == 1),
+    'L03_confirmation_requires_known_submission': lambda s: s.phase != 'confirmed' or (s.known_hash and s.sends == 1 and s.chain_evidence),
+    'L08_exposure_requires_explicit_submit': lambda s: not s.exposed or (s.started and s.sends >= 1),
+    'L09_aborted_preparation_cannot_expose_operation': lambda s: s.phase != 'aborted' or (not s.exposed and not s.included),
 }
 EDGE_PROPERTIES = {
     'L04_no_automatic_resubmission': lambda a, label, b: a.sends == 0 or a.sends == b.sends,
@@ -69,8 +76,6 @@ EDGE_PROPERTIES = {
 }
 STRONG_PROPERTIES = {
     'G01_confirmation_implies_actual_inclusion': lambda s: s.phase != 'confirmed' or s.included,
-    'G02_no_inclusion_before_final_confirm': lambda s: s.started or not s.included,
-    'G03_aborting_preparation_prevents_execution': lambda s: s.phase != 'aborted' or not s.included,
 }
 
 def explore(mutant=None):
@@ -113,4 +118,4 @@ if __name__ == '__main__':
         mutants[name] = dict(expectedViolation=expected, trace=bad['violations'][expected])
     report['mutationChecks'] = mutants
     (ROOT / 'reports/lifecycle.json').write_text(json.dumps(report, indent=2) + '\n')
-    print(f'Lifecycle model: {report["states"]} states, {report["edges"]} edges; 7 properties PASS; 3 expected stronger-claim counterexamples; 4 mutants detected')
+    print(f'Lifecycle model: {report["states"]} states, {report["edges"]} edges; {len(STATE_PROPERTIES)+len(EDGE_PROPERTIES)} properties PASS; {len(STRONG_PROPERTIES)} expected stronger-claim counterexample; 4 mutants detected')

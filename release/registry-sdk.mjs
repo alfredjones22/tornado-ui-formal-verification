@@ -41,11 +41,11 @@ export function verifyRegistrySDK(root,baseline,profile,rebuiltSDK) {
   if(JSON.stringify(sourceJS)!==JSON.stringify(packagedJS))throw Error('Published SDK JavaScript lacks source-build coverage');
   const covered=new Set(sourceBuilt.map(r=>'dist/'+r.path));
   const extras=actual.filter(r=>!covered.has(r.path)).map(r=>r.path).sort();
-  if(expected.additionalDeclaration!=='dist/merkle-tree.node.d.ts'||JSON.stringify(extras)!==JSON.stringify(['README.md','dist/merkle-tree.node.d.ts','package.json']))throw Error('Unexpected source-unrebuilt SDK package files');
+  if(expected.additionalDeclaration!==null||JSON.stringify(extras)!==JSON.stringify(['README.md','package.json']))throw Error('Unexpected source-unrebuilt SDK package files');
   return {result:'MATCH',name:expected.name,version:expected.version,resolved:expected.resolved,integrity:expected.integrity,
     installedPackageFiles:actual,sourceRebuiltArtifacts:sourceBuilt.length,sourceCoveredJavaScriptFiles:sourceJS,
     runtimeArtifactCoverage:'ALL_PUBLISHED_JAVASCRIPT_BYTE_IDENTICAL_TO_SOURCE_REBUILD',
     sourceUnrebuiltPackageFiles:extras,
-    additionalDeclaration:'dist/merkle-tree.node.d.ts is integrity-pinned package content; no source-rebuild claim for this extra declaration.',
+    additionalDeclaration:null,
     localDependencyLinks:false};
 }

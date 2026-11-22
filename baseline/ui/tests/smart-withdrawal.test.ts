@@ -237,12 +237,12 @@ describe('typed-data-only external signer', () => {
 
 describe('submission and receipt recovery', () => {
   it.each(['maxFeePerGas must be at least 110000002 (current maxFeePerGas: 606375012)', 'maxPriorityFeePerGas is too low'])(
-    'marks an explicit minimum-fee rejection as rejected without automatically sending again: %s', async reason => {
+    'keeps an explicit minimum-fee rejection uncertain after simulation exposure: %s', async reason => {
       const { quote } = smartFixture(), wallet = typedDataWallet(), update = vi.fn()
       quote.withdrawal.userOperation.signature = await signingAccount.signTypedData(batchTypedData(quote.withdrawal, settings))
       vi.mocked(jsonRpc).mockRejectedValueOnce(new EndpointRpcError('eth_sendUserOperation', -32602, undefined, reason))
       await expect(submitSmartWithdrawal(quote, settings, wallet, update)).rejects.toThrow(reason)
-      expect(update).toHaveBeenLastCalledWith(quote.id, expect.objectContaining({ status: 'rejected', message: expect.stringContaining('refresh fees') }))
+      expect(update).toHaveBeenLastCalledWith(quote.id, expect.objectContaining({ status: 'unknown', message: expect.stringContaining('simulation RPC may have relayed it') }))
       expect(jsonRpc).toHaveBeenCalledOnce()
     })
   it.each(['unknown-code', 'invalid-params', 'transport', 'after-acceptance'])('keeps %s failures uncertain rather than enabling draft replacement', async scenario => {
@@ -311,7 +311,8 @@ describe('submission and receipt recovery', () => {
     vi.mocked(jsonRpc).mockResolvedValue(known ? { receipt: { transactionHash: txHash } } : null)
     const update = vi.fn()
     expect(await reconcileSmartWithdrawal(quote, settings, update, 0)).toBeNull()
-    expect(update).toHaveBeenLastCalledWith(quote.id, expect.objectContaining({ hash: quote.signedHash, status: 'submitted', message: expect.stringContaining('Awaiting on-chain confirmation') }))
+    expect(update).toHaveBeenLastCalledWith(quote.id, expect.objectContaining({ hash: quote.signedHash, status: 'submitted',
+      message: expect.stringContaining(known ? 'Awaiting on-chain confirmation' : 'may still land') }))
     if (known) expect(update).toHaveBeenLastCalledWith(quote.id, expect.objectContaining({ transactionHash: txHash }))
     expect(vi.mocked(jsonRpc).mock.calls.some(([, method]) => method === 'eth_sendUserOperation')).toBe(false)
     // A later explicit check can confirm without rebroadcasting or signing again.
@@ -360,7 +361,7 @@ describe('SDK proof-frame bridge', () => {
     return frame
   }
   it('loads smart-account preparation beneath the IPFS directory without changing the signing origin', async () => {
-    vi.stubGlobal('location', new URL('https://gateway.example/ipfs/bafy-test/#multi-withdraw'))
+    vi.stubGlobal('location', new URL('https://gateway.example/ipfs/bafy-test/#smart-withdrawal'))
     vi.stubEnv('BASE_URL', './')
     const { quote } = smartFixture(), wallet = typedDataWallet()
     const child = frame((_payload, port) => port.postMessage({ status: 'error', message: 'Synthetic frame result' }))

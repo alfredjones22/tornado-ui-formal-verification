@@ -10,11 +10,11 @@ vi.mock('../src/core/rpc', () => ({ publicClientFor: () => ({ readContract, wait
 const account: Address = '0x1111111111111111111111111111111111111111'
 const hash: Hex = `0x${'ab'.repeat(32)}`
 const settings: ConnectionSettings = { chainId: 1, rpcUrl: 'https://example.com', bundler: 'pimlico', bundlerUrl: 'https://example.com' }
-const call = (id: string) => ({ id, label: id, to: account, data: '0x' as Hex, value: 0n })
+const call = (id: string) => ({ id, label: id, to: account, data: '0x' as Hex, value: 0n, expectedDeposit: null })
 function wallet(send: (method: string) => unknown): WalletProvider {
   return { request: vi.fn(async ({ method }) => method === 'eth_chainId' ? '0x1' : method === 'eth_accounts' ? [account] : send(method)) }
 }
-beforeEach(() => vi.clearAllMocks())
+beforeEach(() => { vi.clearAllMocks(); waitForTransactionReceipt.mockResolvedValue({ status: 'success', transactionHash: hash, logs: [] }) })
 describe('wallet-native batching', () => {
   it('requires supported atomic capability on the selected chain', async () => {
     expect(await atomicBatchAvailable(wallet(() => ({ '0x1': { atomic: { status: 'supported' } } })), account, 1)).toBe(true)
@@ -41,7 +41,7 @@ describe('sequential deposit progress', () => {
   it('stops at the failed receipt and keeps earlier confirmations', async () => {
     const rows: Record<string, Partial<Progress>> = {}
     const provider = wallet(() => hash)
-    waitForTransactionReceipt.mockResolvedValueOnce({ status: 'success' }).mockResolvedValueOnce({ status: 'reverted' })
+    waitForTransactionReceipt.mockResolvedValueOnce({ status: 'success', transactionHash: hash, logs: [] }).mockResolvedValueOnce({ status: 'reverted', transactionHash: hash, logs: [] })
     await expect(executeDeposits({ provider, account, settings, atomic: false, calls: [call('a'), call('b'), call('c')],
       update: (id, p) => { rows[id] = { ...rows[id], ...p } } })).rejects.toThrow('reverted')
     expect(rows.a?.status).toBe('confirmed'); expect(rows.b?.status).toBe('failed'); expect(rows.c).toBeUndefined()

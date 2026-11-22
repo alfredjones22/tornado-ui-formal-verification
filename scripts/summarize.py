@@ -30,34 +30,34 @@ check(release['capturedBuildManifestMatched'] and release['rebuiltCID'] == profi
 check(len(release['sdkArtifacts']) == 14 and len(release['buildFiles']) == 65 and release['outputNormalization'] is False, 'Incomplete release comparison')
 registry = release['registrySDK']
 check(registry['result'] == 'MATCH' and registry['version'] == profile['registrySDK']['version'], 'Registry package correspondence failed')
-check(len(registry['installedPackageFiles']) == 17 and registry['sourceRebuiltArtifacts'] == 14 and not registry['localDependencyLinks'], 'Incomplete registry SDK coverage')
+check(len(registry['installedPackageFiles']) == 16 and registry['sourceRebuiltArtifacts'] == 14 and not registry['localDependencyLinks'], 'Incomplete registry SDK coverage')
 check(registry['runtimeArtifactCoverage'] == 'ALL_PUBLISHED_JAVASCRIPT_BYTE_IDENTICAL_TO_SOURCE_REBUILD', 'Missing SDK runtime source coverage')
 check(release['deploymentStatus'] == profile['releaseCorrespondence']['deploymentStatus'], 'Deployment status disagreement')
 check(profile['schemaVersion'] == 1 and profile['id'] == 'basic-direct-withdrawal-v1', 'Unsupported verification profile')
 check(profile['baselineDigest'] == manifest['contentDigest'] == continuation['baselineDigest'], 'Wrong release target')
 confirmation = profile['confirmation']
-check(confirmation['option'] == 'A' and confirmation['confirmationImplementationChanges'] == 'NONE', 'v1 requires option A without confirmation implementation changes')
-check(confirmation['assumptionId'] == 'A_CONFIRMATION_REPORTING' and bool(confirmation['assumption']), 'Missing confirmation assumption')
-check(confirmation['independentInclusionVerification'] is False and confirmation['finalityVerification'] is False, 'Unsupported chain-confirmation claim')
-check(continuation['step3'] == 'COMPLETE_OPTION_A_CURRENT_RELEASE', 'Confirmation decision not recorded')
+check(confirmation['option'] == 'B' and confirmation['confirmationImplementationChanges'] == 'HOST_RPC_RECEIPT_AND_EXACT_EVENTS', 'Current release requires its host-RPC confirmation implementation')
+check(confirmation['assumptionId'] == 'A_CHAIN_RPC_REPORTING' and bool(confirmation['assumption']), 'Missing chain-RPC reporting assumption')
+check(confirmation['independentInclusionVerification'] is True and confirmation['finalityVerification'] is False, 'Unsupported chain-confirmation claim')
+check(continuation['step3'] == 'COMPLETE_OPTION_B_CURRENT_RELEASE', 'Confirmation implementation not recorded')
 vp = indexed(validator['obligations']); lp = indexed(lifecycle['properties']); bp = indexed(boundary['obligations'])
-check(len(vp) == 8 and all(x['result'] == 'UNSAT' for x in vp.values()), 'Validator obligations failed')
+check(len(vp) == 9 and all(x['result'] == 'UNSAT' for x in vp.values()), 'Validator obligations failed')
 check(validator['nonVacuity']['result'] == 'SAT', 'Validator may be vacuous')
 source_row = next(r for r in manifest['files'] if r['namespace'] == 'ui' and r['path'] == 'src/core/withdrawals.ts')
 check(validator['sourceHash'] == source_row['sha256'], 'Validator proof targets another source')
 check(len(bp) == 14 and all(x['result'] == 'UNSAT' for x in bp.values()), 'Continuation obligations failed')
 check(boundary['savedQueryReplays'] == len(bp) and boundary['nonVacuousCallerTrace'], 'Continuation replay/nonvacuity missing')
-check(len(lp) == 7 and all(x['result'] == 'PASS' for x in lp.values()) and not lifecycle['violations'], 'Lifecycle property failed')
+check(len(lp) == 9 and all(x['result'] == 'PASS' for x in lp.values()) and not lifecycle['violations'], 'Lifecycle property failed')
 check(lifecycle['usefulCompletionTrace'], 'Lifecycle has no useful completed path')
-check(set(lifecycle['strongerClaimCounterexamples']) == {'G01_confirmation_implies_actual_inclusion','G02_no_inclusion_before_final_confirm','G03_aborting_preparation_prevents_execution'}, 'Expected stronger-claim limitations changed')
-check(validator['selectedNoteIdentity']['result'] == 'SAT', 'Expected host note-identity limitation changed')
+check(set(lifecycle['strongerClaimCounterexamples']) == {'G01_confirmation_implies_actual_inclusion'}, 'Expected stronger-claim limitation changed')
+check(validator['selectedNoteIdentity']['result'] == 'UNSAT', 'Selected-note nullifier condition failed')
 mutations = read('reports/validator-mutations.json')
-check(len(mutations) == 8 and all(x['result'] == 'SAT' for x in mutations), 'Source mutation sensitivity checks failed')
+check(len(mutations) == 9 and all(x['result'] == 'SAT' for x in mutations), 'Source mutation sensitivity checks failed')
 check(len(boundary['mutants']) == 5 and all(x['result'] == 'SAT' for x in boundary['mutants']), 'Protocol mutation sensitivity checks failed')
 check(len(lifecycle['mutationChecks']) == 4, 'Lifecycle mutation sensitivity checks failed')
 differential = read('reports/correspondence.json')
-check(differential['result'] == 'PASS' and differential['cases'] == 448 and differential['mismatches'] == 0, 'Concrete/symbolic correspondence failed')
-tests = {'releaseFunctions': tap('reports/conformance.tap',16), 'sdk': tap('reports/continuation/sdk.tap',34), 'vueCaller': tap('reports/continuation/ui-scheduling.tap',21)}
+check(differential['result'] == 'PASS' and differential['cases'] == 464 and differential['mismatches'] == 0, 'Concrete/symbolic correspondence failed')
+tests = {'releaseFunctions': tap('reports/conformance.tap',17), 'sdk': tap('reports/continuation/sdk.tap',34), 'vueCaller': tap('reports/continuation/ui-scheduling.tap',21)}
 claims = profile['claims']
 check([c['id'] for c in claims] == [f'C{i:02}' for i in range(1,9)], 'Expected exactly C01-C08 in order')
 check(all(c['evidenceKind'] == 'CONDITIONAL_SOURCE_LINKED_SMT_PROOF' for c in claims[:5]), 'Incorrect validator evidence classification')
@@ -90,14 +90,14 @@ summary = dict(schemaVersion=2, runId=run_id, status=result['status'], profile=p
  differentialTesting=differential,
  lifecycle=dict(states=lifecycle['states'],edges=lifecycle['edges'],checkedProperties=len(lp),strongerClaimCounterexamples=len(lifecycle['strongerClaimCounterexamples']),mutantsDetected=len(lifecycle['mutationChecks'])),
  concreteTests=tests,verificationFileHashes=proof_inputs,claims=claim_results,confirmation=confirmation,
- confirmationImplementationChanges='NONE',releaseRevision=profile['releaseRevision'],uiSourceRevision=release['uiSourceRevision'],sourceBuildCorrespondence=release['sourceBuildCorrespondence'],cidCorrespondence=release['cidCorrespondence'],releaseCorrespondence=release,
+ confirmationImplementationChanges='HOST_RPC_RECEIPT_AND_EXACT_EVENTS',releaseRevision=profile['releaseRevision'],uiSourceRevision=release['uiSourceRevision'],sourceBuildCorrespondence=release['sourceBuildCorrespondence'],cidCorrespondence=release['cidCorrespondence'],releaseCorrespondence=release,
  endToEndUIProof=False,translatorSoundnessProof=False,continuation=continuation,
- majorOpenBoundaries=['Conditional SDK/crypto and Vue/source-correspondence premises documented in continuation report','Actual chain confirmation requires A_CONFIRMATION_REPORTING','Compiler/toolchain correctness and gateway delivery'])
+ majorOpenBoundaries=['Conditional SDK/crypto and Vue/source-correspondence premises documented in continuation report','Chain-RPC receipt and event evidence assumes A_CHAIN_RPC_REPORTING; no authenticated consensus or finality proof','Compiler/toolchain correctness and gateway delivery'])
 (ROOT/'reports/summary.json').write_text(json.dumps(summary,indent=2)+'\n')
 (ROOT/'reports/result.json').write_text(json.dumps(result,indent=2)+'\n')
-print('\nPASS_WITH_ASSUMPTIONS — basic direct withdrawal v1 (option A)')
+print('\nPASS_WITH_ASSUMPTIONS — basic direct withdrawal v1 (host-RPC receipt and event checks)')
 for c in claim_results: print(f'  {c["id"]}: {c["title"]} [{c["evidenceKind"]}]')
 print(f'{len(vp)+len(bp)} conditional SMT obligations UNSAT; {len(lp)} model properties; {result["implementationTests"]} implementation tests passed.')
-print('Confirmation: bundler-reported success; actual inclusion assumes truthful, correctly associated receipts.')
+print('Confirmation: host-RPC successful receipt and exact EntryPoint/pool events; actual inclusion assumes truthful chain-RPC reporting, without a finality proof.')
 print('Release correspondence: SDK + UI byte-identical; expected CID MATCH; publisher-reported upload CID MATCH. Full UI proof: NOT CLAIMED.')
 print('Machine-readable verdict: reports/result.json; evidence: reports/summary.json')

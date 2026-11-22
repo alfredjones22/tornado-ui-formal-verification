@@ -15,7 +15,7 @@
   "dependencies": {
     "@kohaku-eth/plugins": "0.0.1-alpha.20",
     "@kohaku-eth/provider": "0.1.0-alpha.14",
-    "@kohaku-eth/tornado-cash": "0.1.0-alpha.37",
+    "@kohaku-eth/tornado-cash": "0.1.0-alpha.38",
     "jspdf": "4.2.1",
     "micro-zk-proofs": "0.3.1",
     "viem": "2.55.19",

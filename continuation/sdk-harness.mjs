@@ -4,7 +4,7 @@ import {readFileSync} from 'node:fs';
 const {configureStore,unwrapResult}=toolkit;
 export const gasFields=['callGasLimit','verificationGasLimit','preVerificationGas','paymasterVerificationGasLimit','paymasterPostOpGasLimit'];
 export async function sdkHarness({chainId=1, token=false, scenario='stable', feePrice=1_000_000_000n, wrongChain=false, duplicateCommitment=false, spentWithDiscoveryPlaceholder=false}={}) {
-  const transcript=[], captures=[], proofs=[], events=[], keyCalls=[];
+  const transcript=[], captures=[], stateOverrides=[], proofs=[], events=[], keyCalls=[];
   const cfg=TornadoPaymasterConfigs[chainId];
   const pool=BigInt(cfg.supportedPools[token?cfg.supportedPools.length-1:0]);
   const asset=token?0x3333333333333333333333333333333333333333n:0n;
@@ -20,8 +20,8 @@ export async function sdkHarness({chainId=1, token=false, scenario='stable', fee
       const tier={maxFeePerGas:v.toHex(feePrice),maxPriorityFeePerGas:feePrice===0n?'0x0':'0x1'}; return {slow:tier,standard:tier,fast:tier};
     }
     if(args.method!=='eth_estimateUserOperationGas')throw Error('Unexpected remote method '+args.method);
-    const op=structuredClone(args.params[0]);captures.push(op); events.push('release-estimation');
-    transcript.push({kind:'signed-candidate',method:args.method,operation:op});
+    const op=structuredClone(args.params[0]);captures.push(op);stateOverrides.push(structuredClone(args.params[2])); events.push('dummy-estimation');
+    transcript.push({kind:'dummy-estimation',method:args.method,operation:op});
     const index=captures.length;
     if(scenario==='transport' || scenario==='retry-stable'&&index===1)throw new v.TimeoutError({});
     if(scenario==='validation')throw new v.RpcRequestError({body:{},error:{code:-32500,message:'AA33 validation revert'},url:'https://synthetic.invalid'});
@@ -66,15 +66,16 @@ export async function sdkHarness({chainId=1, token=false, scenario='stable', fee
   const store=configureStore({reducer:(state=original,action)=>({...state,legacySecrets:legacyReducer(state.legacySecrets,action)}),middleware:g=>g({serializableCheck:false,immutableCheck:false})});
   const imported=unwrapResult(await store.dispatch(load('src/state/thunks/importLegacyNotesThunk.ts').importLegacyNotesThunk({notes:[note]})));
   const selected=()=>load('src/state/selectors/withdrawals.selector.ts').getWithdrawableDepositsSelector(store.getState(),asset,amount);
-  const provider={request:async({method})=>{
+  const verifier='0x4444444444444444444444444444444444444444';
+  const provider={request:async({method,params})=>{
     events.push('host:'+method);
     if(method==='eth_feeHistory')return{baseFeePerGas:['0x3b9aca00','0x3b9aca00'],reward:[['0x1']]};
-    if(method==='eth_getCode')return'0x'; if(method==='eth_getBalance'||method==='eth_getTransactionCount')return'0x0';
-    if(method==='eth_call')return v.toHex(0n,{size:32}); throw Error('Unexpected host read '+method);
+    if(method==='eth_getCode')return params?.[0]?.toLowerCase()===verifier?'0x6000':'0x'; if(method==='eth_getBalance'||method==='eth_getTransactionCount')return'0x0';
+    if(method==='eth_call')return v.toHex(params?.[0]?.data===v.toFunctionSelector('verifier()')?BigInt(verifier):0n,{size:32}); throw Error('Unexpected host read '+method);
   }};
   const params={dataService:{getChainId:async()=>BigInt(chainId),quoteWeiInToken:async(_p,_a,fee)=>fee/10n**10n},assetAddress:asset,amount,
     recipient:BigInt(recipient),paymasterSettings:{[chainId]:cfg},secretManager,provider,proverFactory:async()=>({prove}),
     gasEstimationPolicy:'best-effort',maxGasLimits:{verificationGasLimit:250000n,paymasterVerificationGasLimit:2000000n}};
-  return{note,parsed,pool,asset,amount,recipient,chainId,token,cfg,load,store,imported,selected,captures,proofs,events,keyCalls,transcript,params,
+  return{note,parsed,pool,asset,amount,recipient,chainId,token,cfg,load,store,imported,selected,captures,stateOverrides,proofs,events,keyCalls,transcript,params,
     async prepare(){return unwrapResult(await store.dispatch(load('src/state/thunks/paymasterWithdrawThunk.ts').paymasterWithdrawThunk(params)))}};
 }

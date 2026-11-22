@@ -1,12 +1,12 @@
 {
   "schemaVersion": 1,
-  "recordedAtUTC": "2026-11-16T14:52:33.105785+00:00",
-  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
-  "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
-  "reportedUploadedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+  "recordedAtUTC": "2026-11-22T12:28:38.488302+00:00",
+  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
+  "expectedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
+  "reportedUploadedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
   "result": "MATCH",
   "evidenceKind": "PUBLISHER_REPORTED_INDEPENDENT_UPLOAD_CID",
   "reportedBy": "Release publisher, in this conversation",
   "gatewayDelivery": "NOT_CHECKED",
-  "meaning": "The publisher reported this CID after independently uploading the UI build. It exactly matches the locally computed frozen/rebuilt directory CID. This is a recorded publisher report, not an authenticated external attestation or a gateway-fetch check."
+  "meaning": "The publisher reported this CID after independently publishing the UI build. It exactly matches the locally computed clean-main dist CID. This is a publisher report, not an authenticated external attestation or a gateway-delivery check."
 }

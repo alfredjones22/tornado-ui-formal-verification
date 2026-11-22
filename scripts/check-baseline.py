@@ -5,7 +5,7 @@ import argparse,hashlib,json,subprocess,sys
 parser=argparse.ArgumentParser(description="Check the frozen registry-SDK release and optionally a UI checkout.")
 options=parser.add_mutually_exclusive_group()
 options.add_argument('--live',action='store_true')
-options.add_argument('--ui',type=Path,help='Require the captured UI inventory/bytes minus the five pinned non-runtime removals, including exact README.')
+options.add_argument('--ui',type=Path,help='Require the exact captured UI main inventory and bytes, including README.')
 args=parser.parse_args()
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'release'))
@@ -31,8 +31,8 @@ for row in rows:
     data=path.read_bytes()
     assert len(data)==row['bytes'] and hashlib.sha256(data).hexdigest()==row['sha256'],f'Content changed: {path}'
 print(f'{"Live recorded files" if args.live else "Frozen baseline"}: immutable manifest {digest}; input hashes match, generated outputs checked by the release stage')
-print('Pinned UI source revision: exactly five non-runtime publication files removed; all remaining bytes unchanged')
-if args.live:print('Maintainer check includes the historical source SDK checkout; its independent drift is expected to fail.')
+print('Pinned UI source revision: exact clean main capture; no source-file exceptions')
+if args.live:print('Maintainer check includes the original SDK source checkout; its independent drift is expected to fail.')
 if args.ui:
     ui=args.ui.resolve()
     output=subprocess.check_output(['git','-C',str(ui),'ls-files','-z','--cached','--others','--exclude-standard'])

@@ -2,14 +2,17 @@ import type { Address } from 'viem'
 import { depositBatchLimit } from './catalog'
 import type { DepositNote } from './notes'
 import { publicClientFor, type ConnectionSettings } from './rpc'
-import { assertWallet, depositCalls, executeDeposits, waitForWalletBatch, type DepositCall, type Progress, type Update, type WalletProvider } from './wallet'
+import { assertReceiptForCall, assertWallet, depositCalls, executeDeposits, verifyDepositBatch, waitForWalletBatch, type DepositCall, type Progress, type Update, type WalletProvider } from './wallet'
 
 export function depositBatches(notes: readonly DepositNote[]): DepositNote[][] {
   const first = notes[0]
   if (!first) throw new Error('Select at least one note.')
   if (notes.some(note => note.pool.chainId !== first.pool.chainId || note.pool.asset.symbol !== first.pool.asset.symbol ||
     note.pool.asset.token?.toLowerCase() !== first.pool.asset.token?.toLowerCase())) throw new Error('Use one asset and one network per deposit session.')
-  if (new Set(notes.map(note => note.id)).size !== notes.length || new Set(notes.map(note => note.raw)).size !== notes.length) throw new Error('The session contains duplicate notes.')
+  if (new Set(notes.map(note => note.id)).size !== notes.length || new Set(notes.map(note => note.raw)).size !== notes.length ||
+    new Set(notes.map(note => `${note.pool.address.toLowerCase()}:${note.commitment.toLowerCase()}`)).size !== notes.length) {
+    throw new Error('The session contains duplicate notes or commitments.')
+  }
   const limit = depositBatchLimit(first.pool.asset)
   const batches: DepositNote[][] = []
   for (let i = 0; i < notes.length; i += limit) batches.push(notes.slice(i, i + limit))
@@ -46,16 +49,28 @@ export async function reconcileDepositSession(options: {
   const pending = rows.filter(row => ['submitted', 'unknown', 'awaiting-wallet'].includes(row.status))
   const batchIds = [...new Set(pending.flatMap(row => row.batchId ? [row.batchId] : []))]
   if (batchIds.length) {
-    if (!provider || !account) throw new Error('Connect the wallet and account that sent these deposits to check their batches.')
-    await assertWallet(provider, account, settings)
     for (const batchId of batchIds) {
-      const hash = await waitForWalletBatch(provider, batchId, 10_000)
-      pending.filter(row => row.batchId === batchId).forEach(row => update(row.id, { status: 'confirmed', hash, transactionHash: hash, message: undefined }))
+      const batchRows = pending.filter(row => row.batchId === batchId)
+      let hashes = batchRows[0]?.batchTransactionHashes
+      if (!hashes?.length) {
+        if (!provider || !account) throw new Error('Connect the wallet and account that sent these deposits to check their batches.')
+        await assertWallet(provider, account, settings)
+        const receivedHashes = await waitForWalletBatch(provider, batchId, 10_000)
+        hashes = receivedHashes
+        batchRows.forEach(row => update(row.id, { batchTransactionHashes: receivedHashes, hash: receivedHashes[0], transactionHash: receivedHashes[0] }))
+      }
+      const confirmed = await verifyDepositBatch(batchRows, hashes, settings)
+      batchRows.forEach(row => update(row.id, { status: 'confirmed', hash: confirmed.get(row.id), transactionHash: confirmed.get(row.id), message: undefined }))
     }
   }
   for (const row of pending.filter(row => !row.batchId && row.hash)) {
     const receipt = await publicClientFor(settings).getTransactionReceipt({ hash: row.hash! })
-    update(row.id, { status: receipt.status === 'success' ? 'confirmed' : 'failed', transactionHash: row.hash, message: undefined })
+    if (receipt.status !== 'success') {
+      update(row.id, { status: 'failed', transactionHash: row.hash, message: 'Transaction reverted.' })
+      continue
+    }
+    assertReceiptForCall(receipt, row.hash!, row.expectedDeposit)
+    update(row.id, { status: 'confirmed', transactionHash: row.hash, message: undefined })
   }
   if (pending.some(row => !row.batchId && !row.hash)) throw new Error('A submission returned no identifier. Check the sending wallet before starting another session.')
 }

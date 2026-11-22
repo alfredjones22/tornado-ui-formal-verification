@@ -2,7 +2,7 @@
 // then compare symbolic acceptance to executing the captured TypeScript.
 import { writeFileSync } from 'node:fs';
 import { decodeAbiParameters, parseAbiParameters } from 'viem';
-import { fixture, runtime, root, TornadoPaymasterConfigs } from './source-runtime.mjs';
+import { fixture, noteIdentity, runtime, root, TornadoPaymasterConfigs } from './source-runtime.mjs';
 const validator = runtime().validateWithdrawal;
 const schema = parseAbiParameters('(address instance, bytes proof, bytes32 root, bytes32 nullifierHash, address recipient, uint256 fee)');
 function assignment(f) {
@@ -14,11 +14,12 @@ function assignment(f) {
     'sponsor.instance': n(sponsor.instance), 'sponsor.proof': sponsor.proof, 'sponsor.root': sponsor.root,
     'sponsor.nullifier': sponsor.nullifierHash, 'sponsor.recipient': n(sponsor.recipient), 'sponsor.fee': n(sponsor.fee),
     'recipient': n(f.recipient), 'note.pool.address': n(f.note.pool.address), 'note.amount': n(f.note.pool.amount),
+    'note.derivedNullifier': n(noteIdentity(f.note).nullifierHash),
     'note.token': n(f.note.pool.asset.token), 'note.token.present': f.note.pool.asset.token !== undefined,
     'settings.chainId': n(f.settings.chainId), 'settings.bundlerUrl': f.settings.bundlerUrl,
     'withdrawal.mode': w.mode, 'withdrawal.bundlerUrl': w.bundlerUrl, 'withdrawal.entryPoint': n(w.entryPointAddress),
     'withdrawal.pool': n(w.poolAddress), 'withdrawal.isERC20': w.isERC20, 'withdrawal.value': n(w.withdrawnValue), 'withdrawal.value.present': w.withdrawnValue !== undefined,
-    'proof.bytes': p.proof, 'proof.root': p.args[0], 'proof.nullifier': p.args[1], 'proof.recipient': n(p.args[2]),
+    'proof.bytes': p.proof, 'proof.root': p.args[0], 'proof.nullifier': p.args[1], 'proof.nullifier.value': n(p.args[1]), 'proof.recipient': n(p.args[2]),
     'proof.paymaster': n(p.args[3]), 'proof.fee': n(p.args[4]), 'proof.refund': n(p.args[5]),
     'estimation.status': w.gasEstimation?.status ?? '', 'estimation.reason': w.gasEstimation?.reason ?? '', 'estimation.present': w.gasEstimation !== undefined,
     'op.paymaster': n(op.paymaster), 'op.paymaster.present': op.paymaster !== undefined,
@@ -31,6 +32,7 @@ const variants = [
   ['estimated', () => {}], ['fallback-internal', f => { f.withdrawal.gasEstimation = { status: 'fallback', reason: 'bundler-internal' } }],
   ['fallback-transport', f => { f.withdrawal.gasEstimation = { status: 'fallback', reason: 'transport-unavailable' } }],
   ['missing-value', f => { delete f.withdrawal.withdrawnValue }],
+  ['selected-note', f => { f.note.preimage = 'cd'.repeat(62); f.note.raw = f.note.raw.replace('ab'.repeat(62), f.note.preimage) }],
   ['recipient', f => { f.withdrawal.proof.args[2] = '0x4444444444444444444444444444444444444444' }],
   ['calldata', f => { f.withdrawal.userOperation.callData = '0x1234' }],
   ['call-gas', f => { f.withdrawal.userOperation.callGasLimit = '0x1' }], ['nonce', f => { f.withdrawal.userOperation.nonce = '0x1' }],

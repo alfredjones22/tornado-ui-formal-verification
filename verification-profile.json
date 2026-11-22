@@ -2,15 +2,15 @@
   "schemaVersion": 1,
   "id": "basic-direct-withdrawal-v1",
   "status": "COMPLETE_WITH_EXPLICIT_ASSUMPTIONS",
-  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
   "scope": "Frozen basic single-note ERC-4337/paymaster withdrawal; excludes other UI routes.",
   "confirmation": {
-    "option": "A",
-    "assumptionId": "A_CONFIRMATION_REPORTING",
-    "assumption": "Only the interpretation of confirmed as an actual successful withdrawal assumes a well-formed, truthful bundler receipt associated with the intended operation, transaction and chain. This is not an assumption that all bundler inputs are honest.",
-    "independentInclusionVerification": false,
+    "option": "B",
+    "assumptionId": "A_CHAIN_RPC_REPORTING",
+    "assumption": "Interpreting a successful host-RPC transaction receipt and matching EntryPoint UserOperationEvent and pool Withdrawal event as actual selected-chain inclusion assumes that the configured chain RPC reports authentic, complete receipt and log data for the intended chain. These checks are independent of the bundler response but are not an authenticated consensus or finality proof.",
+    "independentInclusionVerification": true,
     "finalityVerification": false,
-    "confirmationImplementationChanges": "NONE"
+    "confirmationImplementationChanges": "HOST_RPC_RECEIPT_AND_EXACT_EVENTS"
   },
   "claims": [
     {
@@ -42,10 +42,11 @@
     },
     {
       "id": "C04",
-      "title": "Sponsor tuple agrees with supplied proof fields",
+      "title": "Sponsor tuple and selected-note nullifier agree with supplied proof fields",
       "evidenceKind": "CONDITIONAL_SOURCE_LINKED_SMT_PROOF",
       "validator": [
-        "P06_sponsor_tuple"
+        "P06_sponsor_tuple",
+        "P09_selected_note_nullifier"
       ]
     },
     {
@@ -64,7 +65,9 @@
         "L01_one_explicit_send_per_quote",
         "L02_send_requires_review_and_validation",
         "L04_no_automatic_resubmission",
-        "L06_known_hash_is_retained"
+        "L06_known_hash_is_retained",
+        "L08_exposure_requires_explicit_submit",
+        "L09_aborted_preparation_cannot_expose_operation"
       ],
       "continuation": [
         "U01_caller_initial_state",
@@ -79,10 +82,10 @@
     },
     {
       "id": "C07",
-      "title": "Confirmation reports the configured bundler response",
+      "title": "Confirmation requires a successful host-RPC receipt and matching EntryPoint and pool events",
       "evidenceKind": "SOURCE_INSPECTION_AND_IMPLEMENTATION_TESTS",
       "assumptionsForChainMeaning": [
-        "A_CONFIRMATION_REPORTING"
+        "A_CHAIN_RPC_REPORTING"
       ],
       "lifecycle": [
         "L03_confirmation_requires_known_submission"
@@ -90,7 +93,7 @@
     },
     {
       "id": "C08",
-      "title": "Disposed frame cannot restore review; released authority is not revoked",
+      "title": "Disposed frame cannot restore review; exposed authority is not revoked",
       "evidenceKind": "MODEL_CHECK_AND_IMPLEMENTATION_TESTS",
       "lifecycle": [
         "L05_disposed_frame_cannot_restore_review",
@@ -100,31 +103,31 @@
   ],
   "notClaimed": [
     "End-to-end UI correctness",
-    "Independent or finalized on-chain confirmation",
+    "Trustless or finalized on-chain confirmation",
     "Cryptographic proof or circuit correctness",
     "Full SDK semantic proof or Vue/browser refinement",
-    "Revocation of candidates released during estimation",
+    "Revocation of signed operations after Submit or independent RPC relay",
     "Compiler correctness, gateway delivery or full deployed-UI semantics"
   ],
   "releaseCorrespondence": {
     "required": true,
-    "inputManifestSHA256": "6d555b800c4339e3dd01d537e19bc68fb4903bda2177f447aa36c16bcaedf73e",
-    "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
+    "inputManifestSHA256": "43d7481f9fb81fbbd4ce78b6bb35df1d2965d4bee1083a219190150060a0b529",
+    "expectedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
     "deploymentStatus": "PUBLISHER_REPORTED_CID_MATCH",
     "deploymentRecord": "release/deployment.json"
   },
-  "releaseRevision": "REGISTRY_SDK_ALPHA_37",
+  "releaseRevision": "REGISTRY_SDK_ALPHA_38_UI_MAIN_186059",
   "registrySDK": {
-    "version": "0.1.0-alpha.37",
-    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.37.tgz",
-    "integrity": "sha512-Ub4kHobA+Rk4lh+OtOsAek/sfP/GEyUcL8OwWUHaz9cPb716uC5tuZctvgy8LzP82tWA2a47Yed2I557wn1rqQ==",
+    "version": "0.1.0-alpha.38",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.38.tgz",
+    "integrity": "sha512-uo1OFrIUh0ruXAxmVbA6anS8VQQLvL1n8CtUm2snntE/bySz2M1b41vNiVmWXkaKZuHAhQdNzPD2a98VJXDfVA==",
     "name": "@kohaku-eth/tornado-cash",
     "sourceRebuiltArtifacts": 14,
-    "packageFileCount": 17,
-    "additionalDeclaration": "dist/merkle-tree.node.d.ts"
+    "packageFileCount": 16,
+    "additionalDeclaration": null
   },
   "uiSourceRevision": {
     "manifest": "release/ui-source-revision.json",
-    "sha256": "83afaffdc7b70769070bf23f2ab67bc52ea9fdf2906689ac8192cd60d7d5bb36"
+    "sha256": "36c80513a9991a8ee8203ba4220354573800abb15f48fe6bc253b023d3a240c8"
   }
 }

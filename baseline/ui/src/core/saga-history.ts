@@ -15,6 +15,10 @@ type Entry = { protocol?: string; chainId: Hex; trackedAddresses?: Hex[]; chunks
 type Index = { version: number; compression: string; availableProtocols: Record<string, Entry> }
 type Prepared = { coverage: bigint; events: ExternalRawEvent[] }
 const hex = (value: bigint): Hex => `0x${value.toString(16)}`
+// Pinned SDK alpha.38 replays this many blocks when an older snapshot has no
+// finalizedBlock. The default public RPC does not serve these archive logs, so
+// use checksum-verified Saga chunks for the overlap when available.
+const LEGACY_REWIND_BLOCKS = 7200n
 function quantity(value: unknown): bigint {
   if (typeof value !== 'string' || !/^0x[0-9a-f]+$/i.test(value)) throw new Error('Invalid Saga block or log position.')
   return BigInt(value)
@@ -54,20 +58,29 @@ export function createSagaHistory(chainId: ChainId, snapshot: PublicSnapshot, he
     if (BigInt(params.chainId) !== BigInt(chainId) || !pool || pool.lastSyncedBlock === undefined) throw new Error('Saga requested an unselected pool or network.')
     return pool
   }
+  const firstNewBlock = (params: ExternalSyncPoolId) => hex(BigInt(saved(params).lastSyncedBlock!) + 1n)
+  const firstReplayBlock = (params: ExternalSyncPoolId) => {
+    const pool = saved(params), cursor = BigInt(pool.lastSyncedBlock!)
+    const finalized = pool.finalizedBlock === undefined ? cursor - LEGACY_REWIND_BLOCKS : BigInt(pool.finalizedBlock)
+    const start = finalized < cursor ? finalized : cursor
+    const registered = BigInt(pool.registeredBlock)
+    return start > registered ? start : registered
+  }
   if (base === null) {
     progress('Saga disabled in Settings. Syncing remaining history with RPC…')
     return {
-      firstCoveredBlock: async params => hex(BigInt(saved(params).registeredBlock)),
+      firstCoveredBlock: async params => firstNewBlock(params),
       lastCoveredBlock: async params => hex(BigInt(saved(params).lastSyncedBlock!)),
       async *streamEvents(params) {
-        // Advertise only the existing checkpoint, never an unqueried RPC tail.
-        if (quantity(params.toBlock) > BigInt(saved(params).lastSyncedBlock!)) throw new Error('Saga is disabled; use RPC for this range.')
+        saved(params)
+        // No external range is advertised: firstCoveredBlock is greater than
+        // lastCoveredBlock. Any direct stream request must go to chain RPC.
+        throw new Error('Saga is disabled; use RPC for this range.')
       },
     }
   }
   async function prepare(params: ExternalSyncPoolId): Promise<Prepared> {
-    const pool = saved(params), cursor = BigInt(pool.lastSyncedBlock!)
-    if (cursor >= head) return { coverage: cursor, events: [] }
+    const first = firstReplayBlock(params)
     const matches = Object.values((await index()).availableProtocols).filter(entry =>
       entry.protocol === 'tornado-cash' && quantity(entry.chainId) === BigInt(chainId) &&
       entry.trackedAddresses?.some(address => BigInt(address) === BigInt(params.address)))
@@ -76,9 +89,9 @@ export function createSagaHistory(chainId: ChainId, snapshot: PublicSnapshot, he
     if (entry.extraLogFields?.some(field => field !== 'transactionHash')) throw new Error('unsupported Saga record fields')
     const segments = [...entry.chunks, ...(entry.hotHead ? [entry.hotHead] : [])]
       .sort((a, b) => Number(quantity(a.fromBlock) - quantity(b.fromBlock)))
-      .filter(segment => quantity(segment.toBlock) > cursor + 1n && quantity(segment.fromBlock) <= head)
-    if (!segments.length) return { coverage: cursor, events: [] } // Saga is behind the bundled cache.
-    let end = cursor + 1n
+      .filter(segment => quantity(segment.toBlock) > first && quantity(segment.fromBlock) <= head)
+    if (!segments.length) throw new Error('Saga does not cover the required pool rewind.')
+    let end = first
     for (const [i, segment] of segments.entries()) {
       const from = quantity(segment.fromBlock), to = quantity(segment.toBlock)
       if (to <= from || (i === 0 ? from > end : from !== end)) throw new Error('gap or overlap in Saga coverage')
@@ -89,7 +102,7 @@ export function createSagaHistory(chainId: ChainId, snapshot: PublicSnapshot, he
     const coverage = end - 1n < head ? end - 1n : head
     const events: ExternalRawEvent[] = []
     for (const [i, segment] of segments.entries()) {
-      progress(`Syncing newer history from Saga… ${i + 1}/${segments.length} chunks`)
+      progress(`Syncing verified pool history from Saga… ${i + 1}/${segments.length} chunks`)
       const bytes = await decompressHistory(await request(segment.file, 64 * 1024 * 1024, 20_000, segment === entry.hotHead), 256 * 1024 * 1024)
       if (await historyDigest(bytes) !== segment.digest.data.replace(/^0x/i, '').toLowerCase()) throw new Error('Saga chunk checksum mismatch')
       let previousBlock = -1n, previousLog = -1n
@@ -107,7 +120,7 @@ export function createSagaHistory(chainId: ChainId, snapshot: PublicSnapshot, he
         }
         // Do not let an undecodable log silently disappear inside SDK parsing.
         decodeEventLog({ abi: poolEvents, data: event.data, topics: event.topics as [Hex, ...Hex[]], strict: true })
-        if (BigInt(event.contractAddress) === BigInt(params.address) && block > cursor && block <= coverage) events.push(event)
+        if (BigInt(event.contractAddress) === BigInt(params.address) && block >= first && block <= coverage) events.push(event)
       }
     }
     return { coverage, events }
@@ -127,12 +140,12 @@ export function createSagaHistory(chainId: ChainId, snapshot: PublicSnapshot, he
     return promise
   }
   return {
-    firstCoveredBlock: async params => hex(BigInt(saved(params).registeredBlock)),
+    firstCoveredBlock: async params => hex(firstReplayBlock(params)),
     lastCoveredBlock: async params => hex((await range(params)).coverage),
     async *streamEvents(params) {
       const result = await range(params)
       const from = quantity(params.fromBlock), to = quantity(params.toBlock)
-      if (from < BigInt(saved(params).lastSyncedBlock!) || to > result.coverage) throw new Error('Saga range exceeds validated history.')
+      if (from < firstReplayBlock(params) || from > to || to > result.coverage) throw new Error('Saga range exceeds validated history.')
       for (const event of result.events) if (quantity(event.blockNumber) >= from && quantity(event.blockNumber) <= to) yield event
     },
   }

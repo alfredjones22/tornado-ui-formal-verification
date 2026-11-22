@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
   "files": [
     {
       "path": "release/runtime-layout.json",
-      "sha256": "b498eeec97c3835999711d7cc1c1a892c65a09e4409665a2241878de33d6942a"
+      "sha256": "5e32b414f8b3d44f0889e60dc3217f959430908aa7c50e443c52323d612808cc"
     },
     {
       "path": "release/sdk-tsconfig.base.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "release/deployment.json",
-      "sha256": "c520d51d3de87075899f3fa0beb37a8ace4c7dad7d59e084e009c95a282fa537"
+      "sha256": "27a7a34dfcb396183d8657da01bb2427506b699a9c90de3d3de7e80c53093f96"
     },
     {
       "path": "release/package-metadata/plugins.json",

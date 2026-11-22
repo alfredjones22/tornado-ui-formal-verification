@@ -18,6 +18,7 @@ import { loadAddressPrivacy, withdrawalPrivacyChecks, type AddressPrivacyState }
 import { callEth, callSummary, callsHash, canonicalCalls, type BuilderAction } from './core/transaction-builder'
 import { canSubmitSimulation, retainSimulationFailure, simulationMatches, simulateSmartWithdrawal, type WithdrawalSimulation } from './core/withdrawal-simulation'
 import { loadActionBalances, unknownActionBalances } from './core/action-budget'
+import { reviewContractAction } from './core/action-review'
 
 const props = defineProps<{ active: boolean; wallet: WithdrawalWallet | null; chainId: ChainId; walletRevision: number; connectionKey: string; getSettings: () => ConnectionSettings }>()
 const emit = defineEmits<{ back: []; manage: []; connect: []; settings: []; activity: [busy: boolean, pending: boolean]; 'reject-controller': [wallet: WithdrawalWallet] }>()
@@ -26,15 +27,30 @@ const customRecipient = ref(props.wallet?.account ?? '')
 const validRecipient = computed(() => payout.value !== 'custom' || isAddress(customRecipient.value) && BigInt(customRecipient.value) !== 0n)
 const account = ref<SmartWithdrawalAccount | null>(null), quote = ref<SmartWithdrawalQuote | null>(null), frozen = ref<ConnectionSettings | null>(null)
 const rows = ref<Progress[]>([]), submitted = ref(false)
+const operationExposed = ref(false)
 const previousAttempts = ref<{ chainId: ChainId; userOperationHash: Hex; progress: Progress[] }[]>([])
 const signing = ref<SigningReview | null>(null), fileInput = ref<HTMLInputElement | null>(null)
 const notesField = ref<HTMLTextAreaElement | null>(null)
 const builderOpen = ref(false), actions = ref<BuilderAction[]>([]), simulationRpc = ref(''), simulation = ref<WithdrawalSimulation>()
+const acknowledgedOpaqueHash = ref<Hex>()
+const reviewedActions = computed(() => actions.value.map(action => ({ action, ...reviewContractAction(action) })))
+const hasOpaqueActions = computed(() => reviewedActions.value.some(review => review.opaque))
+const actionReviewHash = computed(() => actions.value.length ? callsHash(actions.value) : undefined)
+const opaqueActionsAcknowledged = computed(() => !hasOpaqueActions.value || acknowledgedOpaqueHash.value === actionReviewHash.value)
+function acknowledgeOpaque(event: Event) {
+  acknowledgedOpaqueHash.value = (event.target as HTMLInputElement).checked ? actionReviewHash.value : undefined
+}
+function actionAmount(action: BuilderAction, amount: bigint) {
+  const current = asset.value
+  return current?.token?.toLowerCase() === action.to.toLowerCase()
+    ? `${units(amount, current)} ${current.symbol} (${amount} base units)`
+    : `${amount} token base units (decimals unknown)`
+}
 const simulating = ref(false), reviewClock = ref(Date.now())
 let reviewTimer: ReturnType<typeof setTimeout> | undefined
 const reviewExpired = computed(() => !!quote.value && reviewClock.value - quote.value.quotedAt >= 5 * 60_000)
 const simulationCurrent = computed(() => simulationMatches(simulation.value, quote.value, reviewClock.value))
-const canSubmitReview = computed(() => !reviewExpired.value && canSubmitSimulation(simulation.value, quote.value, reviewClock.value))
+const canSubmitReview = computed(() => !!quote.value && !reviewExpired.value && simulation.value?.status !== 'failed' && opaqueActionsAcknowledged.value)
 watch([quote, simulation], () => {
   clearTimeout(reviewTimer); reviewClock.value = Date.now()
   if (!quote.value) return
@@ -82,7 +98,7 @@ const withdrawalContext = computed(() => contractsAvailable.value ? `${props.cha
 function resetContractCalls() {
   if (submitted.value) return
   if (actions.value.length || builderOpen.value) resetNotice.value = 'Contract calls were cleared because the withdrawal notes, payout or wallet context changed.'
-  actions.value = []; builderOpen.value = false; simulation.value = undefined; callsContext.value = ''
+  actions.value = []; acknowledgedOpaqueHash.value = undefined; builderOpen.value = false; simulation.value = undefined; callsContext.value = ''
 }
 function openBuilder() {
   if (busy.value || loading.value || !contractsAvailable.value) return
@@ -105,7 +121,7 @@ async function refreshBalances() {
   finally { if (request === balanceRequest) balancesLoading.value = false }
 }
 const pending = computed(() => rows.value.some(row => ['submitted', 'unknown', 'awaiting-wallet'].includes(row.status)))
-const canReturnToReview = computed(() => submitted.value && !!quote.value && rows.value.length > 0 &&
+const canReturnToReview = computed(() => submitted.value && !operationExposed.value && !!quote.value && rows.value.length > 0 &&
   rows.value.every(row => ['ready', 'rejected'].includes(row.status) && !row.transactionHash))
 const asset = computed(() => quote.value?.notes[0]?.pool.asset ?? parsed.value.notes[0]?.pool.asset)
 const total = computed(() => parsed.value.notes.reduce((sum, note) => sum + note.pool.amount, 0n))
@@ -158,8 +174,9 @@ watch([() => props.active, () => props.walletRevision, () => props.connectionKey
 
 async function prepare() {
   await run(async () => {
-    if (!props.wallet || pending.value || submitted.value) throw new Error('Connect the owner wallet and check the current session before preparing another batch.')
+    if (!props.wallet || pending.value || submitted.value || operationExposed.value) throw new Error('Connect the owner wallet and check the current session before preparing another batch.')
     if (!validRecipient.value) throw new Error('Enter a valid nonzero recipient address.')
+    if (!opaqueActionsAcknowledged.value) throw new Error('Review and acknowledge opaque contract calls before signing.')
     const wallet = props.wallet, settings = { ...props.getSettings() }
     const context = { provider: wallet.provider, revision: props.walletRevision, connectionKey: props.connectionKey }
     controller = new AbortController()
@@ -179,24 +196,45 @@ async function prepare() {
       simulation.value = simulationHistory.get(prepared.signedHash) ?? prepared.simulation
       if (simulation.value) prepared.simulation = simulation.value
       preparedContext = context
-      if (calls.length) {
-        signing.value = null; status.value = 'Simulating the complete UserOperation…'
-        const q = quote.value
-        await Promise.all([simulatePrepared(q, settings), refreshBalances()])
-        controller.signal.throwIfAborted()
-      }
+      if (calls.length) await refreshBalances()
     } finally { controller = undefined }
   })
 }
 function stop() { controller?.abort(new Error('Batch preparation was cancelled.')) }
+function markOperationExposed(q: SmartWithdrawalQuote, source: 'simulation RPC' | 'bundler') {
+  if (operationExposed.value) return
+  operationExposed.value = true
+  submitted.value = true
+  rows.value = [{ id: q.id, label: `${q.notes.length} note${q.notes.length === 1 ? '' : 's'} · one UserOperation`,
+    status: 'unknown', hash: q.signedHash,
+    message: `The signed operation was sent to the ${source} and may still land. Preserve the notes and check its on-chain status before signing another operation.` }]
+}
 async function submit() {
   await run(async () => {
     if (!quote.value || !frozen.value || !props.wallet || submitted.value) throw new Error('Prepare a new review first.')
-    const q = quote.value
-    if (!canSubmitReview.value) throw new Error(reviewExpired.value ? 'This review expired. Recalculate fee & gas before submitting.' : 'Resolve the withdrawal simulation before submitting.')
-    submitted.value = true; rows.value = [{ id: q.id, label: `${q.notes.length} note${q.notes.length === 1 ? '' : 's'} · one UserOperation`, status: 'ready' }]
+    const q = quote.value, settings = frozen.value, wallet = props.wallet
+    const revision = props.walletRevision, connectionKey = props.connectionKey
+    const contextCurrent = () => quote.value === q && frozen.value === settings && props.wallet?.provider === wallet.provider &&
+      props.wallet?.account.toLowerCase() === wallet.account.toLowerCase() && props.walletRevision === revision &&
+      props.connectionKey === connectionKey && props.chainId === settings.chainId
+    if (!contextCurrent()) throw new Error('The withdrawal context changed after signing. Prepare a new review.')
+    if (!canSubmitReview.value) throw new Error(reviewExpired.value ? 'This review expired. Recalculate fee & gas before submitting.' : 'Resolve the failed simulation or unreviewed contract calls before submitting.')
+    // The signed operation first leaves this page at this explicit authorization
+    // point. A simulation RPC could relay it even if the preview later fails.
+    status.value = 'Simulating the signed withdrawal…'
+    await simulatePrepared(q, settings, () => {
+      if (!contextCurrent()) {
+        throw new Error('The withdrawal context changed before the signed operation was sent to the simulation RPC.')
+      }
+      markOperationExposed(q, 'simulation RPC')
+    })
+    if (!contextCurrent()) {
+      throw new Error('The withdrawal context changed during simulation. The simulation RPC received the signed operation; check the chain before retrying.')
+    }
+    if (!canSubmitSimulation(q.simulation, q)) throw new Error('The signed withdrawal did not pass simulation. The app did not broadcast it; if the simulation RPC received the signed operation, it may still land. Preserve the notes and check the chain before retrying.')
+    markOperationExposed(q, 'bundler')
     status.value = 'Submitting the signed batch…'
-    await submitSmartWithdrawal(q, frozen.value, props.wallet, update)
+    await submitSmartWithdrawal(q, settings, wallet, update)
     await refreshAccount()
   })
 }
@@ -223,17 +261,18 @@ function exportSession() {
   const q = quote.value
   downloadText(`tornado-multi-withdrawal-${Date.now()}.json`, JSON.stringify({ version: 1, network: frozen.value?.chainId ?? props.chainId,
     account: q?.scope.account ?? account.value, payout: q?.scope.payout ?? payout.value,
+    recipient: q ? smartRecipient(q.scope) : payout.value === 'custom' ? customRecipient.value : account.value?.address,
     notes: q?.notes.map(note => note.raw) ?? extractNoteStrings(input.value),
     calls: q?.scope.calls ?? actions.value.map(({ to, value, data }) => ({ to, value, data })),
     userOperationHash: q?.signedHash, previousAttempts: previousAttempts.value, progress: rows.value }, (_key, value) => typeof value === 'bigint' ? value.toString() : value, 2))
 }
 async function returnToReview() {
-  if (busy.value || !canReturnToReview.value || !quote.value || !frozen.value) return
+  if (busy.value || operationExposed.value || !canReturnToReview.value || !quote.value || !frozen.value) return
   const q = quote.value
   const sameContext = props.chainId === frozen.value.chainId && props.wallet?.account.toLowerCase() === q.scope.account.owner.toLowerCase() &&
     props.wallet?.provider === preparedContext?.provider && props.walletRevision === preparedContext?.revision && props.connectionKey === preparedContext?.connectionKey
   previousAttempts.value.push({ chainId: frozen.value.chainId, userOperationHash: q.signedHash, progress: rows.value.map(row => ({ ...row })) })
-  submitted.value = false; quote.value = null; frozen.value = null; rows.value = []; error.value = ''; status.value = ''; signing.value = null; simulation.value = undefined
+  submitted.value = false; operationExposed.value = false; quote.value = null; frozen.value = null; rows.value = []; error.value = ''; status.value = ''; signing.value = null; simulation.value = undefined
   input.value = q.notes.map(note => note.raw).join('\n')
   payout.value = q.scope.payout === 'account' ? 'account' : 'custom'
   if (payout.value === 'custom') customRecipient.value = smartRecipient(q.scope)
@@ -244,9 +283,9 @@ async function returnToReview() {
 }
 async function startNewWithdrawal() {
   if (busy.value || pending.value) return
-  quote.value = null; rows.value = []; submitted.value = false; input.value = ''; error.value = ''
+  quote.value = null; rows.value = []; submitted.value = false; operationExposed.value = false; input.value = ''; error.value = ''
   frozen.value = null; signing.value = null; status.value = ''; payout.value = 'account'; customRecipient.value = props.wallet?.account ?? ''
-  actions.value = []; simulation.value = undefined; builderOpen.value = false
+  actions.value = []; acknowledgedOpaqueHash.value = undefined; simulation.value = undefined; builderOpen.value = false
   previousAttempts.value = []; preparedContext = undefined
   resetNotice.value = ''
   await nextTick()
@@ -254,33 +293,23 @@ async function startNewWithdrawal() {
 }
 async function saveActions(next: BuilderAction[], simulate: boolean, rpc: string) {
   if (!contractsAvailable.value || callsContext.value !== withdrawalContext.value) { resetContractCalls(); return }
-  resetNotice.value = ''
-  actions.value = next; simulationRpc.value = rpc; builderOpen.value = false
+  resetNotice.value = simulate ? 'Review each action below before signing.' : ''
+  actions.value = next; acknowledgedOpaqueHash.value = undefined; simulationRpc.value = rpc; builderOpen.value = false
   await nextTick()
-  if (simulate) await prepare()
 }
-async function simulateAgain() {
-  await run(async () => {
-    const q = quote.value
-    if (!q || !frozen.value || submitted.value) return
-    if (Date.now() - q.quotedAt >= 5 * 60_000) throw new Error('This review expired. Recalculate fee & gas before simulating.')
-    status.value = 'Simulating the complete UserOperation…'
-    await simulatePrepared(q, frozen.value)
-  })
-}
-async function simulatePrepared(q: SmartWithdrawalQuote, settings: ConnectionSettings) {
+async function simulatePrepared(q: SmartWithdrawalQuote, settings: ConnectionSettings, onExposure: () => void) {
   simulating.value = true
   try {
-    const result = await simulateSmartWithdrawal(q, settings, simulationRpc.value)
-    if (quote.value === q && !submitted.value) recordSimulation(q, result)
+    const result = await simulateSmartWithdrawal(q, settings, simulationRpc.value, onExposure)
+    if (quote.value === q) recordSimulation(q, result)
   } catch (error) {
-    if (quote.value === q && !submitted.value) recordSimulation(q, { status: 'failed', hash: q.signedHash, checkedAt: Date.now(),
+    if (quote.value === q) recordSimulation(q, { status: 'failed', hash: q.signedHash, checkedAt: Date.now(),
       failureKind: 'inconclusive', message: `Simulation could not be completed. ${safeError(error)}` })
     throw error
   } finally { simulating.value = false }
 }
 async function recalculate() {
-  if (busy.value || submitted.value) return
+  if (busy.value || submitted.value || operationExposed.value) return
   quote.value = null; simulation.value = undefined
   await prepare()
 }
@@ -300,6 +329,7 @@ onUnmounted(() => { stop(); accountRequest++; balanceRequest++; privacyRequest++
         <textarea id="multi-notes" ref="notesField" v-model="input" :disabled="busy" rows="7" placeholder="Paste one Tornado note per line" spellcheck="false" autocomplete="off" />
         <p v-if="parsed.error" class="field-error" role="alert">{{ parsed.error }}</p>
         <p v-else-if="parsed.notes.length && asset" class="input-hint">{{ parsed.notes.length }} notes · {{ units(total, asset) }} {{ asset.symbol }}</p>
+        <div v-if="parsed.notes.length > 1" class="privacy-warning quantum-privacy-warning" role="status"><Icon name="info" :size="17" /><div><b>Multiple-note privacy</b><p>Withdrawing multiple notes to the same smart account can increase the risk of retroactive deanonymization if post-quantum cryptanalysis becomes practical. <a href="https://zknox.eth.limo/posts/2026/11/05/quantum-privacy.html" target="_blank" rel="noopener noreferrer">Read the privacy analysis</a>.</p></div></div>
         <div class="field-heading amount-heading"><span>Where should the proceeds go?</span></div>
         <div class="withdrawal-routes">
           <label :class="{ selected: payout === 'account' }"><input v-model="payout" type="radio" value="account" :disabled="busy" /><span><b>Keep in smart account (Recommended)</b><small>Keep the withdrawal and gas refund in the smart account controlled by your connected wallet.</small></span></label>
@@ -307,8 +337,24 @@ onUnmounted(() => { stop(); accountRequest++; balanceRequest++; privacyRequest++
         </div>
         <p v-if="actions.length" class="input-hint">Changing the notes, wallet, network or payout clears your contract calls.</p>
         <template v-if="payout === 'custom'"><div class="field-heading recipient-heading"><label for="multi-recipient">Recipient address</label></div><input id="multi-recipient" v-model.trim="customRecipient" class="text-input address-input" :disabled="busy" placeholder="0x…" spellcheck="false" autocomplete="off" /><p v-if="customRecipient && !validRecipient" class="field-error" role="alert">Enter a valid nonzero recipient address.</p></template>
-        <div v-if="contractsAvailable" class="after-withdrawal"><div><b>After withdrawal <small>Optional</small></b><span v-if="actions.length" :class="{ 'actions-passed': actionStatus === 'Simulation passed ✓' }">{{ actions.length }} custom action{{ actions.length === 1 ? '' : 's' }} · {{ actionStatus }}</span><span v-else>Run contract calls from your smart account.</span></div><button class="text-button" :disabled="busy || loading" @click="openBuilder">{{ actions.length ? 'Edit actions' : 'Add contract calls' }} <Icon name="arrow" :size="13" /></button><button v-if="actions.length" class="text-button" :disabled="busy" @click="actions = []">Remove</button></div>
+        <div v-if="contractsAvailable" class="after-withdrawal"><span class="feature-label feature-label-new after-withdrawal-new">NEW</span><div><b>After withdrawal <small>Optional</small></b><span v-if="actions.length" :class="{ 'actions-passed': actionStatus === 'Simulation passed ✓' }">{{ actions.length }} custom action{{ actions.length === 1 ? '' : 's' }} · {{ actionStatus }}</span><span v-else>Run contract calls from your smart account.</span></div><button class="text-button" :disabled="busy || loading" @click="openBuilder">{{ actions.length ? 'Edit actions' : 'Add contract calls' }} <Icon name="arrow" :size="13" /></button><button v-if="actions.length" class="text-button" :disabled="busy" @click="actions = []">Remove</button></div>
         <p v-if="resetNotice" class="input-hint" role="status">{{ resetNotice }}</p>
+        <section v-if="reviewedActions.length" class="action-signing-review" aria-label="Contract actions before signing">
+          <b>Review actions before signing</b>
+          <p>These calls run in order after withdrawal.</p>
+          <ol><li v-for="(review, i) in reviewedActions" :key="i">
+            <b>{{ i + 1 }}. {{ review.title }}</b>
+            <p>Contract target <code>{{ review.action.to }}</code></p>
+            <p v-if="review.owner">Token owner <code>{{ review.owner }}</code></p>
+            <p v-if="review.recipient">Recipient <code>{{ review.recipient }}</code></p>
+            <p v-if="review.spender">Spender <code>{{ review.spender }}</code></p>
+            <p v-if="review.amount !== undefined">{{ review.spender ? 'Allowance' : 'Token amount' }} <strong v-if="review.unlimited">Unlimited (max uint256)</strong><strong v-else>{{ actionAmount(review.action, review.amount) }}</strong></p>
+            <p v-if="review.action.value > 0n">Also sends {{ callEth(review.action) }} ETH to the target.</p>
+            <p v-if="review.opaque" class="opaque-call-warning">Calldata is not decoded. This call could transfer assets or grant permissions.</p>
+            <details><summary>Raw calldata</summary><code>{{ review.action.data }}</code></details>
+          </li></ol>
+          <label v-if="hasOpaqueActions" class="opaque-call-acknowledgment"><input id="opaque-actions-ack" type="checkbox" :checked="opaqueActionsAcknowledged" @change="acknowledgeOpaque" /><span>I reviewed the target and raw calldata for every opaque action and accept its effects.</span></label>
+        </section>
       </template>
       <button v-if="!wallet" class="button full" :disabled="busy" @click="emit('connect')"><Icon name="wallet" />Connect controller wallet</button>
       <div v-if="account" class="smart-account-card">
@@ -318,20 +364,20 @@ onUnmounted(() => { stop(); accountRequest++; balanceRequest++; privacyRequest++
       </div>
       <p v-if="loading" class="input-hint" role="status">Checking smart account…</p>
       <div class="field-heading amount-heading"><span>Bundler &amp; RPC</span><button class="text-button" :disabled="busy || pending" @click="emit('settings')">Configure <Icon name="settings" :size="13" /></button></div>
-      <div v-if="signing && asset" class="smart-signing-review" role="status"><b>Confirm signature {{ signing.sequence }} in your wallet</b><p>Maximum paymaster fee: {{ units(signing.fee!, asset) }} {{ asset.symbol }}</p><p>Net withdrawal: {{ units(signing.net!, asset) }} {{ asset.symbol }}</p><p v-if="actions.length">This signature authorizes {{ actions.length }} custom actions after the withdrawals.</p><p class="input-hint">Further wallet prompts open automatically if the gas estimate changes. Signatures authorize real operations; the app submits only when you click Submit.</p></div>
+      <div v-if="signing && asset" class="smart-signing-review" role="status"><b>Confirm signature {{ signing.sequence }} in your wallet</b><p>Maximum paymaster fee: {{ units(signing.fee!, asset) }} {{ asset.symbol }}</p><p>Net withdrawal: {{ units(signing.net!, asset) }} {{ asset.symbol }}</p><p v-if="actions.length">This signature authorizes {{ actions.length }} reviewed custom actions after the withdrawals.</p><p class="input-hint">Gas is estimated before this wallet signature. The signed operation reaches the bundler only when you click Submit.</p></div>
       <template v-else-if="quote && !submitted && asset"><div class="recipient-review"><span>Withdrawal recipient</span><code>{{ smartRecipient(quote.scope) }}</code></div><div class="quote-card"><div><span>Notes</span><b>{{ quote.notes.length }}</b></div><div><span>Maximum paymaster fee</span><b>{{ units(quote.fee, asset) }} {{ asset.symbol }}</b></div><div class="net-row"><span>{{ actions.length ? 'Available before custom actions' : quote.scope.payout === 'account' ? 'Kept in smart account' : directQuote ? 'Paid directly to recipient' : 'Forwarded to recipient' }}</span><b>{{ units(quote.net, asset) }} {{ asset.symbol }}</b></div><p class="input-hint">{{ directQuote ? 'This note and any unused-gas refund go directly to the withdrawal recipient.' : 'Any unused-gas refund goes to your smart account after execution.' }}</p></div></template>
       <details v-if="quote && actions.length && !submitted" class="reviewed-actions"><summary>Review {{ actions.length }} custom actions</summary><ol><li v-for="(call, i) in actions" :key="i"><b>{{ callSummary(call) }}</b><code>{{ call.to }}</code><span>{{ callEth(call) }} ETH</span><code>{{ call.data }}</code></li></ol></details>
       <ActionBudget v-if="quote && actions.length && !submitted && asset" :asset="asset" :total="total" :balances="balances" :loading="balancesLoading" :fee="quote.fee" :eth-sent="actions.reduce((sum, call) => sum + call.value, 0n)" />
       <AddressPrivacyWarnings v-if="!submitted" :checks="privacyChecks" :loading="privacyLoading" :disabled="busy" :chain-id="chainId" @recheck="refreshPrivacy()" />
       <template v-if="!submitted">
-        <SimulationReview v-if="quote" :quote="quote" :result="simulation" :running="simulating" :disabled="busy || loading" :current="simulationCurrent" :expired="reviewExpired" :custom-rpc="!!simulationRpc.trim()" @simulate="simulateAgain" @recalculate="recalculate" />
+        <SimulationReview v-if="quote" :quote="quote" :result="simulation" :running="simulating" :disabled="busy || loading" :current="simulationCurrent" :expired="reviewExpired" :custom-rpc="!!simulationRpc.trim()" @recalculate="recalculate" />
         <button v-if="quote" class="button primary full" :disabled="busy || loading || privacyLoading || !canSubmitReview" @click="submit">Submit signed withdrawal <Icon name="arrow" /></button>
-        <button v-else-if="!signing" class="button primary full" :disabled="busy || loading || privacyLoading || !wallet || !account || !parsed.notes.length || !validRecipient" @click="prepare">{{ busy ? 'Preparing batch…' : actions.length ? 'Review & simulate withdrawal' : 'Review & sign withdrawal' }}<Icon name="arrow" /></button>
+        <button v-else-if="!signing" class="button primary full" :disabled="busy || loading || privacyLoading || !wallet || !account || !parsed.notes.length || !validRecipient || !opaqueActionsAcknowledged" @click="prepare">{{ busy ? 'Preparing batch…' : 'Review & sign withdrawal' }}<Icon name="arrow" /></button>
         <button v-if="busy && controller" class="button full" @click="stop">Stop preparation</button>
       </template>
       <div v-if="busy && !signing" class="modal-status" role="status"><span class="spinner"></span>{{ status || 'Working…' }}</div>
       <div v-if="rows.length" class="progress-list"><div v-for="row in rows" :key="row.id" class="progress-item"><div><b>{{ row.label }}</b><span class="progress-state" :class="row.status">{{ row.status }}</span></div>
-        <a v-if="row.hash" class="transaction-link" :href="`${NETWORKS[frozen!.chainId].explorer}/tx/${row.hash}`" target="_blank" rel="noopener noreferrer">UserOperation <code>{{ shorten(row.hash) }}</code><Icon name="arrow" :size="12" /></a>
+        <div v-if="row.hash" class="operation-hash"><span>UserOperation hash</span><code>{{ row.hash }}</code></div>
         <small v-if="['submitted', 'unknown'].includes(row.status)" class="input-hint">(awaiting on-chain confirmation)</small>
         <a v-if="row.transactionHash" class="transaction-link" :href="`${NETWORKS[frozen!.chainId].explorer}/tx/${row.transactionHash}`" target="_blank" rel="noopener noreferrer">Transaction <code>{{ shorten(row.transactionHash) }}</code><Icon name="arrow" :size="12" /></a><p v-if="row.message">{{ row.message }}</p>
       </div></div>

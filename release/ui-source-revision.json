@@ -1,36 +1,11 @@
 {
   "schemaVersion": 1,
-  "recordedAtUTC": "2026-11-16T15:17:02.011519+00:00",
-  "baselineDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
-  "classification": "NON_RUNTIME_PUBLICATION_REMOVALS",
+  "recordedAtUTC": "2026-11-22T12:28:38.488302+00:00",
+  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
+  "classification": "EXACT_UI_MAIN_CAPTURE",
   "namespace": "ui",
   "runtimeOrBuildChanged": false,
-  "removedFiles": [
-    {
-      "path": "PLAN.md",
-      "bytes": 13067,
-      "sha256": "7b93d2937a891b7ce8c0a2a17f8dc18f35d048b815a1066a4afece2978bb43b1"
-    },
-    {
-      "path": "TORNADO_WITHDRAWAL_DESIGN.md",
-      "bytes": 40125,
-      "sha256": "8a37ff83b24ac7752f9e60c8abd3cbf46ebb0a5623086c754f797c16bb9e3f69"
-    },
-    {
-      "path": "deployment/saga-proxy/worker.js",
-      "bytes": 2624,
-      "sha256": "c7883861400a9ae2ea1ac8dfd89279025cbbfa838aa783f2ed57bf9957445ca9"
-    },
-    {
-      "path": "deployment/saga-proxy/wrangler.jsonc",
-      "bytes": 236,
-      "sha256": "41bdc9b11f10ceee8700151284d9baa86cc4c6453e42a9ad9a156a8a3886f1cc"
-    },
-    {
-      "path": "tests/saga-proxy.test.js",
-      "bytes": 4761,
-      "sha256": "5a2f74473928beea6d9c3e36d45ce196addc521536da27115356ba7155637fc7"
-    }
-  ],
-  "reason": "Publisher authorized removal of two obsolete planning/design documents and the unused Saga proxy deployment files. The dependent proxy-only test was removed because it imported the deleted worker. All 127 remaining UI files must retain exact captured bytes; removed files must be absent."
+  "sourceCommit": "186059918186fb1e047586b45da41aab41268d78",
+  "removedFiles": [],
+  "reason": "The frozen baseline is the exact clean UI main source for the published CID. No source-file removal or documentation exception is allowed."
 }

@@ -7,10 +7,10 @@ afterEach(() => { vi.unstubAllEnvs(); vi.unstubAllGlobals() })
 describe('portable application asset paths', () => {
   it.each([
     ['https://gateway.example/ipfs/bafy-test/', 'https://gateway.example/ipfs/bafy-test/'],
-    ['https://gateway.example/ipfs/bafy-test/index.html#multi-withdraw', 'https://gateway.example/ipfs/bafy-test/'],
+    ['https://gateway.example/ipfs/bafy-test/index.html#smart-withdrawal', 'https://gateway.example/ipfs/bafy-test/'],
     ['https://gateway.example/ipfs/bafy-test/withdraw-frame.html?test=1', 'https://gateway.example/ipfs/bafy-test/'],
     ['https://gateway.example/ipns/example.eth/#smart-account', 'https://gateway.example/ipns/example.eth/'],
-    ['https://bafy-test.ipfs.gateway.example/#multi-withdraw', 'https://bafy-test.ipfs.gateway.example/'],
+    ['https://bafy-test.ipfs.gateway.example/#smart-withdrawal', 'https://bafy-test.ipfs.gateway.example/'],
     ['https://example.eth.link/', 'https://example.eth.link/'],
     ['http://localhost:4174/', 'http://localhost:4174/'],
     ['https://gateway.example/ipfs/bafy-test/compliance/', 'https://gateway.example/ipfs/bafy-test/'],

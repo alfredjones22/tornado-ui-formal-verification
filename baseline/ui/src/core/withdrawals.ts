@@ -1,8 +1,9 @@
 import { appAssetUrl } from './app-assets'
 import { TornadoPaymasterConfigs, type TCInstance, type TCBroadcaster, type TornadoCashProtocol } from '@kohaku-eth/tornado-cash'
-import { decodeAbiParameters, isAddress, parseAbiParameters, type Address, type Hex } from 'viem'
+import { decodeAbiParameters, decodeEventLog, hashTypedData, isAddress, parseAbi, parseAbiParameters, TransactionReceiptNotFoundError, type Address, type Hex } from 'viem'
 import { parseNote, type ParsedNote } from './notes'
-import { jsonRpc, validateConnections, type ConnectionSettings } from './rpc'
+import { batchTypedData, noteIdentity } from './batch-policy'
+import { jsonRpc, publicClientFor, validateConnections, type ConnectionSettings } from './rpc'
 import { isHash, pause, type Progress, type Update } from './wallet'
 import type { RelayerInfo } from './relayers'
 import { walletRpcBridge } from './wallet-rpc'
@@ -13,6 +14,17 @@ export type RelayerWithdrawal = Extract<Parameters<TCBroadcaster['broadcast']>[0
 export type PublicSnapshot = Awaited<ReturnType<TornadoCashProtocol['dumpState']>>
 const publicHistory = new Map<string, PublicSnapshot>()
 export interface WithdrawalQuote { id: string; note: ParsedNote; withdrawal: Withdrawal; fee: bigint; net: bigint; quotedAt: number; recipient: Address }
+const confirmationEvents = parseAbi([
+  'event UserOperationEvent(bytes32 indexed userOpHash, address indexed sender, address indexed paymaster, uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGasUsed)',
+  'event Withdrawal(address to, bytes32 nullifierHash, address indexed relayer, uint256 fee)',
+])
+
+export function basicWithdrawalHash(quote: WithdrawalQuote, settings: ConnectionSettings): Hex {
+  validateWithdrawal(quote.note, quote.recipient, quote.withdrawal, settings)
+  const hash = hashTypedData(batchTypedData(quote.withdrawal, settings))
+  if (quote.withdrawal.userOpHash && quote.withdrawal.userOpHash.toLowerCase() !== hash.toLowerCase()) throw new Error('The SDK UserOperation hash does not match the reviewed withdrawal.')
+  return hash
+}
 
 export function validateWithdrawal(note: ParsedNote, recipient: Address, withdrawal: Withdrawal, settings: ConnectionSettings) {
   const cfg = TornadoPaymasterConfigs[settings.chainId]
@@ -21,6 +33,7 @@ export function validateWithdrawal(note: ParsedNote, recipient: Address, withdra
   if (op.paymaster?.toLowerCase() !== cfg.paymasterAddress.toLowerCase()) throw new Error('Unexpected paymaster in prepared withdrawal.')
   if (withdrawal.poolAddress !== BigInt(note.pool.address) || withdrawal.isERC20 !== Boolean(note.pool.asset.token)) throw new Error('The prepared withdrawal does not match the note pool.')
   if (withdrawal.withdrawnValue !== undefined && withdrawal.withdrawnValue !== note.pool.amount) throw new Error('The prepared withdrawal does not spend the full note.')
+  if (BigInt(withdrawal.proof.args[1]) !== noteIdentity(note).nullifierHash) throw new Error('The proof nullifier does not match the selected note.')
   if (BigInt(withdrawal.proof.args[2]) !== BigInt(recipient)) throw new Error('The proof recipient does not match the reviewed recipient and quote.')
   if (BigInt(withdrawal.proof.args[3]) !== BigInt(cfg.paymasterAddress) || BigInt(withdrawal.proof.args[5]) !== 0n) throw new Error('The proof paymaster or refund input is inconsistent.')
   if (op.callData !== '0x' || BigInt(op.callGasLimit) !== 0n || BigInt(op.nonce) !== 0n) throw new Error('Single-note withdrawals must pay the recipient directly with zero execution gas and no forwarding calls.')
@@ -53,7 +66,7 @@ export async function prepareInFrame(note: ParsedNote, recipient: Address, setti
     let timer: ReturnType<typeof setTimeout>
     const keepAlive = () => {
       clearTimeout(timer)
-      timer = setTimeout(() => fail(route === 'relayer' ? 'Relayer discovery or proof preparation timed out. No withdrawal was submitted.' : 'Proof preparation timed out. Preserve your note before retrying; signed estimation candidates may already be executable.'), 600_000)
+      timer = setTimeout(() => fail(route === 'relayer' ? 'Relayer discovery or proof preparation timed out. No withdrawal was submitted.' : 'Proof preparation timed out. No withdrawal was submitted. Preserve your note before retrying.'), 600_000)
     }
     keepAlive()
     channel.port1.onmessage = event => {
@@ -104,6 +117,60 @@ export async function reconcileWithdrawal(url: string, hash: Hex, timeout = 180_
   throw new Error('The withdrawal is still pending. Check its UserOperation before retrying.')
 }
 
+/** A bundler receipt is only a hint to locate a chain transaction. Confirm the
+ * exact operation and pool withdrawal from the independent chain RPC. */
+export async function reconcileBasicWithdrawal(quote: WithdrawalQuote, settings: ConnectionSettings, hash: Hex, timeout = 180_000) {
+  const expected = basicWithdrawalHash(quote, settings)
+  if (hash.toLowerCase() !== expected.toLowerCase()) throw new Error('The UserOperation hash does not match the reviewed withdrawal.')
+  const end = Date.now() + timeout
+  const client = publicClientFor(settings)
+  let transactionHash: Hex | undefined
+  do {
+    const result = await jsonRpc<{ receipt?: { transactionHash?: unknown } } | null>(settings.bundlerUrl, 'eth_getUserOperationReceipt', [expected])
+    if (result) {
+      if (!isHash(result.receipt?.transactionHash)) throw new Error('The bundler did not return a valid transaction hash. Preserve the note and check the UserOperation.')
+      transactionHash = result.receipt.transactionHash
+    }
+    if (transactionHash) {
+      let receipt
+      try { receipt = await client.getTransactionReceipt({ hash: transactionHash }) }
+      catch (error) { if (!(error instanceof TransactionReceiptNotFoundError)) throw error }
+      if (receipt) {
+        if (receipt.status !== 'success') throw new Error('The reported transaction reverted. Preserve the note and check its nullifier before retrying.')
+        let operationConfirmed = false, withdrawalConfirmed = false
+        for (const log of receipt.logs) {
+          if (log.removed) continue
+          if (log.address.toLowerCase() === quote.withdrawal.entryPointAddress.toLowerCase()) {
+            let event
+            try { event = decodeEventLog({ abi: confirmationEvents, data: log.data, topics: log.topics, eventName: 'UserOperationEvent' }) }
+            catch { continue }
+            if (event.args.userOpHash.toLowerCase() === expected.toLowerCase() &&
+              event.args.sender.toLowerCase() === quote.withdrawal.userOperation.sender.toLowerCase() &&
+              event.args.paymaster.toLowerCase() === quote.withdrawal.paymasterAddress.toLowerCase() &&
+              event.args.nonce === BigInt(quote.withdrawal.userOperation.nonce)) {
+              if (!event.args.success) throw new Error('The UserOperation failed on chain. Preserve the note and check its nullifier before retrying.')
+              operationConfirmed = true
+            }
+          }
+          if (log.address.toLowerCase() === quote.note.pool.address.toLowerCase()) {
+            let event
+            try { event = decodeEventLog({ abi: confirmationEvents, data: log.data, topics: log.topics, eventName: 'Withdrawal' }) }
+            catch { continue }
+            if (event.args.to.toLowerCase() === quote.recipient.toLowerCase() &&
+              event.args.nullifierHash.toLowerCase() === quote.withdrawal.proof.args[1].toLowerCase() &&
+              event.args.relayer.toLowerCase() === quote.withdrawal.paymasterAddress.toLowerCase() &&
+              event.args.fee === quote.fee) withdrawalConfirmed = true
+          }
+        }
+        if (!operationConfirmed || !withdrawalConfirmed) throw new Error('The reported transaction does not confirm this withdrawal. Preserve the note and check the chain before retrying.')
+        return transactionHash
+      }
+    }
+    if (Date.now() < end) await pause(Math.min(2000, end - Date.now()))
+  } while (Date.now() < end)
+  throw new Error('The withdrawal is still pending. Preserve the note and check its UserOperation before retrying.')
+}
+
 export async function submitWithdrawal(quote: WithdrawalQuote, settings: ConnectionSettings, update: Update) {
   if (Array.isArray(quote)) throw new Error('Withdraw one note at a time. Multiple withdrawals cannot be queued.')
   const note = parseNote(quote.note.raw, settings.chainId)
@@ -111,13 +178,13 @@ export async function submitWithdrawal(quote: WithdrawalQuote, settings: Connect
   const { fee, net } = validateWithdrawal(note, quote.recipient, quote.withdrawal, settings)
   if (quote.fee !== fee || quote.net !== net) throw new Error('The withdrawal no longer matches the reviewed fee and proceeds.')
   await validateConnections(settings)
-  update(quote.id, { status: 'submitted' })
+  const expectedHash = basicWithdrawalHash(quote, settings)
+  update(quote.id, { status: 'submitted', hash: expectedHash })
   try {
     const { userOperation, entryPointAddress } = quote.withdrawal
     const hash = await jsonRpc<Hex>(settings.bundlerUrl, 'eth_sendUserOperation', [userOperation, entryPointAddress])
-    if (!isHash(hash)) throw new Error('The bundler returned no UserOperation hash.')
-    update(quote.id, { hash, status: 'submitted' })
-    const txHash = await reconcileWithdrawal(settings.bundlerUrl, hash)
+    if (!isHash(hash) || hash.toLowerCase() !== expectedHash.toLowerCase()) throw new Error('The bundler returned an unexpected UserOperation hash. Check the locally computed hash before retrying.')
+    const txHash = await reconcileBasicWithdrawal(quote, settings, hash)
     update(quote.id, { status: 'confirmed', transactionHash: txHash, message: undefined })
   } catch (error) {
     update(quote.id, { status: 'unknown', message: 'Check the bundler receipt and preserve the original note before retrying.' })

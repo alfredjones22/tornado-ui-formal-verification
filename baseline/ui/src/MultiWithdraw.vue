@@ -84,7 +84,7 @@ async function review() {
     status.value = 'Checking the receiver wallet and syncing notes…'
     quote.value = await prepareMultiWithdrawal(input.value, wallet, selected, message => { status.value = message }, review => {
       signingReview.value = review; approvalPending.value = true
-      status.value = review.kind === 'authorization' ? 'Review receiver delegation before opening your wallet.' : `Review batch signature ${review.sequence} before opening your wallet.`
+      status.value = review.kind === 'authorization' ? 'Review receiver delegation before opening your wallet.' : 'Review the final batch signature before opening your wallet.'
       return new Promise<void>((resolve, reject) => { approval = { resolve, reject } })
     }, controller.signal)
   })
@@ -143,7 +143,7 @@ async function importFile(event: Event) {
     <header class="multi-heading"><div><span class="pill">WALLET SIGNING</span><h2>Multi-note withdrawal</h2></div><button class="text-button" :disabled="busy || pending" @click="emit('back')">Single-note flow <Icon name="arrow" :size="14" /></button></header>
     <div class="panel-body">
       <template v-if="signingReview">
-        <p class="modal-description">{{ signingReview.kind === 'authorization' ? 'Authorize the receiver' : `Review batch signature ${signingReview.sequence}` }} · {{ signingReview.chainId === 1 ? 'Ethereum' : 'Sepolia' }}</p>
+        <p class="modal-description">{{ signingReview.kind === 'authorization' ? 'Authorize the receiver' : 'Review final batch signature' }} · {{ signingReview.chainId === 1 ? 'Ethereum' : 'Sepolia' }}</p>
         <div class="recipient-review"><span>Receiver &amp; executor · {{ wallet?.name }}</span><code>{{ signingReview.account }}</code></div>
         <template v-if="signingReview.kind === 'authorization'">
           <p class="input-hint">Your wallet will authorize this account to use the Tornado SDK executor. This delegation remains on the account after the withdrawal. It does not spend your wallet’s ETH on gas.</p>
@@ -151,7 +151,7 @@ async function importFile(event: Event) {
         </template>
         <template v-else>
           <div class="quote-card"><div><span>Notes in one UserOperation</span><b>{{ parsed.notes.length }}</b></div><div><span>Paymaster fee</span><b>{{ units(signingReview.fee!, parsed.notes[0]!.pool.asset) }} {{ parsed.notes[0]!.pool.asset.symbol }}</b></div><div class="net-row"><span>Receiver keeps</span><b>{{ units(signingReview.net!, parsed.notes[0]!.pool.asset) }} {{ parsed.notes[0]!.pool.asset.symbol }}</b></div></div>
-          <p class="input-hint">Gas budget: {{ formatEther(signingReview.maxGasCost!) }} ETH, covered by the sponsoring note’s fee. Gas estimation may require another signature if the payload changes. Each signature approves an executable batch that the selected bundler can submit.</p>
+          <p class="input-hint">Gas budget: {{ formatEther(signingReview.maxGasCost!) }} ETH, covered by the sponsoring note’s fee. Gas estimation used non-executable dummy payloads. This final signature authorizes an executable batch; the app submits it when you click Submit.</p>
         </template>
         <button class="button primary full" :disabled="!approvalPending" @click="approveInWallet">{{ approvalPending ? 'Approve & open wallet' : 'Waiting for wallet / gas estimate…' }}<Icon name="wallet" /></button>
         <button class="button full" @click="cancelPreparation()">Stop preparation</button>
@@ -177,7 +177,7 @@ async function importFile(event: Event) {
         <div class="recipient-review"><span>Receiver &amp; executor</span><code>{{ quote.recipient }}</code></div>
         <div class="note-breakdown"><div v-for="(note, i) in quote.notes" :key="i"><span>Note {{ i + 1 }}</span><b>{{ note.pool.denomination }} {{ note.pool.asset.symbol }}</b></div></div>
         <div class="quote-card"><div><span>Total note value</span><b>{{ units(quote.net + quote.fee, quote.notes[0]!.pool.asset) }} {{ quote.notes[0]!.pool.asset.symbol }}</b></div><div><span>Paymaster fee</span><span>−{{ units(quote.fee, quote.notes[0]!.pool.asset) }}</span></div><div class="net-row"><span>Receiver keeps</span><b>{{ units(quote.net, quote.notes[0]!.pool.asset) }} {{ quote.notes[0]!.pool.asset.symbol }}</b></div></div>
-        <p class="input-hint">Your wallet signed this batch for estimation. The selected bundler already has executable signatures. The sponsoring note is consumed in validation; the other notes execute together. If execution fails, sponsoring proceeds may remain on the receiver while other notes remain unspent. Keep every note and access to the receiver wallet. The displayed net excludes later gas refunds.</p>
+        <p class="input-hint">Your wallet signed this batch after dummy gas estimation. The bundler did not receive an executable signature during estimation. The sponsoring note is consumed in validation; the other notes execute together. If execution fails, sponsoring proceeds may remain on the receiver while other notes remain unspent. Keep every note and access to the receiver wallet. The displayed net excludes later gas refunds.</p>
         <button v-if="!progress" class="button primary full" :disabled="busy || blocked || !account || account.toLowerCase() !== quote.recipient.toLowerCase()" @click="submit">Submit {{ quote.notes.length }} notes in 1 UserOperation<Icon name="arrow" /></button>
         <div v-else class="progress-item"><div><b>{{ progress.label }}</b><span class="progress-state" :class="progress.status">{{ progress.status }}</span></div><code v-if="progress.hash">{{ shorten(progress.hash) }}</code><p v-if="progress.message">{{ progress.message }}</p></div>
         <button v-if="pending" class="button full" :disabled="busy" @click="check"><Icon name="refresh" />Check UserOperation</button>

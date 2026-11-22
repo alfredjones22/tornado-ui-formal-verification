@@ -2,13 +2,22 @@ import * as Vue from 'vue';
 import * as viem from 'viem';
 import {parse,compileScript,compileTemplate} from '@vue/compiler-sfc';
 import {compileModule,pinned,root} from './source-loader.mjs';
-import {fixture,runtime} from '../pilot/source-runtime.mjs';
+import {confirmationEvents,fixture,runtime} from '../pilot/source-runtime.mjs';
 export const deferred=()=>{let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});return{promise,resolve,reject}};
 export const flush=async()=>{for(let i=0;i<8;i++){await Promise.resolve();await Vue.nextTick()}};
 const no=()=>{}, fail=()=>{throw Error('Outside direct-withdrawal harness scope')};
 export async function uiHarness({prepareGate,connectionGate,sendGate,receiptGate,sendError,receiptError,now}={}) {
   const f=fixture(), log=[], prepared=[], sent=[], receipts=[];
   f.note.pool.asset.decimals=18;
+  const operationHash='0x'+'aa'.repeat(32), transactionHash='0x'+'bb'.repeat(32);
+  const chainReceipt={status:'success',logs:[
+    {address:f.withdrawal.entryPointAddress,removed:false,
+      topics:viem.encodeEventTopics({abi:confirmationEvents,eventName:'UserOperationEvent',args:{userOpHash:operationHash,sender:f.withdrawal.userOperation.sender,paymaster:f.withdrawal.paymasterAddress}}),
+      data:viem.encodeAbiParameters(viem.parseAbiParameters('uint256 nonce, bool success, uint256 actualGasCost, uint256 actualGasUsed'),[0n,true,1n,1n])},
+    {address:f.note.pool.address,removed:false,
+      topics:viem.encodeEventTopics({abi:confirmationEvents,eventName:'Withdrawal',args:{relayer:f.withdrawal.paymasterAddress}}),
+      data:viem.encodeAbiParameters(viem.parseAbiParameters('address to, bytes32 nullifierHash, uint256 fee'),[f.recipient,f.withdrawal.proof.args[1],f.quote.fee])},
+  ]};
   const browser=new EventTarget();
   const doc=Object.assign(new EventTarget(),{activeElement:null,visibilityState:'visible',querySelector:()=>null,getElementById:()=>null});
   // Vue runtime-dom directives use these types even with a custom renderer.
@@ -21,9 +30,11 @@ export async function uiHarness({prepareGate,connectionGate,sendGate,receiptGate
   const wallet={state:walletState,startWatching:no,dispose:no,disconnect:()=>{walletState.value={wallet:null,account:null,chainId:null,revision:walletState.value.revision+1}},connect:async()=>{}};
   const parseNote=(raw,chain)=>{if(raw.split('\n').filter(Boolean).length!==1||!raw.startsWith('tornado-'))throw Error('one note');return{...f.note,raw,pool:{...f.note.pool,chainId:chain}}};
   const connections=async()=>{log.push('connections:start');if(connectionGate)await connectionGate.promise;log.push('connections:end')};
-  const api=runtime({parseNote,validateConnections:connections,isHash:x=>/^0x[0-9a-f]{64}$/i.test(x),pause:async()=>{},jsonRpc:async(url,method,params)=>{
-    if(method==='eth_sendUserOperation'){log.push('send');sent.push(JSON.parse(JSON.stringify({url,params})));if(sendGate)await sendGate.promise;if(sendError)throw Error(sendError);return'0x'+'aa'.repeat(32)}
-    if(method==='eth_getUserOperationReceipt'){log.push('receipt');receipts.push(params);if(receiptGate)await receiptGate.promise;if(receiptError)throw Error(receiptError);return{success:true,receipt:{transactionHash:'0x'+'bb'.repeat(32)}}}
+  const api=runtime({parseNote,validateConnections:connections,isHash:x=>/^0x[0-9a-f]{64}$/i.test(x),pause:async()=>{},
+    publicClientFor:()=>({getTransactionReceipt:async({hash})=>{log.push('chain-receipt');if(hash!==transactionHash)throw Error('Wrong receipt hash');return chainReceipt}}),
+    jsonRpc:async(url,method,params)=>{
+    if(method==='eth_sendUserOperation'){log.push('send');sent.push(JSON.parse(JSON.stringify({url,params})));if(sendGate)await sendGate.promise;if(sendError)throw Error(sendError);return operationHash}
+    if(method==='eth_getUserOperationReceipt'){log.push('receipt');receipts.push(params);if(receiptGate)await receiptGate.promise;if(receiptError)throw Error(receiptError);return{success:true,receipt:{transactionHash}}}
     throw Error('Unmodelled method '+method);
   }});
   const prepareWithdrawal=async(input,recipient,settings,progress)=>{

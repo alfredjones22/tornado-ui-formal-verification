@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "capturedAtUTC": "2026-11-16T14:38:37.845890+00:00",
-  "releaseId": "registry-sdk-alpha.37-2026-11-16",
-  "contentDigest": "8640d00237f117f233719d30047ef876e40e7894fae1ef6ed49fc7f3404b9f31",
+  "capturedAtUTC": "2026-11-22T12:28:38.488302+00:00",
+  "releaseId": "registry-sdk-alpha.38-ui-main-2026-11-22",
+  "contentDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
   "cidCorrespondence": "NOT_CHECKED",
   "sourceBuildCorrespondence": "NOT_CHECKED",
   "ui": {
     "originalPath": "/Users/x/dev/personal/tornado-ui-new-era",
-    "commit": "0f4c7e97d73a716f74a1353d0e387be69438d3ed",
-    "status": " M README.md\n M package-lock.json\n M package.json\n M scripts/check-ipfs-build.mjs\n M src/App.vue\n M src/MultiWithdrawal.vue\n M src/TransactionBuilder.vue\n M src/core/app-assets.ts\n M src/core/smart-withdrawal.ts\n M src/core/withdrawal-simulation.ts\n M src/style.css\n M tests/app-assets.test.ts\n M tests/smart-withdrawal-ui.test.ts\n M tests/smart-withdrawal.test.ts\n M tests/withdrawal-simulation.test.ts\n M vite.config.ts\n?? compliance/\n?? src/Compliance.vue\n?? src/WithdrawalSimulation.vue\n?? src/core/compliance-pdf.ts\n?? src/core/compliance.ts\n?? src/core/routes.ts\n?? tests/compliance-navigation-ui.test.ts\n?? tests/compliance-pdf.test.ts\n?? tests/compliance-ui.test.ts\n?? tests/compliance.test.ts\n?? tests/fixtures/compliance.ts\n"
+    "commit": "186059918186fb1e047586b45da41aab41268d78",
+    "status": ""
   },
   "sdk": {
     "originalPath": "/Users/x/dev/personal/kohaku/packages/tornado-cash",
     "repositoryPath": "/Users/x/dev/personal/kohaku",
-    "commit": "706355156b1a4662738fad4f961aabed2f7f1d9d",
+    "commit": "1852494e902db7166ecd2eb48e2702cc09102f9b",
     "status": "",
     "sourceCapture": "Retained original source; every published SDK JavaScript artifact must reproduce byte for byte. The separate sdk-package namespace captures the registry package actually installed by the UI."
   },
@@ -35,9 +35,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/compliance-pdf-CkDQBS6Z.js",
+      "path": "assets/compliance-pdf-gM012RE0.js",
       "bytes": 402629,
-      "sha256": "bb35f594931caf7fc7e5c7d5bd330443f6dfb6415f081b88b7faf3f4a196a44e"
+      "sha256": "f1def52ea994862a7f6902df26060847eee08d531975413558c0c6ba3d1e0bfd"
     },
     {
       "namespace": "build",
@@ -47,9 +47,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/index.es-DXIYuBWj.js",
+      "path": "assets/index.es-CPLXOVk-.js",
       "bytes": 151426,
-      "sha256": "8a7356a09f7e549e23c86e6314ef1ecb92a7dc417c6a86fb1b34b5fc59ccea9a"
+      "sha256": "7a9abac6cd46f47e67489a53228ebae8bc3e3f60dcff9707a1ba486ff9e892e5"
     },
     {
       "namespace": "build",
@@ -59,15 +59,15 @@
     },
     {
       "namespace": "build",
-      "path": "assets/main-CdXsLQtC.css",
-      "bytes": 45086,
-      "sha256": "24fdea31cd48ad08519d5f16523d4fbc4ef66184eb2a00c45ca6684e57e559c2"
+      "path": "assets/main-B43qxb3E.css",
+      "bytes": 46781,
+      "sha256": "958a28448f0a934d5f02981f8409ce92da29ca07cd5963e884ee4122ee10dc2d"
     },
     {
       "namespace": "build",
-      "path": "assets/main-DRJ8g_-U.js",
-      "bytes": 256991,
-      "sha256": "3faf76ee4f028846cbfce9bcfd3700524e1f387f561d50b1e483d8bf47edbec2"
+      "path": "assets/main-CswlbfZr.js",
+      "bytes": 263572,
+      "sha256": "ef94830d2c2c4c19f02b33c3f54caee932e4b3635e1fe29715db9d627d992caf"
     },
     {
       "namespace": "build",
@@ -77,9 +77,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/relayers-CnswWIcJ.js",
-      "bytes": 325486,
-      "sha256": "f3f986a01976c738253b38a26cf1bd065fd4fd151a6a6a61801f22f854489bfc"
+      "path": "assets/relayers-cCIuLNna.js",
+      "bytes": 346025,
+      "sha256": "05c4745303c309b64acefd017287754267b95198107bc5adef832fd84ba25d93"
     },
     {
       "namespace": "build",
@@ -89,9 +89,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/state-manager.worker-DlHe8TwH.js",
-      "bytes": 889914,
-      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+      "path": "assets/state-manager.worker-Cn_1Y-_X.js",
+      "bytes": 922928,
+      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
     },
     {
       "namespace": "build",
@@ -101,15 +101,15 @@
     },
     {
       "namespace": "build",
-      "path": "assets/withdraw-BPfLiOhC.js",
+      "path": "assets/withdraw-xV9eSErq.js",
       "bytes": 13995,
-      "sha256": "d3aadf98140246a5567a0eaa8de9c6787b3f8d44304c8809a411b5fd763012e6"
+      "sha256": "03444393c5655080e24f5ec42f7eaa465fcc0ab6e5a381c8aad66dd9343c2949"
     },
     {
       "namespace": "build",
       "path": "compliance/index.html",
       "bytes": 1014,
-      "sha256": "81b7018d4a4966b25ed1ea9edb83ed800e2cb28306cb43afe9d2743777b71f13"
+      "sha256": "34e81b6ee34d308d0c36451be4b857854e82266bacb954a2d2c2dd0a4f1514bd"
     },
     {
       "namespace": "build",
@@ -127,7 +127,7 @@
       "namespace": "build",
       "path": "index.html",
       "bytes": 1003,
-      "sha256": "5afa064878549c6d6eb3faa54d55ad2da757140ce88fc034de6de174fa90c6b2"
+      "sha256": "2e59b97c141acfbc1aa6d4a3a6918a3d45603dbb8c0749483723c508e574d0b9"
     },
     {
       "namespace": "build",
@@ -402,50 +402,50 @@
     {
       "namespace": "build",
       "path": "sdk/state-manager.worker.js",
-      "bytes": 889914,
-      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+      "bytes": 922928,
+      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
     },
     {
       "namespace": "build",
       "path": "withdraw-frame.html",
       "bytes": 582,
-      "sha256": "906ee058e503fa3bd090d3f115123ffba27b00260b9604d27796685960d378b1"
+      "sha256": "a6ab1793959b7eec278559e207c08144ccfe655bee5eceac35b4add93dbd59f8"
     },
     {
       "namespace": "sdk",
       "path": "CHANGELOG.md",
-      "bytes": 11999,
-      "sha256": "dd8378a318c86412fbdd0f8cbdfbadbfa1d3ea7e3d43543aa06d80e96c3f7bbf"
+      "bytes": 25663,
+      "sha256": "6757131b199c97f6201804af94d554416738a83417bbcc53248907e41f6f6f2d"
     },
     {
       "namespace": "sdk",
       "path": "README.md",
-      "bytes": 9622,
-      "sha256": "bedbcc121e537cb2406d3f0c400c9d825248066fc280b6046c75d083412db227"
+      "bytes": 10600,
+      "sha256": "f06bfe7ded643d69ae2a5c6631a58fad274e57daee45106420165f20eb7e5842"
     },
     {
       "namespace": "sdk",
       "path": "package.json",
       "bytes": 4042,
-      "sha256": "ec7eee91c0cd4a725f2613844dd131dadd6366cb247722a49654ff231c1474ee"
+      "sha256": "8846cc31d2494f77b00cc739faac7d96a771367e4c7061ff5ed54c41bbc44584"
     },
     {
       "namespace": "sdk",
       "path": "scripts/check-simple-account.mts",
-      "bytes": 6395,
-      "sha256": "77714b947c2891baa5986baf7afbd10231e070dbaeca7f5f7af39b6bde64cbf7"
+      "bytes": 6433,
+      "sha256": "a2ccc2910f82fa37a9c9914303fbb523721c0278d0819ef5ef386c57ae69d076"
     },
     {
       "namespace": "sdk",
       "path": "src/account/delegation.interface.ts",
-      "bytes": 4550,
-      "sha256": "b34fba0c215eef6bff0c5e5fe4dbaedf6ccb264372568698046c22494622cb4d"
+      "bytes": 4743,
+      "sha256": "80d2779a983b40926daff94e3d10dfd2f3a025544740d906f816b3057cbff64e"
     },
     {
       "namespace": "sdk",
       "path": "src/account/execution-account.ts",
-      "bytes": 6740,
-      "sha256": "e559ff7a1f555792fd88d50f0ca2d2eff72e4600bbed99843061ec84842b330b"
+      "bytes": 7060,
+      "sha256": "716597a4d78a2393604890a3bcd3cb268d2af3ed65c25b6c649544285e377de7"
     },
     {
       "namespace": "sdk",
@@ -462,8 +462,8 @@
     {
       "namespace": "sdk",
       "path": "src/account/legacyNote.ts",
-      "bytes": 1691,
-      "sha256": "ec7059fb54b723495b9cd2b3fc2be54c738a073bf9b2fda07c877df0b126c198"
+      "bytes": 1675,
+      "sha256": "567debf16e63b414d451e98f0dbf127e82b97730f952c0be268789032c30e3c6"
     },
     {
       "namespace": "sdk",
@@ -473,9 +473,15 @@
     },
     {
       "namespace": "sdk",
+      "path": "src/account/tx/approve.ts",
+      "bytes": 1298,
+      "sha256": "679bf474371980ac6cae3cdcd01beefe5abd5021d976e5e4311ffabfcaf03eb4"
+    },
+    {
+      "namespace": "sdk",
       "path": "src/account/tx/shield.ts",
-      "bytes": 1271,
-      "sha256": "836f164ffc31a27df14f662dc9daebd2f4b8ec649b1009a048f26db219a2e431"
+      "bytes": 1145,
+      "sha256": "0c625d54a49a9e3b0834a276f96ad98f178554a0e6aca8cc6feb157924a84dde"
     },
     {
       "namespace": "sdk",
@@ -522,44 +528,44 @@
     {
       "namespace": "sdk",
       "path": "src/data/abis/pool.abi.ts",
-      "bytes": 2115,
-      "sha256": "9419046431d609f772c2fcacebed01b5beeca57bb86413c8bcaff548df0ee7b6"
+      "bytes": 2533,
+      "sha256": "9547c36895f12501663a96625c2703196e30a8241ac22caa349cd6700e84b831"
     },
     {
       "namespace": "sdk",
       "path": "src/data/data.service.ts",
-      "bytes": 12648,
-      "sha256": "bb153399da5a6b3fb3d80dc89f881f7e1aecf78a6bca0b599548fd99570a7ae7"
+      "bytes": 13617,
+      "sha256": "00c32b32fb708c4994e9cb5cfe322193a7412a75477a16c212e5d9283221a1c5"
     },
     {
       "namespace": "sdk",
       "path": "src/data/eth-client.ts",
-      "bytes": 3875,
-      "sha256": "aedce6c235c66506db466fed11a4584d077ae438f86c7f19ff934c68322fb03a"
+      "bytes": 7046,
+      "sha256": "d9271eb0633fc55dac60f0ac3cd73290d65f44992fe0a26eeca2fc30dd5a7f46"
     },
     {
       "namespace": "sdk",
       "path": "src/data/interfaces/data.service.interface.ts",
-      "bytes": 3583,
-      "sha256": "4ab61694b4bd3b632b6b0777744bd212eb47311304997b9ad73d5beeda06907b"
+      "bytes": 4243,
+      "sha256": "aeae11c4f8166f90577126195c457377259172ce4859e3157ad335fdee6acbc9"
     },
     {
       "namespace": "sdk",
       "path": "src/data/interfaces/events.interface.ts",
-      "bytes": 2393,
-      "sha256": "f225946934fe6c004da1dce28606b835349c78b2a766d4efd85674b3fe2be11d"
+      "bytes": 3151,
+      "sha256": "2a90cfe9df5ef8174bd571d1443d8e88703f8dde6b6e886f5e3f2bfde7d5a384"
     },
     {
       "namespace": "sdk",
       "path": "src/data/interfaces/sync.service.interface.ts",
-      "bytes": 2243,
-      "sha256": "b6a2508a153c71763ff930e6685056d21a24055599bfd1b202136f8483960e15"
+      "bytes": 2456,
+      "sha256": "0bf0d18a462d60657ea25221dc8738e20bf0438b9bc82c93f4cd4a22d2917fb9"
     },
     {
       "namespace": "sdk",
       "path": "src/data/sync.service.ts",
-      "bytes": 5420,
-      "sha256": "26cfc12b3c05c673f0a1aa78f6371ecd1236be4d34170a7ec039a9560620cc33"
+      "bytes": 7199,
+      "sha256": "96ffe337840345482658c7f30be0fd501f716f36b9b265d29fc5a18e76c34912"
     },
     {
       "namespace": "sdk",
@@ -570,8 +576,8 @@
     {
       "namespace": "sdk",
       "path": "src/index.ts",
-      "bytes": 1520,
-      "sha256": "3819f72c61e50296093f4b9ff20643828dd63fbe1b1a9e02c8fc7efd7cbd19f8"
+      "bytes": 1761,
+      "sha256": "ae22ec174f83c0820b9732f168bd7f38a3648dc5e5b57f79877fbcd904098b99"
     },
     {
       "namespace": "sdk",
@@ -588,8 +594,8 @@
     {
       "namespace": "sdk",
       "path": "src/interfaces/user-ops.interface.ts",
-      "bytes": 2902,
-      "sha256": "0d8a4ca3983ea2b8e59cbeaef02b95134fea1a5e292939a435851b6e2b8775e8"
+      "bytes": 3031,
+      "sha256": "f980dff4296d35eb517ede8fef3db955edab5c21ae674a2ec36fa8bbbfb46d02"
     },
     {
       "namespace": "sdk",
@@ -617,6 +623,12 @@
     },
     {
       "namespace": "sdk",
+      "path": "src/paymaster/bundler-replies.ts",
+      "bytes": 5538,
+      "sha256": "e448183bd58deb127322b34411aef7aff1f400ecfaf08f3a3d4ad6fd947220fc"
+    },
+    {
+      "namespace": "sdk",
       "path": "src/paymaster/config.ts",
       "bytes": 1202,
       "sha256": "c34c4b13bd51156ddda700fad1a82b287aab0185fc9dd8165833ebb55d5c60e4"
@@ -624,8 +636,8 @@
     {
       "namespace": "sdk",
       "path": "src/paymaster/estimate.ts",
-      "bytes": 5832,
-      "sha256": "79a87fb8dc75313a54403cb2c073798623635aab14ef0dace08f066d39709ebe"
+      "bytes": 6108,
+      "sha256": "fce0c870a0e8df9fcd9c2c1eda7c980f4ff2516fdf5b1cf7442d6f77460f7caf"
     },
     {
       "namespace": "sdk",
@@ -636,8 +648,8 @@
     {
       "namespace": "sdk",
       "path": "src/paymaster/execution-gas-retry.ts",
-      "bytes": 1599,
-      "sha256": "56ce42a517412b512211d0a5f858c4d6d83266e1c27638b324bbed95a6f1f381"
+      "bytes": 2210,
+      "sha256": "6da55600ccd0bb394c073bcb4ad04e76ec75363a5367a2ddf4c89c0b4ff06ead"
     },
     {
       "namespace": "sdk",
@@ -660,26 +672,44 @@
     {
       "namespace": "sdk",
       "path": "src/paymaster/paymaster-broadcaster.ts",
-      "bytes": 4041,
-      "sha256": "e56d1cd644440d7f1833d9465d8429d6c841888a30c41465ddefbbd889a9229b"
+      "bytes": 4942,
+      "sha256": "acb5c1dac74f1b2c833b7f0745fc20abc98a11f44c68bd827e1059694fa02c1f"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/sender-nonces.ts",
+      "bytes": 3446,
+      "sha256": "c37c64ca9089faa5aa0912a8454c674eb0f79aeb9db5d6dafafbde1dac937efd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/simulation.ts",
+      "bytes": 4446,
+      "sha256": "e3dfc28834b86d26150ce86ea0189a354a0aeb0e4868f476634abba3091a3521"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/paymaster/tail-calls.ts",
+      "bytes": 1143,
+      "sha256": "6e064a1c2444109e0d76cb3367fbc436df8e69458409c3137306212a080de904"
     },
     {
       "namespace": "sdk",
       "path": "src/paymaster/utils.ts",
-      "bytes": 13020,
-      "sha256": "f2904508704a0eb9dc8fbbbb89d1b197ad16b403ac46e80778f30f0a81fef37f"
+      "bytes": 16020,
+      "sha256": "a3167c1ccc725f7f04fc06c8d68b09ca4db8df9c4bed762b028e01804d5b2f3d"
     },
     {
       "namespace": "sdk",
       "path": "src/plugin/base.ts",
-      "bytes": 13368,
-      "sha256": "54be5f4c7d16c4cda0e8098b0fb66b255faf1ffd769c30903c7964498fb4cfee"
+      "bytes": 14348,
+      "sha256": "e5b8a85a3c3858ea02f9a060a0cb20a16cfd33fdbd25e5c7ebf39700661a90e3"
     },
     {
       "namespace": "sdk",
       "path": "src/plugin/broadcaster.ts",
-      "bytes": 3674,
-      "sha256": "3a07c9b2106c2f91dcba84ee6665c503c50c4cfc002297155a45264c92a0cb32"
+      "bytes": 5047,
+      "sha256": "43e31fac971f74e89a29ecc16164d187905337a3b049c9a6222d963b4e142d24"
     },
     {
       "namespace": "sdk",
@@ -690,8 +720,8 @@
     {
       "namespace": "sdk",
       "path": "src/plugin/host-bridge.ts",
-      "bytes": 5311,
-      "sha256": "13ae74b905b1c9f6c95c2911a3dd43d8ab4bc466c82876b9dbccc26cf56af662"
+      "bytes": 5725,
+      "sha256": "f38c1e0a5cbbdd76d10984b307d3279d7e7f8dc7448a4355910bd2fc442d091c"
     },
     {
       "namespace": "sdk",
@@ -702,8 +732,8 @@
     {
       "namespace": "sdk",
       "path": "src/plugin/interfaces/protocol-params.interface.ts",
-      "bytes": 7949,
-      "sha256": "b62e8e356c14aa20737166225b5607cb80dfed7a10f49e30d9d8c6e54d7eafd9"
+      "bytes": 8328,
+      "sha256": "2d7f82e1d250f51bd6583b4d79cc5fdbefbfa025628d4304f6cd98ab588c03bf"
     },
     {
       "namespace": "sdk",
@@ -726,8 +756,8 @@
     {
       "namespace": "sdk",
       "path": "src/relayer/interfaces/paymaster-client.interface.ts",
-      "bytes": 3375,
-      "sha256": "a0317a4add96cface6d74691d3266b35064e327892dfde8cdae5f7c047880937"
+      "bytes": 4275,
+      "sha256": "e702fa21c1b1fefbc5624a864d8b3545270e066259f0322fc1f0b74c37c78278"
     },
     {
       "namespace": "sdk",
@@ -738,8 +768,8 @@
     {
       "namespace": "sdk",
       "path": "src/relayer/relayer-client.ts",
-      "bytes": 1129,
-      "sha256": "998a80f019868c568fa735b529cdf34b66edfb0e71ed515f75a9a04d695287a0"
+      "bytes": 2119,
+      "sha256": "e74796c1628f8d49dfc6372d013e29281e3bfa4793ec42a129837b5bdba95729"
     },
     {
       "namespace": "sdk",
@@ -764,6 +794,12 @@
       "path": "src/state/interfaces/utils.interface.ts",
       "bytes": 2594,
       "sha256": "dc353a20138dd0cd2e3ce12a5db03bf47c1be1c8f67dcf1581e791c9625c1628"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/pool-sync-error.ts",
+      "bytes": 1856,
+      "sha256": "e769620d1588575570d93b4c3908359cd7c7109ffb1a00e85c099484d2b47075"
     },
     {
       "namespace": "sdk",
@@ -792,8 +828,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/selectors/merkle.selector.ts",
-      "bytes": 1023,
-      "sha256": "7049ae8409d9aac016ca2546ce10aba5a78a4704cae26bacfa2024dfefa95435"
+      "bytes": 1002,
+      "sha256": "571372f486231886131941394d4f5da4760b4733a30d017a0a65d4ecc4145089"
     },
     {
       "namespace": "sdk",
@@ -804,20 +840,20 @@
     {
       "namespace": "sdk",
       "path": "src/state/selectors/pools.selector.ts",
-      "bytes": 1905,
-      "sha256": "00fdaf30c7174f0086b3e895744fa20ef8d4834ff10c7bb3133d07091033c005"
+      "bytes": 2887,
+      "sha256": "1887b3aa58f2f5c385617b6c772ab3b91dcc5ceec1d34055c16140802a5cab25"
     },
     {
       "namespace": "sdk",
       "path": "src/state/selectors/slices.selectors.ts",
-      "bytes": 4520,
-      "sha256": "815f8befacc99d95deb4677daa116a7efe618b4935fb22cf012bdb8e8ac62ef2"
+      "bytes": 4626,
+      "sha256": "5fd6effb8e753d0a6bed92f0c752b87e5fd654746cfc18820d14ccbf7161c5d6"
     },
     {
       "namespace": "sdk",
       "path": "src/state/selectors/withdrawals.selector.ts",
-      "bytes": 4613,
-      "sha256": "a17c5fab1e09d822e1eb75e12d5ea2664bbb855b07e614951a4887d982146367"
+      "bytes": 6661,
+      "sha256": "9d6d1f75219e356a11259c14f995f2fd071f110b252d092ffc19d89cef571b72"
     },
     {
       "namespace": "sdk",
@@ -828,8 +864,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/slices/depositsSlice.ts",
-      "bytes": 1517,
-      "sha256": "6b6d8ffb5d2cd9c9c583ed60551bfd6dec44038de992e3b20e2fdf1b2567c5aa"
+      "bytes": 1915,
+      "sha256": "ecfff7e934f18f3bc87dd2b0f012af04ee9678a0d0ee7716c4f28419c11c5fe4"
     },
     {
       "namespace": "sdk",
@@ -840,8 +876,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/slices/poolsSlice.ts",
-      "bytes": 1716,
-      "sha256": "b49a0f8c5c56ad840791f218409ff8a07e00f3594c428ad95e3bc9b69f04db38"
+      "bytes": 2095,
+      "sha256": "21adca30077274e257bd7034ff331a4c2ae28b0705757369b7e2434429f6c8dd"
     },
     {
       "namespace": "sdk",
@@ -857,6 +893,12 @@
     },
     {
       "namespace": "sdk",
+      "path": "src/state/slices/signatureNoncesSlice.ts",
+      "bytes": 843,
+      "sha256": "11400ce01128381a9a9a7d69c533b8b8b81d2d4e87491f0d6f48f95df8007c2c"
+    },
+    {
+      "namespace": "sdk",
       "path": "src/state/slices/signatureSecretsSlice.ts",
       "bytes": 1415,
       "sha256": "0039089e59c7a72bc06056bd2100c2342bf5134316ce46a027d608d7fdf35a26"
@@ -864,8 +906,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/slices/syncSlice.ts",
-      "bytes": 1027,
-      "sha256": "0c5e1d8d3014e739b0d09de3937d398e56b2e98bf2ab664dba002a8d2e7340be"
+      "bytes": 1334,
+      "sha256": "22bf7ba4e7a017b94f2b94eacbfe8fe93a2ebc7079268bd022ad09041c29b871"
     },
     {
       "namespace": "sdk",
@@ -876,8 +918,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/slices/withdrawalsSlice.ts",
-      "bytes": 1190,
-      "sha256": "7dec0bdfc9d5f406049ddf092b69eaac75883a1213278d6519bffe2f7804c668"
+      "bytes": 1541,
+      "sha256": "9b28b65a9cd638e353e707c2e8d3099ce87e9702800fd93b601f4ccfd3df0991"
     },
     {
       "namespace": "sdk",
@@ -888,8 +930,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/state-manager.ts",
-      "bytes": 11900,
-      "sha256": "2f170c496d44e6b4880fbed9cd0c37aa564a30ec8a3e8bbbeca7013cacf8fbce"
+      "bytes": 15040,
+      "sha256": "19dafaa7d6d5030995410946e690a1759033369bb4e16fcaea3d757d81e6106b"
     },
     {
       "namespace": "sdk",
@@ -906,38 +948,38 @@
     {
       "namespace": "sdk",
       "path": "src/state/store.ts",
-      "bytes": 3440,
-      "sha256": "374f3ff821f5018b38b03a5d5fc847e4e062809f4c65daf805f6d074c0f33fd6"
+      "bytes": 3555,
+      "sha256": "e4308e1829f567140b6a24f6f649a1978762220cf789681bae8525a1bcbf9417"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/discoverUserEventsThunk.ts",
-      "bytes": 2554,
-      "sha256": "7c443ada4279bf4b80b0be5bacd8b4420843ed772bfbbc21f9e4b5aa0e0309a3"
+      "bytes": 3466,
+      "sha256": "c611c51cabdde25747fa3288cc974290e4a97af1329391bab4a0cd9d8f167b51"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/getDepositPayloadThunk.ts",
-      "bytes": 5434,
-      "sha256": "70ad708f4c8c06101c5e065ed2929e235e2ccfcded89558b3db721cbf6ca1960"
+      "bytes": 6200,
+      "sha256": "11092895079e7ab4a51ba8b1b6f95af68f8129df95b25ba05e5d2ab13eadb663"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/importLegacyNotesThunk.ts",
-      "bytes": 1720,
-      "sha256": "d56bd1740976fcf1877451c9baa4e79fa69d363acf3e6b0a98f9d439c7baf2b5"
+      "bytes": 1913,
+      "sha256": "0e0b6863d85f4b2a834912a74fb3ff50b2b546fe3a22fec40b6eeb129c658477"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/paymasterWithdrawThunk.ts",
-      "bytes": 15024,
-      "sha256": "0eef0e9f4ff5e09aa17b9719c586d61c7c3d5fc9f3be8c00784e67ca919a4bf9"
+      "bytes": 17229,
+      "sha256": "cdaa1331001f15c6c900df779c619e2282e4c5351a69bb7f8e6360e45c869283"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/quoteThunk.ts",
-      "bytes": 5420,
-      "sha256": "74fc73df09c36477cbf5c187b3bd6913fb0de97944bb78769af9e913679f2567"
+      "bytes": 5919,
+      "sha256": "d56c7029a94852e4af150583b6ca080d77d70de56c8ad493811c3cbee934a439"
     },
     {
       "namespace": "sdk",
@@ -948,14 +990,14 @@
     {
       "namespace": "sdk",
       "path": "src/state/thunks/syncEventsThunk.ts",
-      "bytes": 2825,
-      "sha256": "acd868e241dfb12970354f54b0a3bd1b7c7bdac4d98d681d1092276cfb5aa4f6"
+      "bytes": 9073,
+      "sha256": "51f54b1de6257c6bf807a45d148e11f320a828f2a3e91514a924b9c56d55032b"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/syncPoolsThunk.ts",
-      "bytes": 4630,
-      "sha256": "80034a61f8ccc8d781e51295d7962995cab48b258cfdd8eee7f5e661692fb1a8"
+      "bytes": 5349,
+      "sha256": "256c262aa386002da7f39fb0bf76d24b3d5e15c7e90b40d188269e7e399a7f85"
     },
     {
       "namespace": "sdk",
@@ -966,14 +1008,14 @@
     {
       "namespace": "sdk",
       "path": "src/state/thunks/syncThunk.ts",
-      "bytes": 1956,
-      "sha256": "f9b8a74ff6172be246a9c177426660cfc912c873b0350d4147e8d419e25ce461"
+      "bytes": 2713,
+      "sha256": "ce7edb6728c82d5d79c6c32dd92182f5af2039f7d03dc3f2bd4345ad31addb07"
     },
     {
       "namespace": "sdk",
       "path": "src/state/thunks/verifyRootsThunk.ts",
-      "bytes": 1461,
-      "sha256": "7c6718e5a979e29a6456834089f59697cb5cf9b516c67310a49ce8f55aa00890"
+      "bytes": 1541,
+      "sha256": "1db9e907315f30f9e037d1d2e60e06c190b2ebe6d4d5d35a28b12d35e8fbdc7c"
     },
     {
       "namespace": "sdk",
@@ -984,8 +1026,20 @@
     {
       "namespace": "sdk",
       "path": "src/state/thunks/withdrawalsProofThunk.ts",
-      "bytes": 1383,
-      "sha256": "bc0e2742481d247ff678cb18c60e53bdbc86e7cf67ce389f956fa958f500a687"
+      "bytes": 2118,
+      "sha256": "e7273ae57399c24ee248db0b196fbc3dc51416e598006becf491f84cde64a8bd"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/utils/async.utils.ts",
+      "bytes": 2108,
+      "sha256": "557597a383f766d7c50f779c9b54ab3649c286436ccc256f4147caa87f90cae8"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/utils/prune.utils.ts",
+      "bytes": 265,
+      "sha256": "9b36afc6f3a081a9d22dd386b23437feef727da87f2da386bc743245b5eae5eb"
     },
     {
       "namespace": "sdk",
@@ -996,8 +1050,14 @@
     {
       "namespace": "sdk",
       "path": "src/state/utils/serialize.utils.ts",
-      "bytes": 2555,
-      "sha256": "a52bd9c86a55940a9189815bf96dfc32309b5edd31b956c58ccf10cd25b88952"
+      "bytes": 2585,
+      "sha256": "3c96dc34692b1103dc7ead3e78c9d11267cc85e4b0e019c90a761fa4c20423aa"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/state/utils/snapshot.utils.ts",
+      "bytes": 4376,
+      "sha256": "c61ac9ef0b7b6fdfb43b7dd7af77261b4cbecd3e274dd9dae1bf6ec36a252878"
     },
     {
       "namespace": "sdk",
@@ -1031,15 +1091,21 @@
     },
     {
       "namespace": "sdk",
+      "path": "src/utils/merkle-frontier.ts",
+      "bytes": 2366,
+      "sha256": "47e01896d857be5d26eaef0d6e278cd39cf696140b806170c364847a67390f37"
+    },
+    {
+      "namespace": "sdk",
       "path": "src/utils/merkle-tree/merkle-tree.util.browser.ts",
-      "bytes": 462,
-      "sha256": "b1469f87f3c267a296c6bc06f82243aab167dda528961bcdf8a17bcee6112285"
+      "bytes": 1150,
+      "sha256": "413f8a3fce4a8c78125a782c4e4bdc35e856ef0008764a52f8dd0bfe9ba26d0a"
     },
     {
       "namespace": "sdk",
       "path": "src/utils/merkle-tree/merkle-tree.util.node.ts",
-      "bytes": 424,
-      "sha256": "81ce3d50020faa1be72e883999bf62e05cc7c930cb73643e1522b87c67b0b260"
+      "bytes": 293,
+      "sha256": "674f6ddc33a7605d298640f31103d9d7871c8ac4654be4cbf282cb364fbb82cf"
     },
     {
       "namespace": "sdk",
@@ -1052,6 +1118,12 @@
       "path": "src/utils/prover-factory.ts",
       "bytes": 859,
       "sha256": "4b652093b271024a12357452b3dd7320e55c083ecc402563cbb9147aca14f05a"
+    },
+    {
+      "namespace": "sdk",
+      "path": "src/utils/settle-limited.ts",
+      "bytes": 866,
+      "sha256": "dad12020f2f849314542124a5fd990aeaa3c283da99083146e331ea4eef88b62"
     },
     {
       "namespace": "sdk",
@@ -1074,20 +1146,20 @@
     {
       "namespace": "sdk",
       "path": "src/v1/interfaces.ts",
-      "bytes": 5291,
-      "sha256": "f186225d972c1ec414b4c6a9550aa2bf083891ee6a346a56255cdee4d8a5091c"
+      "bytes": 5830,
+      "sha256": "025e5ff327713f0a8ae0111384c8ae5a7b7c6e421cb26e95c6544583d92371ab"
     },
     {
       "namespace": "sdk",
       "path": "src/verification/index.ts",
-      "bytes": 68,
-      "sha256": "5b79e4569792172fbdc119b6d453101cf6efb7340413947e6ebae303cb4899a0"
+      "bytes": 95,
+      "sha256": "af131578ce8d381095ef9835bf0d19fd36c5bd07283966cddcc6d87cb9172b90"
     },
     {
       "namespace": "sdk",
       "path": "src/verification/root-verification.ts",
-      "bytes": 1182,
-      "sha256": "989f9fc081716fff84f12c830e0cc04e50ebcbe2350f49631a545c8b4efb7d07"
+      "bytes": 8432,
+      "sha256": "a5280a29d6555ba6ac88d641b91fab35db9c1efb51aacc58127e21621389f1a0"
     },
     {
       "namespace": "sdk",
@@ -1116,8 +1188,8 @@
     {
       "namespace": "sdk",
       "path": "tests/e2e/ethers/withdraw-paymaster-single-deposit.test.ts",
-      "bytes": 8359,
-      "sha256": "d28b04b54084d7fb66e53262cfe4bde450810014a53b7720c8b311d9315ba762"
+      "bytes": 8818,
+      "sha256": "8e8b7953e06f03ff2a6addac5d16bdffae45e8e7bd776342c005f1de640f2169"
     },
     {
       "namespace": "sdk",
@@ -1128,14 +1200,14 @@
     {
       "namespace": "sdk",
       "path": "tests/e2e/ethers/withdraw.test.ts",
-      "bytes": 10640,
-      "sha256": "c1675cc323553701422ea01fe8f8d9b5603154cad0071603c68e4562480173c2"
+      "bytes": 10744,
+      "sha256": "9b3494ff19ee8bab26b81ca089d40e23b4b02b66ef8f3de1f08993b8d4a3709e"
     },
     {
       "namespace": "sdk",
       "path": "tests/state.11155111.json",
-      "bytes": 1559788,
-      "sha256": "3a34facd1e03ec97376c990e197a14efc312e509d6a770388604f7f5022624a4"
+      "bytes": 1567212,
+      "sha256": "2e4c268b2098bb6cbf95a568510ccef2a800266a9e6e85f3491681a60fe4dd91"
     },
     {
       "namespace": "sdk",
@@ -1151,15 +1223,33 @@
     },
     {
       "namespace": "sdk",
+      "path": "tests/unit/broadcaster.test.ts",
+      "bytes": 6833,
+      "sha256": "a299c7e8a4563789b4e5c6ce3af3a3385148053431707984083d7c1011151c63"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/delegation-path-grant.test.ts",
+      "bytes": 3198,
+      "sha256": "c37933777d594a38c81c1d7aa154c1ab1b337a5aad1fe8ad48c8c462e93a8d44"
+    },
+    {
+      "namespace": "sdk",
       "path": "tests/unit/discover-user-events.test.ts",
-      "bytes": 6601,
-      "sha256": "b77bd2600c2585e7335f61654259a9ca05c0963854d098352264eab436df3103"
+      "bytes": 10101,
+      "sha256": "a7cededd0805b1671d57791d9b5e935cfb14cc710d362088a6c796b4c8b6a959"
     },
     {
       "namespace": "sdk",
       "path": "tests/unit/estimation-transport-retry.test.ts",
       "bytes": 7001,
       "sha256": "445304d1d7bf549d277163b9c649c97022f58bf249399459bfd6284e6fbceb73"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/eth-client-scan-boundary.test.ts",
+      "bytes": 5207,
+      "sha256": "67e3fd67ba9d46e8a3fd7b5ce2493bf64798c3e2cf50bf7248211f1dab3979c7"
     },
     {
       "namespace": "sdk",
@@ -1170,14 +1260,14 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/execution-gas-retry.test.ts",
-      "bytes": 1372,
-      "sha256": "eb1087e81f45b377bdc8a8f297e334f51ed04397ed3734b91e3c278960117fbe"
+      "bytes": 2398,
+      "sha256": "6b53ebdc838f37026c757ded474c7233cd8004a9f32e24258d07a77f7dc39bc1"
     },
     {
       "namespace": "sdk",
       "path": "tests/unit/extended-eth-pools.test.ts",
-      "bytes": 13293,
-      "sha256": "888be5e873186d8a63d6fb6596e565dbc51f0c63defb17033c3fbf83e7d94ab0"
+      "bytes": 14573,
+      "sha256": "7b53b5bf155fafdfeb06d1ff8af2fd9c2d0354793743841ad31e2a602feb8d16"
     },
     {
       "namespace": "sdk",
@@ -1205,6 +1295,18 @@
     },
     {
       "namespace": "sdk",
+      "path": "tests/unit/merkle-frontier.test.ts",
+      "bytes": 1281,
+      "sha256": "99d0c862d24afc03a234295c6d6b3342b8f6a1baafcd66ba4d6b640f2e334d50"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/merkle-tree-browser-fallback.test.ts",
+      "bytes": 2859,
+      "sha256": "6e04b067b742aeebd42c47083d27da79389f78cce66878b935c94f83f91e5a59"
+    },
+    {
+      "namespace": "sdk",
       "path": "tests/unit/parse-pool-events.test.ts",
       "bytes": 4206,
       "sha256": "ad7c7c7f2c6c939a9f0d977320b8f293f12e0bfbb4d54cf961e02f326a071169"
@@ -1212,8 +1314,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/paymaster-broadcaster.test.ts",
-      "bytes": 14798,
-      "sha256": "10e11b56c16238fa07f762ae5721beb62aa766aa1185c41c1fff6ff425b80b48"
+      "bytes": 23827,
+      "sha256": "3c078d1a81b29032eedb055ce3b543a1262af172010221ba6b14ef55c5872c99"
     },
     {
       "namespace": "sdk",
@@ -1224,8 +1326,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/paymaster-estimation.test.ts",
-      "bytes": 16886,
-      "sha256": "8d3c7abf7472ab2501f352a66e139bd5f8cf4753ad6a2ad06d49e8e5cf4a1ceb"
+      "bytes": 19898,
+      "sha256": "5d3ae76520fae2e0a75d07c379a673ad9195b01152d6e86a341ec169ebf886ee"
     },
     {
       "namespace": "sdk",
@@ -1236,8 +1338,26 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/paymaster-withdraw-estimation.test.ts",
-      "bytes": 37158,
-      "sha256": "f277e5a1a50369f94a1179fca870d852b65a5b2975aebedd32626a80f8802176"
+      "bytes": 44911,
+      "sha256": "b4686823cb168768706142ae2466a029149d3d059aa7ded42e49db0cb0c3674e"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/pool-discovery-bounds.test.ts",
+      "bytes": 6512,
+      "sha256": "72240c6c95c9716a023a5917568ade7549b63dbac2621e6394a9cc0e1899a497"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/pool-merkle-tree.test.ts",
+      "bytes": 4445,
+      "sha256": "29ad33ebf9be4fa2d94ebfbb9fa0e41c7ef9b8e7c283fd8ea931430a24bd1887"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/pool-sync-failures.test.ts",
+      "bytes": 6914,
+      "sha256": "914ab81c2dddb54d7c10686532a1b6b1358d402feb8844aaa39d46e8d4877e47"
     },
     {
       "namespace": "sdk",
@@ -1253,6 +1373,12 @@
     },
     {
       "namespace": "sdk",
+      "path": "tests/unit/relayer-client.test.ts",
+      "bytes": 1574,
+      "sha256": "963a328f274814938fba1f4eda453560ff168951d7ce02549e4b4f94ef844a30"
+    },
+    {
+      "namespace": "sdk",
       "path": "tests/unit/relayer-data-batching.test.ts",
       "bytes": 6250,
       "sha256": "1b9bf6ddc28cca20f917c07b0f45d9a81db5eb29ccaae300987c67584f63ad05"
@@ -1260,8 +1386,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/relayer-fee.test.ts",
-      "bytes": 8532,
-      "sha256": "0eb04b2ee92cff0fd9ad3a06eb61771ea453081c5da58b7c19494e93a6323757"
+      "bytes": 9700,
+      "sha256": "03720a618ba68755fd9ba71ec67ced3618e0636a3f277be227b1d80e28c4a481"
     },
     {
       "namespace": "sdk",
@@ -1277,27 +1403,69 @@
     },
     {
       "namespace": "sdk",
+      "path": "tests/unit/sender-nonces.test.ts",
+      "bytes": 4670,
+      "sha256": "db22fce099e7e4ae2d94f55d76b3de4984dd69027c6349e2c50a1ff1d81da817"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/shield-approval.test.ts",
+      "bytes": 1374,
+      "sha256": "c39cc7df976f9bc75929ba3054f9ff5f6ed6aa7eeec898a0c0db6e846f8b0492"
+    },
+    {
+      "namespace": "sdk",
       "path": "tests/unit/signature-keys.test.ts",
       "bytes": 9763,
       "sha256": "54b90817947a23cdeff19ad5c3db1842df554766b263581639de76eb664e8213"
     },
     {
       "namespace": "sdk",
+      "path": "tests/unit/signature-nonce-reservation.test.ts",
+      "bytes": 4253,
+      "sha256": "1c4eecd52a2182a9a50d91be3f4cdd25954ab11934c0e17e9cb8403b4a187422"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/state-manager-concurrency.test.ts",
+      "bytes": 6113,
+      "sha256": "6e6384bcc1beff2053d0ffe2ef07a69ad84807229c5d7e44f2200e6f132110f9"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/sync-events-root-check.test.ts",
+      "bytes": 10133,
+      "sha256": "92f038a82a1411933c2d73d8b576ce8c843ddabf6a4eb367fe7becbb5dae87ed"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/sync-events-thunk.test.ts",
+      "bytes": 6409,
+      "sha256": "3ead953865543fbaa61006236dc06bf920e642aa961a95b67f7469ad884bab51"
+    },
+    {
+      "namespace": "sdk",
+      "path": "tests/unit/sync-events-verification.test.ts",
+      "bytes": 13057,
+      "sha256": "8867cca8179a58560ad3a4b40a1e17aef1f26044f2e194919e7238376da543bd"
+    },
+    {
+      "namespace": "sdk",
       "path": "tests/unit/sync-service.test.ts",
-      "bytes": 10606,
-      "sha256": "a7c8c24bba4a4ee614b06d79b0e50af3e1986abe1df73fdf53475798438042dd"
+      "bytes": 17261,
+      "sha256": "3186a4a0b8bfa6794b39080086040655fb53ec3a132fea9bad01dfa75422511e"
     },
     {
       "namespace": "sdk",
       "path": "tests/unit/verify-roots-thunk.test.ts",
-      "bytes": 5713,
-      "sha256": "ffe7d2835dd9fc3080aad024be69d67b0533930095d8382e4616e3f0262d505c"
+      "bytes": 6314,
+      "sha256": "90452c45f60639c85e7a4d47c24bf814de60dfd98a1c78ab7182d4bb14b08837"
     },
     {
       "namespace": "sdk",
       "path": "tests/unit/worker-external-signer.test.ts",
-      "bytes": 5922,
-      "sha256": "fa02a55fd49282d5d0e7665bea9e86dad7e1bf1d74f924adc76adf75a6e9c887"
+      "bytes": 7319,
+      "sha256": "1ed5304002252ccf732a16e5f435ea76a0d3b5d1eece4f3d79358397a65097e2"
     },
     {
       "namespace": "sdk",
@@ -1362,14 +1530,14 @@
     {
       "namespace": "sdk-dist",
       "path": "index.d.ts",
-      "bytes": 51901,
-      "sha256": "f3d625bddf63c466c6c1d41d531689e4d9f75a412b4348e2e416892ad0f94cc8"
+      "bytes": 56106,
+      "sha256": "cc3ee52b644d1f64430e6f572de28805d8f05ef2f980a1c06e9b2df61313be4f"
     },
     {
       "namespace": "sdk-dist",
       "path": "index.js",
-      "bytes": 55702,
-      "sha256": "65f0616e8415c13821082d6f15c1752c6ef2cfb136962af98e62bb4aaaa584de"
+      "bytes": 67335,
+      "sha256": "5b9c5ff026338bfbeb12cd8cf35a070e6d161289c1ada48a15a436ef2f8df408"
     },
     {
       "namespace": "sdk-dist",
@@ -1386,14 +1554,14 @@
     {
       "namespace": "sdk-dist",
       "path": "merkle-tree.browser.js",
-      "bytes": 472,
-      "sha256": "60cb4c8df6d15f05d5fc1926dc1fd2611586534b28a4538e98b147b4d5793996"
+      "bytes": 878,
+      "sha256": "463e8d050a2721243bde0265496a272436d9a6f68dbc3d187ca29d6953eea33d"
     },
     {
       "namespace": "sdk-dist",
       "path": "merkle-tree.node.js",
-      "bytes": 431,
-      "sha256": "e47de27264e868702e8880846318e152e5b66b8d397ff75633fdb32edbf6a907"
+      "bytes": 334,
+      "sha256": "6efe71c230a26cf7257db914be8f81151870f8bd8b9aa44bed444edeb8e82e17"
     },
     {
       "namespace": "sdk-dist",
@@ -1410,20 +1578,20 @@
     {
       "namespace": "sdk-dist",
       "path": "state-manager.worker.js",
-      "bytes": 889914,
-      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+      "bytes": 922928,
+      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
     },
     {
       "namespace": "sdk-dist",
       "path": "state-manager.worker.node.js",
-      "bytes": 860867,
-      "sha256": "dd18f2845b9d231068b6714b6d4b1a6fba15b86a36ca7584ee92ce5216aab13f"
+      "bytes": 918770,
+      "sha256": "d5118b5e4c871c54cfe256abf80899dab4cd02126bbb52f3ffaf7834457dafa8"
     },
     {
       "namespace": "sdk-dist",
       "path": "worker-loader.browser.d.ts",
-      "bytes": 18263,
-      "sha256": "a95c7153aad445d78076148294cd94e4edd7990c1575ff828e977619aa75e824"
+      "bytes": 19088,
+      "sha256": "2b6487bc5685d44b364cc47fb002ddb50fa1352ac4bfc2c74a6c8b8c84972852"
     },
     {
       "namespace": "sdk-dist",
@@ -1434,8 +1602,8 @@
     {
       "namespace": "sdk-dist",
       "path": "worker-loader.node.d.ts",
-      "bytes": 18306,
-      "sha256": "241db20f77bf58e8d7da06b9a60d4cad23dff0598fa89b67e88f9af398ff7295"
+      "bytes": 19131,
+      "sha256": "d1c1ef6479377f0696541bfb5b29961cfb9432602491372e8a0d779f48325f18"
     },
     {
       "namespace": "sdk-dist",
@@ -1446,20 +1614,20 @@
     {
       "namespace": "sdk-package",
       "path": "README.md",
-      "bytes": 9622,
-      "sha256": "bedbcc121e537cb2406d3f0c400c9d825248066fc280b6046c75d083412db227"
+      "bytes": 10600,
+      "sha256": "f06bfe7ded643d69ae2a5c6631a58fad274e57daee45106420165f20eb7e5842"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/index.d.ts",
-      "bytes": 51901,
-      "sha256": "f3d625bddf63c466c6c1d41d531689e4d9f75a412b4348e2e416892ad0f94cc8"
+      "bytes": 56106,
+      "sha256": "cc3ee52b644d1f64430e6f572de28805d8f05ef2f980a1c06e9b2df61313be4f"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/index.js",
-      "bytes": 55702,
-      "sha256": "65f0616e8415c13821082d6f15c1752c6ef2cfb136962af98e62bb4aaaa584de"
+      "bytes": 67335,
+      "sha256": "5b9c5ff026338bfbeb12cd8cf35a070e6d161289c1ada48a15a436ef2f8df408"
     },
     {
       "namespace": "sdk-package",
@@ -1476,20 +1644,14 @@
     {
       "namespace": "sdk-package",
       "path": "dist/merkle-tree.browser.js",
-      "bytes": 472,
-      "sha256": "60cb4c8df6d15f05d5fc1926dc1fd2611586534b28a4538e98b147b4d5793996"
-    },
-    {
-      "namespace": "sdk-package",
-      "path": "dist/merkle-tree.node.d.ts",
-      "bytes": 348,
-      "sha256": "a7638c9a22e27980e8dfcd450d906a8a04e115f7f6dbe65f11f4b4e2cce12c91"
+      "bytes": 878,
+      "sha256": "463e8d050a2721243bde0265496a272436d9a6f68dbc3d187ca29d6953eea33d"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/merkle-tree.node.js",
-      "bytes": 431,
-      "sha256": "e47de27264e868702e8880846318e152e5b66b8d397ff75633fdb32edbf6a907"
+      "bytes": 334,
+      "sha256": "6efe71c230a26cf7257db914be8f81151870f8bd8b9aa44bed444edeb8e82e17"
     },
     {
       "namespace": "sdk-package",
@@ -1506,20 +1668,20 @@
     {
       "namespace": "sdk-package",
       "path": "dist/state-manager.worker.js",
-      "bytes": 889914,
-      "sha256": "ebe5591c76e8324ae934946963cf8bf6fa3903fb9019332326a8872c7242f74c"
+      "bytes": 922928,
+      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/state-manager.worker.node.js",
-      "bytes": 860867,
-      "sha256": "dd18f2845b9d231068b6714b6d4b1a6fba15b86a36ca7584ee92ce5216aab13f"
+      "bytes": 918770,
+      "sha256": "d5118b5e4c871c54cfe256abf80899dab4cd02126bbb52f3ffaf7834457dafa8"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/worker-loader.browser.d.ts",
-      "bytes": 18263,
-      "sha256": "a95c7153aad445d78076148294cd94e4edd7990c1575ff828e977619aa75e824"
+      "bytes": 19088,
+      "sha256": "2b6487bc5685d44b364cc47fb002ddb50fa1352ac4bfc2c74a6c8b8c84972852"
     },
     {
       "namespace": "sdk-package",
@@ -1530,8 +1692,8 @@
     {
       "namespace": "sdk-package",
       "path": "dist/worker-loader.node.d.ts",
-      "bytes": 18306,
-      "sha256": "241db20f77bf58e8d7da06b9a60d4cad23dff0598fa89b67e88f9af398ff7295"
+      "bytes": 19131,
+      "sha256": "d1c1ef6479377f0696541bfb5b29961cfb9432602491372e8a0d779f48325f18"
     },
     {
       "namespace": "sdk-package",
@@ -1543,7 +1705,7 @@
       "namespace": "sdk-package",
       "path": "package.json",
       "bytes": 4041,
-      "sha256": "7a1af4f349d1039512ae20251917f0fc212a9f22601d5b86cff0676379bfa591"
+      "sha256": "007f0fe61815f2fa59736d62cf553e8fbb3e03b82b4a978024df99edf61d99b3"
     },
     {
       "namespace": "sdk-root",
@@ -1555,7 +1717,7 @@
       "namespace": "sdk-root",
       "path": "pnpm-lock.yaml",
       "bytes": 656578,
-      "sha256": "3405869822ead057d92643d2aa62dba891fb3e6c070d7e6883a2781a28a66d0c"
+      "sha256": "bb4eb527ca3d1dfc496708641c813383513833daa12e6e2046ce25b531ce42d5"
     },
     {
       "namespace": "ui",
@@ -1577,39 +1739,15 @@
     },
     {
       "namespace": "ui",
-      "path": "PLAN.md",
-      "bytes": 13067,
-      "sha256": "7b93d2937a891b7ce8c0a2a17f8dc18f35d048b815a1066a4afece2978bb43b1"
-    },
-    {
-      "namespace": "ui",
       "path": "README.md",
-      "bytes": 32236,
-      "sha256": "9929f15bebf08af8767063ab57b65e97246ea702daa38345938be603bfbf3099"
-    },
-    {
-      "namespace": "ui",
-      "path": "TORNADO_WITHDRAWAL_DESIGN.md",
-      "bytes": 40125,
-      "sha256": "8a37ff83b24ac7752f9e60c8abd3cbf46ebb0a5623086c754f797c16bb9e3f69"
+      "bytes": 33518,
+      "sha256": "8ec1de4bd892fa17da339caede47372ab56a6fc37bbe2ac522d25cb79d7f1c61"
     },
     {
       "namespace": "ui",
       "path": "compliance/index.html",
       "bytes": 545,
       "sha256": "18c27719ef65ebaa12ae23809c8f5582fa28d6c22626516f88d934348a52d450"
-    },
-    {
-      "namespace": "ui",
-      "path": "deployment/saga-proxy/worker.js",
-      "bytes": 2624,
-      "sha256": "c7883861400a9ae2ea1ac8dfd89279025cbbfa838aa783f2ed57bf9957445ca9"
-    },
-    {
-      "namespace": "ui",
-      "path": "deployment/saga-proxy/wrangler.jsonc",
-      "bytes": 236,
-      "sha256": "41bdc9b11f10ceee8700151284d9baa86cc4c6453e42a9ad9a156a8a3886f1cc"
     },
     {
       "namespace": "ui",
@@ -1620,14 +1758,14 @@
     {
       "namespace": "ui",
       "path": "package-lock.json",
-      "bytes": 96955,
-      "sha256": "820f145323a32df7cebbb9a2baf420e42ffe5b3f72495938c1d4468e7269e5b9"
+      "bytes": 96931,
+      "sha256": "ef21f9a25a9c93b793674fc022da097cbbe16b80c26528360a63baede7d12c34"
     },
     {
       "namespace": "ui",
       "path": "package.json",
       "bytes": 944,
-      "sha256": "1d1a2faba51abaa8b53de3cf90f063173a58c90ac99d637ceb213b21b0068970"
+      "sha256": "790c88972f780195c54fe2c535b5476a22f50f3d731bb178afe12e7fd7db1ef7"
     },
     {
       "namespace": "ui",
@@ -1704,8 +1842,8 @@
     {
       "namespace": "ui",
       "path": "src/App.vue",
-      "bytes": 58929,
-      "sha256": "d00a6a4b847ef6d176b868bbb4a9c1845b74989475676d5937dbc8fbef917037"
+      "bytes": 60201,
+      "sha256": "d9a92e0184569cbf277d58fc2a124491d86f0aba153d6d4f4cb18759d614244e"
     },
     {
       "namespace": "ui",
@@ -1734,14 +1872,14 @@
     {
       "namespace": "ui",
       "path": "src/MultiWithdraw.vue",
-      "bytes": 15593,
-      "sha256": "66cfa2857a3346d2a1a2f17bbc03127803aee8c49b23320f9a1dc380087156c7"
+      "bytes": 15586,
+      "sha256": "8e24c0a9ea1e84f74e992f8d800c3a6437ab289a30502479698ca8c050a54be9"
     },
     {
       "namespace": "ui",
       "path": "src/MultiWithdrawal.vue",
-      "bytes": 30391,
-      "sha256": "e75fd8f74940c406c65d329b505c9f3af7a6b95da5874ce6960c6f2f190ab05a"
+      "bytes": 35288,
+      "sha256": "728a5adaed0c476a4bc58bb8df0cf4a962dcc769ac5fb90214141005f5eb2ce1"
     },
     {
       "namespace": "ui",
@@ -1752,20 +1890,26 @@
     {
       "namespace": "ui",
       "path": "src/TransactionBuilder.vue",
-      "bytes": 12470,
-      "sha256": "c076fb1934abaeab38521442dd18a604f705b15f4153d7fa227987eddc83570d"
+      "bytes": 13670,
+      "sha256": "621a956d466fa62a1bf719f68bda58069753ec3e620089504ac9fea78b218f25"
     },
     {
       "namespace": "ui",
       "path": "src/WithdrawalSimulation.vue",
-      "bytes": 4175,
-      "sha256": "559e17579aa12cd6ffafd3beffe921be7e66683e769f545c6a44bc2d10c6b709"
+      "bytes": 3943,
+      "sha256": "7052e53737eb5a8995f1f6c07c421dee83f5109ce55cd8530cd49f9605c37e80"
     },
     {
       "namespace": "ui",
       "path": "src/core/action-budget.ts",
       "bytes": 1414,
       "sha256": "a363abadcffecad83838f44c962a5dc9e86f922bfb220cda1e6ea810bebe32a9"
+    },
+    {
+      "namespace": "ui",
+      "path": "src/core/action-review.ts",
+      "bytes": 1748,
+      "sha256": "76b627a5ebe1978154a478c704578554916025b0d70c097c3f630e212f2f3637"
     },
     {
       "namespace": "ui",
@@ -1812,8 +1956,8 @@
     {
       "namespace": "ui",
       "path": "src/core/deposit-session.ts",
-      "bytes": 4002,
-      "sha256": "1ec5a34e56edb9ab6cf1997958ca9d7a68e536936f7365fad3d4f97806bf50fd"
+      "bytes": 4836,
+      "sha256": "ca1560180b83df9e8ecd580021c42665d0324204cd87a3d2215affa2e36f87dc"
     },
     {
       "namespace": "ui",
@@ -1890,8 +2034,8 @@
     {
       "namespace": "ui",
       "path": "src/core/routes.ts",
-      "bytes": 593,
-      "sha256": "3aee0ded06dded5761406323af516e583f3bb43975ff001cdb688473f8a283ef"
+      "bytes": 597,
+      "sha256": "fe542ff60956b2a0b228366dfe41fd381d2a9675b42415ea7376681b27b1de38"
     },
     {
       "namespace": "ui",
@@ -1902,8 +2046,8 @@
     {
       "namespace": "ui",
       "path": "src/core/saga-history.ts",
-      "bytes": 9072,
-      "sha256": "45c7260bd4034a2f5fecf9ca27d0ef6af0248f49f11b468be64bdd57bab266e6"
+      "bytes": 9737,
+      "sha256": "dd24361c355f3c32966cd235293f35acc00178dc9bf8956d3998e1077fda5a30"
     },
     {
       "namespace": "ui",
@@ -1932,8 +2076,8 @@
     {
       "namespace": "ui",
       "path": "src/core/smart-withdrawal.ts",
-      "bytes": 15456,
-      "sha256": "5f627b7194ee194e2d4893dbd5dbeb44704fc084679f6d0652453a69728cf955"
+      "bytes": 15040,
+      "sha256": "6cc1b6a96bfd6b0cc368e7f520629e7ceaa0d423b7bf3ec0abb1441dd70687cc"
     },
     {
       "namespace": "ui",
@@ -1962,8 +2106,8 @@
     {
       "namespace": "ui",
       "path": "src/core/wallet.ts",
-      "bytes": 9276,
-      "sha256": "70596f53d9281f24450caa6dbf3c8690d1e0f719148b09d2bc61b6dd9e4c7b47"
+      "bytes": 13441,
+      "sha256": "981c7588ad43a29e1d658f46b7b12cbfd0147fda963f10a9fefa66b2d93a8853"
     },
     {
       "namespace": "ui",
@@ -1980,14 +2124,14 @@
     {
       "namespace": "ui",
       "path": "src/core/withdrawal-simulation.ts",
-      "bytes": 8061,
-      "sha256": "f393248fef5716a5054c89ab06b2918dd8e704a36e57756fc4477d9533f13577"
+      "bytes": 8238,
+      "sha256": "5492c75d6ea97bd95cde428ccf387eada70e312d4c8de1706edb0e6b369dab66"
     },
     {
       "namespace": "ui",
       "path": "src/core/withdrawals.ts",
-      "bytes": 9349,
-      "sha256": "eb48286c773ce70a891886e498c722f2eb2c11dbeefd99f32c37d16ae464a78f"
+      "bytes": 14078,
+      "sha256": "1ad9cb98e21727f2b7a3f154d5539ceafeb91db8b77b4dd267234a5a639c6871"
     },
     {
       "namespace": "ui",
@@ -2004,8 +2148,8 @@
     {
       "namespace": "ui",
       "path": "src/style.css",
-      "bytes": 45653,
-      "sha256": "ec49dfd5adc9a76ef4b9780549f8bf8e33737a526446cd07b3fb55592221b860"
+      "bytes": 47309,
+      "sha256": "259c4e6117edf91c52a57c3f36f7759353eb06bc353074fd7b19eb1d32b067c1"
     },
     {
       "namespace": "ui",
@@ -2021,6 +2165,12 @@
     },
     {
       "namespace": "ui",
+      "path": "tests/action-review.test.ts",
+      "bytes": 2291,
+      "sha256": "380a6fb3c17b243827a6c4bfcc4e20502f86522556307788170828bf4b37c989"
+    },
+    {
+      "namespace": "ui",
       "path": "tests/address-privacy.test.ts",
       "bytes": 10906,
       "sha256": "9da8091f57553fb7d8cc387b76e48c423b2179a2e698135b5b16279c9510f0bc"
@@ -2028,8 +2178,8 @@
     {
       "namespace": "ui",
       "path": "tests/app-assets.test.ts",
-      "bytes": 1932,
-      "sha256": "d8c112dedf88bdbaef4159d64e43f77287fa77ee4f3fa6721191a58acbe35446"
+      "bytes": 1936,
+      "sha256": "fd44efb55abd57c407ced014769075bf684f9da061623f1540f8bf3554560c77"
     },
     {
       "namespace": "ui",
@@ -2040,8 +2190,8 @@
     {
       "namespace": "ui",
       "path": "tests/compliance-navigation-ui.test.ts",
-      "bytes": 3592,
-      "sha256": "f69594d5f50c88904c1af8824f0679b2302fca8740440a941f8cc24bed59de8e"
+      "bytes": 3596,
+      "sha256": "5ee682aa6bfaa5d63bc0c870ed994a75b106c32eeaefb507854fdac41af672c1"
     },
     {
       "namespace": "ui",
@@ -2082,14 +2232,14 @@
     {
       "namespace": "ui",
       "path": "tests/deposit-checkout-ui.test.ts",
-      "bytes": 9419,
-      "sha256": "abb99a73bc547267c69ebedca4160bed9f81b58acbd8a1970da7c70c4fbd045b"
+      "bytes": 10618,
+      "sha256": "1acf8b0e52c1c930cd43fb661313637e61238d0c99d1aace9e005851cbded8f2"
     },
     {
       "namespace": "ui",
       "path": "tests/deposit-session.test.ts",
-      "bytes": 10680,
-      "sha256": "83d31a9a968b308ab47208d20118edd8a6dba0b2d6157e52b9db14d945b8052e"
+      "bytes": 15950,
+      "sha256": "2d2bb207518b60b19e2c5159df99584eb12321497d21e262e4d3e1922b742827"
     },
     {
       "namespace": "ui",
@@ -2220,14 +2370,8 @@
     {
       "namespace": "ui",
       "path": "tests/saga-history.test.ts",
-      "bytes": 8849,
-      "sha256": "bbed8c4f82211ad7325df9dfb562b5eb118790f6f9a52ed0e1860d06d989a838"
-    },
-    {
-      "namespace": "ui",
-      "path": "tests/saga-proxy.test.js",
-      "bytes": 4761,
-      "sha256": "5a2f74473928beea6d9c3e36d45ce196addc521536da27115356ba7155637fc7"
+      "bytes": 13061,
+      "sha256": "41fdd504a0448194a70f6625ce56fd60e16b29988eda67b1cce8f82e7a975571"
     },
     {
       "namespace": "ui",
@@ -2250,14 +2394,14 @@
     {
       "namespace": "ui",
       "path": "tests/smart-withdrawal-ui.test.ts",
-      "bytes": 44185,
-      "sha256": "5901062c4b5e6e13b97a16dfbb0de7e6c6839bc7a678804eae0720ad0772398f"
+      "bytes": 44045,
+      "sha256": "2de1de537c8fda966cc8c26f7b71314c4b67099116403081c99589d8a3f563ba"
     },
     {
       "namespace": "ui",
       "path": "tests/smart-withdrawal.test.ts",
-      "bytes": 32389,
-      "sha256": "c21d74edc9515500b7502c104d478bb39f46c1887b7234e583b7d4233c8f3f2f"
+      "bytes": 32433,
+      "sha256": "c24d4229e799ec5deef093e997d4fb2eec50acb3985a541a562cdb3e0f74b90d"
     },
     {
       "namespace": "ui",
@@ -2280,8 +2424,8 @@
     {
       "namespace": "ui",
       "path": "tests/wallet-header-ui.test.ts",
-      "bytes": 6831,
-      "sha256": "b5ff8164c7a2c85d5d95b53f6acd85bb5b33e28dec48ff6476ef49878545b9ab"
+      "bytes": 6833,
+      "sha256": "09c9017d628c5c62bdf8be51d5f13e43e471c1d48b9f31c8eb07487d693b7c1b"
     },
     {
       "namespace": "ui",
@@ -2298,8 +2442,8 @@
     {
       "namespace": "ui",
       "path": "tests/wallet.test.ts",
-      "bytes": 6274,
-      "sha256": "9ed2e5df7bed30fd496039bfc48aa29cfcef89d16e1f5895a2ee74fdba430b83"
+      "bytes": 6468,
+      "sha256": "d1aa5eedeb549b6b7f674dfd8650afa1472a2d3655cdc6f1b150e0f6e12bb0de"
     },
     {
       "namespace": "ui",
@@ -2316,14 +2460,14 @@
     {
       "namespace": "ui",
       "path": "tests/withdrawal-simulation.test.ts",
-      "bytes": 11251,
-      "sha256": "5fbbb8f6f6a6d49b30eb89ecd7b97511e525a540addcae2bdea2d1d10dadd127"
+      "bytes": 12229,
+      "sha256": "e0cc83a5e45c3157473c5345849688726271a43456063c78c975720ad01c9411"
     },
     {
       "namespace": "ui",
       "path": "tests/withdrawals.test.ts",
-      "bytes": 9514,
-      "sha256": "d58a641d422e9066e7074b264bd45ad0214aead6be298b1049fc72f8e96429b8"
+      "bytes": 12861,
+      "sha256": "19b4afed352d630a0337312f5b5d5377fe5ceb137582de525c65d3543ca5778d"
     },
     {
       "namespace": "ui",
@@ -2350,20 +2494,15 @@
       "sha256": "dc616061a8784c0eba63b67d3551c1ee1bb16b7c1d199d6585f65c9fa0732ad4"
     }
   ],
-  "expectedCID": "bafybeifsqylni6qcznv2b27gymbymruqhmhp6kjy2sp6hafz3iqq3ezmha",
-  "deploymentStatus": "AWAITING_INDEPENDENT_DEPLOYMENT_CHECK",
-  "previousRelease": {
-    "path": "history/local-sdk-2026-11-16",
-    "baselineDigest": "afc59995802a90139224447a88b234fa19eeb3d186a0bd2d2524cca4ca41570b",
-    "publishedCID": "bafybeiayzgdn25ckbyxmyujd37esu5h6dhsr4df2jg6jksw3hagivwovxu"
-  },
+  "expectedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
+  "deploymentStatus": "PUBLISHER_REPORTED_CID_MATCH",
   "registrySDK": {
-    "version": "0.1.0-alpha.37",
-    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.37.tgz",
-    "integrity": "sha512-Ub4kHobA+Rk4lh+OtOsAek/sfP/GEyUcL8OwWUHaz9cPb716uC5tuZctvgy8LzP82tWA2a47Yed2I557wn1rqQ==",
+    "version": "0.1.0-alpha.38",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.38.tgz",
+    "integrity": "sha512-uo1OFrIUh0ruXAxmVbA6anS8VQQLvL1n8CtUm2snntE/bySz2M1b41vNiVmWXkaKZuHAhQdNzPD2a98VJXDfVA==",
     "name": "@kohaku-eth/tornado-cash",
     "sourceRebuiltArtifacts": 14,
-    "packageFileCount": 17,
-    "additionalDeclaration": "dist/merkle-tree.node.d.ts"
+    "packageFileCount": 16,
+    "additionalDeclaration": null
   }
 }

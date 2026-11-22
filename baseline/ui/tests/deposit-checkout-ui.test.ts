@@ -52,6 +52,24 @@ async function checkout(symbol = 'ETH') {
   return { root, provider, select: (value: Address) => { selected = value }, browser }
 }
 describe('deposit checkout paying wallet', () => {
+  it('keeps the same backup downloadable until the deposit session ends', async () => {
+    const page = await checkout()
+    const backup = vi.mocked(downloadText).mock.calls[0]![1]
+    ;(descendants(page.root).find(node => node.props['aria-label'] === 'Close dialog')!.props.onClick as () => void)()
+    await settle()
+    expect(button(page.root, 'Open deposit checkout')).toBeDefined()
+    ;(button(page.root, 'Open deposit checkout')!.props.onClick as () => void)()
+    await settle()
+    ;(button(page.root, 'Download backup again')!.props.onClick as () => void)()
+    expect(vi.mocked(downloadText).mock.lastCall![1]).toBe(backup)
+    vi.mocked(executeDepositSession).mockImplementation(async ({ notes, update }) => {
+      notes.forEach(note => update(note.id, { status: 'confirmed', transactionHash: `0x${'aa'.repeat(32)}` }))
+    })
+    await (button(page.root, 'Confirm deposit')!.props.onClick as () => Promise<void>)(); await settle()
+    ;(button(page.root, 'Download original notes again')!.props.onClick as () => void)()
+    expect(vi.mocked(downloadText).mock.lastCall![1]).toBe(backup)
+    expect(content(page.root)).toContain('The same backup remains available in this tab')
+  })
   it('starts a clean 0.01 ETH session after confirmed token deposits and requires a new backup', async () => {
     const page = await checkout('DAI')
     vi.mocked(executeDepositSession).mockImplementation(async ({ notes, update }) => {

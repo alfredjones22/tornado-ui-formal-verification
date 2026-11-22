@@ -16,6 +16,7 @@ class V:
     kind: str
     term: object = None
     present: object = T
+    numeric: object = None
 
 class Execution:
     def __init__(self, ir=IR):
@@ -24,6 +25,9 @@ class Execution:
         self.sponsor = self.obj(instance=self.sym('sponsor.instance', 'addr'), proof=self.sym('sponsor.proof', 'str'),
             root=self.sym('sponsor.root', 'str'), nullifierHash=self.sym('sponsor.nullifier', 'str'),
             recipient=self.sym('sponsor.recipient', 'addr'), fee=self.sym('sponsor.fee', 'big'))
+        # The opaque cryptographic primitive is a separately pinned, source-
+        # extracted function. Its output is symbolic here; no Pedersen claim.
+        self.note_nullifier = self.sym('note.derivedNullifier', 'big')
         self.env = {
             'TornadoPaymasterConfigs': V('config'),
             'recipient': self.sym('recipient', 'addr'),
@@ -33,7 +37,7 @@ class Execution:
             'withdrawal': self.obj(mode=self.sym('withdrawal.mode', 'str'), bundlerUrl=self.sym('withdrawal.bundlerUrl', 'str'),
                 entryPointAddress=self.sym('withdrawal.entryPoint', 'addr'), poolAddress=self.sym('withdrawal.pool', 'big'),
                 isERC20=self.sym('withdrawal.isERC20', 'bool'), withdrawnValue=self.sym('withdrawal.value', 'big', optional=True),
-                proof=self.obj(proof=self.sym('proof.bytes', 'str'), args=V('array', [self.sym('proof.root', 'str'), self.sym('proof.nullifier', 'str'),
+                proof=self.obj(proof=self.sym('proof.bytes', 'str'), args=V('array', [self.sym('proof.root', 'str'), self.sym('proof.nullifier', 'hex'),
                     self.sym('proof.recipient', 'qty'), self.sym('proof.paymaster', 'qty'), self.sym('proof.fee', 'qty'), self.sym('proof.refund', 'qty')])),
                 gasEstimation=self.obj(status=self.sym('estimation.status', 'str'), reason=self.sym('estimation.reason', 'str'), optional='estimation'),
                 userOperation=self.obj(paymaster=self.sym('op.paymaster', 'addr', optional=True),
@@ -59,12 +63,19 @@ class Execution:
             else: raise RuntimeError('Unknown statement')
         self.accepted = z.And(*self.path)
     def sym(self, name, kind, optional=False):
-        term = z.Bool(name) if kind == 'bool' else z.String(name) if kind == 'str' else z.Int(name)
+        term = z.Bool(name) if kind == 'bool' else z.String(name) if kind in ('str','hex') else z.Int(name)
         self.symbols[name] = term
         if kind in ('addr', 'qty', 'big'): self.domains += [term >= 0, term < 2**(160 if kind == 'addr' else 256)]
+        numeric = None
+        if kind == 'hex':
+            # Keep JS strict string equality distinct from BigInt(hex) numeric
+            # equality. An unconstrained numeric view overapproximates parsing.
+            numeric = z.Int(name+'.value')
+            self.symbols[name+'.value'] = numeric
+            self.domains += [numeric >= 0, numeric < 2**256]
         present = z.Bool(name + '.present') if optional else T
         if optional: self.symbols[name + '.present'] = present
-        return V(kind, term, present)
+        return V(kind, term, present, numeric)
     def obj(self, optional=None, **fields):
         present = z.Bool(optional + '.present') if optional else T
         if optional: self.symbols[optional + '.present'] = present
@@ -72,7 +83,7 @@ class Execution:
     def truth(self, v):
         if v.kind == 'undef': return F
         if v.kind == 'bool': return z.And(v.present, v.term)
-        if v.kind == 'str': return z.And(v.present, z.Length(v.term) != 0)
+        if v.kind in ('str','hex'): return z.And(v.present, z.Length(v.term) != 0)
         # addr and qty represent nonempty JS hex strings, including zero addresses/quantities.
         if v.kind in ('addr', 'qty', 'obj', 'array'): return v.present
         if v.kind in ('big', 'num'): return z.And(v.present, v.term != 0)
@@ -80,7 +91,7 @@ class Execution:
     def eq(self, a, b):
         if a.kind == 'undef': return z.Not(b.present)
         if b.kind == 'undef': return z.Not(a.present)
-        if a.kind != b.kind: raise RuntimeError(f'Unsupported strict equality {a.kind}/{b.kind}')
+        if a.kind != b.kind and {a.kind,b.kind} != {'hex','str'}: raise RuntimeError(f'Unsupported strict equality {a.kind}/{b.kind}')
         return z.Or(z.And(z.Not(a.present), z.Not(b.present)), z.And(a.present, b.present, a.term == b.term))
     def eval(self, e):
         tag, *a = e
@@ -132,9 +143,13 @@ class Execution:
         if tag == 'call':
             method, *args = a
             values = [self.eval(arg) for arg in args]; ok = z.And(*[v[1] for v in values]); vs = [v[0] for v in values]
+            if method == 'noteIdentity':
+                if len(vs) != 1 or args[0] != ['var','note'] or vs[0].kind != 'obj': raise RuntimeError('Only selected-note identity is modelled')
+                return self.obj(nullifierHash=self.note_nullifier), ok
             if method == 'Boolean' and len(vs) == 1: return V('bool', self.truth(vs[0])), ok
             if method in ('BigInt', 'Number') and len(vs) == 1:
                 v = vs[0]
+                if v.kind == 'hex' and method == 'BigInt': return V('big', v.numeric), z.And(ok, v.present)
                 if v.kind not in ('addr', 'qty', 'big', 'num'): raise RuntimeError(f'Unsupported conversion: {v.kind}')
                 return V('big' if method == 'BigInt' else 'num', v.term), z.And(ok, v.present)
             if method == 'parseAbiParameters':
@@ -170,6 +185,7 @@ def obligations_for(E):
         'P07_estimation_policy': z.And(s['estimation.present'], z.Or(s['estimation.status'] == 'estimated',
             z.And(s['estimation.status'] == 'fallback', z.Or(s['estimation.reason'] == 'bundler-internal', s['estimation.reason'] == 'transport-unavailable')))),
         'P08_returned_fee_matches_proof': fee == s['proof.fee'],
+        'P09_selected_note_nullifier': s['proof.nullifier.value'] == s['note.derivedNullifier'],
     }
 
 E = Execution()
@@ -190,18 +206,12 @@ for name, property in obligations.items():
     (ROOT / f'artifacts/{name}.smt2').write_text(sol.to_smt2())
     assert verdict == z.unsat, f'{name}: {verdict}'
     results.append(dict(id=name, result='UNSAT', meaning='No successful return violates this postcondition under the documented abstraction.'))
-# Deliberately stronger claim: the proof spends this particular note. No term
-# derived from the note secret occurs in the validator, so this must NOT prove.
-expected_nullifier = z.String('note.derivedNullifier')
-gap = solver(s['proof.nullifier'] != expected_nullifier)
-assert gap.check() == z.sat
-(ROOT / 'artifacts/selected-note-gap.smt2').write_text(gap.to_smt2())
 report = dict(sourceHash=IR['sourceHash'], functionHash=IR['functionHash'], z3Version=z.get_version_string(),
-    assurance='Conditional SMT proof of source-extracted straight-line validator; custom translator and primitive contracts are trusted.',
+    assurance='Conditional SMT proof of source-extracted straight-line validator; custom translator, noteIdentity/Pedersen and primitive contracts are trusted.',
     obligations=results, nonVacuity={'result': 'SAT', 'witness': witness(positive.model())},
-    selectedNoteIdentity={'result': 'SAT', 'status': 'NOT_ESTABLISHED_AT_THIS_BOUNDARY', 'witness': witness(gap.model())}, guards=E.guards)
+    selectedNoteIdentity={'result': 'UNSAT', 'status': 'PROOF_NULLIFIER_MATCHES_SOURCE_NOTEIDENTITY_OUTPUT_CONDITIONALLY'}, guards=E.guards)
 (ROOT / 'reports/validator.json').write_text(json.dumps(report, indent=2) + '\n')
-print(f'Validator: {len(results)} conditional SMT obligations UNSAT; successful path SAT; selected-note boundary gap SAT')
+print(f'Validator: {len(results)} conditional SMT obligations UNSAT; successful path SAT; proof nullifier matches source noteIdentity output conditionally')
 
 mutation_results = []
 for mutant in json.loads((ROOT / 'artifacts/validator-mutants.json').read_text()):

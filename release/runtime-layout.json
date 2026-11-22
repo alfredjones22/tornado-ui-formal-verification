@@ -311,6 +311,9 @@
       "name": "redux-thunk",
       "version": "3.1.0",
       "dependencies": {},
+      "peerLinks": {
+        "redux": "node_modules/.pnpm/redux@5.0.1/node_modules/redux"
+      },
       "source": "release/sdk-toolchain/node_modules/release-runtime-19",
       "contentDigest": "8be11954aed67f93ef387f28bf0f43c7ede9a042d0deda335494a2ea5dbe3686"
     },
@@ -413,6 +416,9 @@
       "name": "isows",
       "version": "1.0.7",
       "dependencies": {},
+      "peerLinks": {
+        "ws": "node_modules/.pnpm/ws@8.20.1/node_modules/ws"
+      },
       "source": "release/sdk-toolchain/node_modules/release-runtime-32",
       "contentDigest": "0bd38f3b5200aaeacd2593ab5a6200b7a530778a2824ba94659c7c1bea059ead"
     },

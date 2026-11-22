@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
 import * as viem from 'viem';
+import { Point, pedersenHash } from 'micro-zk-proofs/pedersen.js';
 export const root = fileURLToPath(new URL('../', import.meta.url));
 const manifest = JSON.parse(readFileSync(root + 'baseline/manifest.json'));
 export function pinned(namespace, path) {
@@ -18,6 +19,13 @@ export function functionText(text, names) {
   if (picked.length !== names.length) throw new Error('Missing requested function');
   return picked.map(n => n.getText(f).replace(/^export\s+/, '')).join('\n');
 }
+function variableText(text, name) {
+  const file = ts.createSourceFile('variables.ts', text, ts.ScriptTarget.ESNext, true);
+  const picked = file.statements.find(statement => ts.isVariableStatement(statement) &&
+    statement.declarationList.declarations.some(declaration => ts.isIdentifier(declaration.name) && declaration.name.text === name));
+  if (!picked) throw new Error(`Missing requested variable ${name}`);
+  return picked.getText(file).replace(/^export\s+/, '');
+}
 function compile(text, names, bindings) {
   const js = ts.transpileModule(text, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None }, reportDiagnostics: true });
   if (js.diagnostics?.some(d => d.category === ts.DiagnosticCategory.Error)) throw new Error('Transpile diagnostics');
@@ -29,10 +37,14 @@ const cfgFile = ts.createSourceFile('config.ts', configSource, ts.ScriptTarget.E
 const cfgStatement = cfgFile.statements.find(s => ts.isVariableStatement(s) && s.declarationList.declarations.some(d => d.name.getText(cfgFile) === 'TornadoPaymasterConfigs'));
 if (!cfgStatement) throw new Error('Missing pinned SDK config');
 export const { TornadoPaymasterConfigs } = compile(cfgStatement.getText(cfgFile).replace(/^export\s+/, ''), ['TornadoPaymasterConfigs'], {});
+const batchPolicy = pinned('ui', 'src/core/batch-policy.ts');
+export const { noteIdentity } = compile(functionText(batchPolicy, ['noteIdentity']), ['noteIdentity'], { ...viem, Point, pedersenHash });
+export const { confirmationEvents } = compile(variableText(source, 'confirmationEvents'), ['confirmationEvents'], viem);
 export function runtime(overrides = {}) {
-  const bindings = { ...viem, TornadoPaymasterConfigs, publicHistory: new Map(), ...overrides };
-  return compile(functionText(source, ['validateWithdrawal', 'prepareInFrame', 'reconcileWithdrawal', 'submitWithdrawal']),
-    ['validateWithdrawal', 'prepareInFrame', 'reconcileWithdrawal', 'submitWithdrawal'], bindings);
+  const names = ['validateWithdrawal', 'prepareInFrame', 'reconcileBasicWithdrawal', 'submitWithdrawal'];
+  const bindings = { ...viem, TornadoPaymasterConfigs, noteIdentity, confirmationEvents,
+    basicWithdrawalHash: () => '0x' + 'aa'.repeat(32), publicHistory: new Map(), ...overrides };
+  return compile(functionText(source, names), names, bindings);
 }
 export function fixture(chainId = 1, token = false, amount = 10n**18n, fee = 1000n) {
   const cfg = TornadoPaymasterConfigs[chainId];
@@ -41,7 +53,7 @@ export function fixture(chainId = 1, token = false, amount = 10n**18n, fee = 100
   const preimage = 'ab'.repeat(62), symbol = token ? (chainId === 1 ? 'WBTC' : 'DAI') : 'ETH';
   const note = { raw: `tornado-${symbol.toLowerCase()}-1-${chainId}-0x${preimage}`, preimage,
     pool: { address: poolAddress, amount, chainId, denomination: '1', asset: { symbol, ...(token ? { token: '0x3333333333333333333333333333333333333333' } : {}) } } };
-  const proof = { proof: '0x1234', args: [viem.toHex(1n, { size: 32 }), viem.toHex(2n, { size: 32 }), recipient, cfg.paymasterAddress, viem.toHex(fee), '0x0'] };
+  const proof = { proof: '0x1234', args: [viem.toHex(1n, { size: 32 }), viem.toHex(noteIdentity(note).nullifierHash, { size: 32 }), recipient, cfg.paymasterAddress, viem.toHex(fee), '0x0'] };
   const withdrawal = { mode: 'paymaster', proof, poolAddress: BigInt(poolAddress), isERC20: token,
     paymasterAddress: cfg.paymasterAddress, entryPointAddress: cfg.entryPointAddress, bundlerUrl: 'https://bundler.invalid/',
     withdrawnValue: amount, gasEstimation: { status: 'estimated' }, userOperation: {

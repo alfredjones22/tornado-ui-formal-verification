@@ -10,8 +10,6 @@ import { simulateSmartWithdrawal } from '../src/core/withdrawal-simulation'
 import { actionFixture } from './fixtures/smart-actions'
 import { loadActionBalances } from '../src/core/action-budget'
 import { downloadText } from '../src/core/notes'
-import { formatEther, hashTypedData } from 'viem'
-import { batchTypedData } from '../src/core/batch-policy'
 
 vi.mock('../src/core/smart-account', async original => ({ ...await original<object>(), loadSmartAccount: vi.fn() }))
 vi.mock('../src/core/smart-withdrawal', () => ({ prepareSmartWithdrawal: vi.fn(), submitSmartWithdrawal: vi.fn(), reconcileSmartWithdrawal: vi.fn() }))
@@ -26,6 +24,10 @@ const unmount: (() => void)[] = []
 beforeEach(() => {
   vi.resetAllMocks()
   vi.mocked(loadActionBalances).mockResolvedValue({ eth: 0n, asset: 0n })
+  vi.mocked(simulateSmartWithdrawal).mockImplementation(async (quote, _settings, _rpc, onExposure) => {
+    onExposure?.()
+    return { status: 'passed', hash: quote.signedHash, checkedAt: Date.now(), message: 'Full operation passed' }
+  })
   vi.stubGlobal('Document', class {})
   vi.stubGlobal('ShadowRoot', class {})
   vi.mocked(loadAddressPrivacy).mockImplementation(async addresses => new Map(addresses.map(address => [address.toLowerCase(), { balance: 0n, nonce: 0, code: 'empty' as const, tokenBalances: [] }])))
@@ -55,72 +57,127 @@ async function mountWithdrawal(deployed = false, initiallyConnected = true, init
   return { root, quote, updates, revision, connection, provider, owner, active, rejected, connected,
     start: () => ((button(root, 'Review & sign withdrawal') ?? button(root, 'Review & simulate withdrawal'))!.props.onClick as () => Promise<void>)() }
 }
-async function recheckSimulation(root: Element) {
-  ;(button(root, 'Simulate again')!.props.onClick as () => void)()
+async function acknowledgeOpaqueActions(root: Element) {
+  const acknowledgment = descendants(root).find(node => node.props.id === 'opaque-actions-ack')!
+  acknowledgment.checked = true
+  ;(acknowledgment.props.onChange as (event: Event) => void)({ target: acknowledgment } as unknown as Event)
   await nextTick()
-  // The button now lives in the final-review component. Its emitted event
-  // intentionally does not return the parent's asynchronous RPC promise.
-  await vi.waitFor(() => expect(button(root, 'Simulate again')?.props.disabled).toBe(false))
 }
 
 describe('smart withdrawal page signing lifecycle', () => {
-  it('offers an optional final simulation without custom calls and rechecks the same signed operation without submitting', async () => {
+  it('shows the post-quantum privacy warning only for multiple selected notes', async () => {
+    const page = await mountWithdrawal(false, true, false)
+    const input = descendants(page.root).find(child => child.tag === 'textarea')!
+    const setNotes = async (notes: string) => {
+      input.value = notes
+      input.events.get('input')!({ target: input })
+      await nextTick()
+    }
+    await setNotes(page.quote.notes[0]!.raw)
+    expect(content(page.root)).not.toContain('Multiple-note privacy')
+
+    await setNotes(page.quote.notes.map(note => note.raw).join('\n'))
+    expect(content(page.root)).toContain('retroactive deanonymization')
+    const research = descendants(page.root).find(child => child.tag === 'a' && child.props.href === 'https://zknox.eth.limo/posts/2026/11/05/quantum-privacy.html')
+    expect(research?.props).toMatchObject({ target: '_blank', rel: 'noopener noreferrer' })
+
+    await setNotes(page.quote.notes[0]!.raw)
+    expect(content(page.root)).not.toContain('Multiple-note privacy')
+  })
+  it('simulates the exact signed operation only after Submit and waits before app broadcast', async () => {
     const page = await mountWithdrawal()
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
     await page.start(); await nextTick()
-    const simulate = button(page.root, 'Simulate withdrawal')!
-    expect(simulate).toBeDefined()
-    expect(content(page.root)).toContain('Simulate before submitting')
-    expect(content(page.root)).toContain('No Tenderly or shared dashboard is used')
+    expect(content(page.root)).toContain('Simulation runs on Submit')
+    expect(button(page.root, 'Simulate withdrawal')).toBeUndefined()
     expect(simulateSmartWithdrawal).not.toHaveBeenCalled()
-    const nodes = descendants(page.root)
-    expect(nodes.indexOf(simulate)).toBeLessThan(nodes.indexOf(button(page.root, 'Submit signed withdrawal')!))
     let finish!: (result: Awaited<ReturnType<typeof simulateSmartWithdrawal>>) => void
-    vi.mocked(simulateSmartWithdrawal).mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
-    const waiting = (simulate.props.onClick as () => Promise<void>)(); await nextTick()
-    expect(content(page.root)).toContain('Simulating complete withdrawal')
-    expect(button(page.root, 'Simulating…')!.props.disabled).toBe(true)
-    expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(true)
+    vi.mocked(simulateSmartWithdrawal).mockImplementationOnce((_q, _settings, _rpc, onExposure) => {
+      onExposure?.()
+      return new Promise(resolve => { finish = resolve })
+    })
+    const waiting = (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    expect(content(page.root)).toContain('Simulating the signed withdrawal')
+    expect(button(page.root, 'Submit signed withdrawal')).toBeUndefined()
+    expect(content(page.root)).toContain('unknown')
     expect(submitSmartWithdrawal).not.toHaveBeenCalled()
     finish({ status: 'passed', hash: page.quote.signedHash, checkedAt: Date.now(), block: 100n, gasUsed: 120000n, message: 'Entire operation passed' })
-    await waiting; await vi.waitFor(() => expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(false))
-    expect(content(page.root)).toContain('Full simulation passed')
-    expect(simulateSmartWithdrawal).toHaveBeenLastCalledWith(expect.objectContaining({ signedHash: page.quote.signedHash }), settings, '')
-    expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(false)
+    await waiting; await nextTick()
+    expect(page.quote.simulation?.status).toBe('passed')
+    expect(simulateSmartWithdrawal).toHaveBeenLastCalledWith(expect.objectContaining({ signedHash: page.quote.signedHash }), settings, '', expect.any(Function))
     expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
-    expect(submitSmartWithdrawal).not.toHaveBeenCalled()
+    expect(submitSmartWithdrawal).toHaveBeenCalledOnce()
   })
-  it.each(['failed', 'unavailable', 'throw'] as const)('handles an optional %s result without hiding failures or broadcasting', async result => {
+  it.each(['failed', 'unavailable', 'throw'] as const)('handles a %s simulation after Submit without a premature app broadcast', async result => {
     const page = await mountWithdrawal()
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
     await page.start(); await nextTick()
-    if (result === 'throw') vi.mocked(simulateSmartWithdrawal).mockRejectedValueOnce(new Error('Unable to validate this operation'))
-    else vi.mocked(simulateSmartWithdrawal).mockResolvedValueOnce({ status: result, hash: page.quote.signedHash, checkedAt: Date.now(), message: result,
-      ...(result === 'unavailable' ? { availabilityReason: 'unsupported' as const } : {}) })
-    ;(button(page.root, 'Simulate withdrawal')!.props.onClick as () => void)()
-    await nextTick()
-    await vi.waitFor(() => expect(button(page.root, 'Simulate again')?.props.disabled).toBe(false))
-    expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(result !== 'unavailable')
-    expect(submitSmartWithdrawal).not.toHaveBeenCalled()
+    expect(simulateSmartWithdrawal).not.toHaveBeenCalled()
+    vi.mocked(simulateSmartWithdrawal).mockImplementationOnce(async (_q, _settings, _rpc, onExposure) => {
+      onExposure?.()
+      if (result === 'throw') throw new Error('Unable to validate this operation')
+      return { status: result, hash: page.quote.signedHash, checkedAt: Date.now(), message: result,
+        ...(result === 'unavailable' ? { availabilityReason: 'unsupported' as const } : {}) }
+    })
+    await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    expect(simulateSmartWithdrawal).toHaveBeenCalledOnce()
+    expect(submitSmartWithdrawal).toHaveBeenCalledTimes(result === 'unavailable' ? 1 : 0)
+    expect(page.quote.simulation?.status).toBe(result === 'unavailable' ? 'unavailable' : 'failed')
     if (result !== 'unavailable') {
-      expect(content(page.root)).toContain('Simulation failed')
-      vi.mocked(simulateSmartWithdrawal).mockResolvedValueOnce({ status: 'unavailable', hash: page.quote.signedHash, checkedAt: Date.now(), message: 'RPC offline', availabilityReason: 'transport' })
-      await recheckSimulation(page.root)
-      expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(true)
-      // Recreating the exact signed hash must retain its failed check, too.
-      ;(button(page.root, 'Recalculate fee & gas')!.props.onClick as () => void)()
-      await vi.waitFor(() => expect(prepareSmartWithdrawal).toHaveBeenCalledTimes(2))
-      await vi.waitFor(() => expect(button(page.root, 'Simulate again')?.props.disabled).toBe(false))
-      expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(true)
+      expect(button(page.root, 'Submit signed withdrawal')).toBeUndefined()
+      expect(button(page.root, 'Recalculate fee & gas')).toBeUndefined()
+      expect(button(page.root, 'Back to review')).toBeUndefined()
+      expect(button(page.root, 'Check submitted operation')).toBeDefined()
+      expect(content(page.root)).toContain('unknown')
+      expect(content(page.root)).toContain('simulation RPC')
     }
   })
-  it('discards a final simulation if the connection changes while the RPC is responding', async () => {
+  it('retains a failed exposed attempt and blocks any replacement signature', async () => {
+    const page = await mountWithdrawal()
+    vi.mocked(prepareSmartWithdrawal).mockResolvedValueOnce(page.quote)
+    vi.mocked(simulateSmartWithdrawal).mockImplementationOnce(async (_q, _settings, _rpc, onExposure) => {
+      onExposure?.()
+      return { status: 'failed', hash: page.quote.signedHash, checkedAt: Date.now(), message: 'Execution reverted' }
+    })
+    await page.start(); await nextTick()
+    await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    expect(button(page.root, 'Recalculate fee & gas')).toBeUndefined()
+    expect(button(page.root, 'Back to review')).toBeUndefined()
+    expect(button(page.root, 'Start new withdrawal')).toBeUndefined()
+    expect(button(page.root, 'Check submitted operation')).toBeDefined()
+    ;(button(page.root, 'Download session & notes')!.props.onClick as () => void)()
+    const saved = JSON.parse(vi.mocked(downloadText).mock.calls.at(-1)![1])
+    expect(saved.userOperationHash).toBe(page.quote.signedHash)
+    expect(saved.progress).toMatchObject([{ status: 'unknown', hash: page.quote.signedHash }])
+    expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
+    expect(simulateSmartWithdrawal).toHaveBeenCalledOnce()
+    expect(submitSmartWithdrawal).not.toHaveBeenCalled()
+  })
+  it('allows recalculation when a chain check fails before the signed operation is exposed', async () => {
+    const page = await mountWithdrawal()
+    vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
+    vi.mocked(simulateSmartWithdrawal).mockResolvedValueOnce({ status: 'failed', hash: page.quote.signedHash,
+      checkedAt: Date.now(), message: 'The simulation RPC is on a different network.' })
+    await page.start(); await nextTick()
+    await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    expect(button(page.root, 'Recalculate fee & gas')).toBeDefined()
+    expect(button(page.root, 'Check submitted operation')).toBeUndefined()
+    expect(button(page.root, 'Download session & notes')).toBeDefined()
+    ;(button(page.root, 'Recalculate fee & gas')!.props.onClick as () => void)()
+    await vi.waitFor(() => expect(prepareSmartWithdrawal).toHaveBeenCalledTimes(2))
+    expect(submitSmartWithdrawal).not.toHaveBeenCalled()
+  })
+  it('blocks app broadcast if the connection changes while Submit simulation is in flight', async () => {
     const page = await mountWithdrawal()
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
     await page.start(); await nextTick()
     let finish!: (result: Awaited<ReturnType<typeof simulateSmartWithdrawal>>) => void
-    vi.mocked(simulateSmartWithdrawal).mockReturnValueOnce(new Promise(resolve => { finish = resolve }))
-    const waiting = (button(page.root, 'Simulate withdrawal')!.props.onClick as () => Promise<void>)()
+    vi.mocked(simulateSmartWithdrawal).mockImplementationOnce((_q, _settings, _rpc, onExposure) => {
+      onExposure?.()
+      return new Promise(resolve => { finish = resolve })
+    })
+    const waiting = (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)()
+    await vi.waitFor(() => expect(simulateSmartWithdrawal).toHaveBeenCalledOnce())
     page.connection.value = 'changed-settings'; await nextTick()
     finish({ status: 'passed', hash: page.quote.signedHash, checkedAt: Date.now(), message: 'Stale operation passed' })
     await waiting; await nextTick()
@@ -136,7 +193,7 @@ describe('smart withdrawal page signing lifecycle', () => {
     expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(false)
     await vi.advanceTimersByTimeAsync(5 * 60_000); await nextTick()
     expect(content(page.root)).toContain('Review expired')
-    expect(button(page.root, 'Simulate withdrawal')!.props.disabled).toBe(true)
+    expect(simulateSmartWithdrawal).not.toHaveBeenCalled()
     expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(true)
     expect(button(page.root, 'Recalculate fee & gas')).toBeDefined()
     expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
@@ -235,7 +292,7 @@ describe('smart withdrawal page signing lifecycle', () => {
     expect(content(page.root)).toContain('Contract calls were cleared')
   })
 
-  it.each(['passed', 'failed', 'unavailable'] as const)('renders %s simulation honestly and blocks known execution failures', async result => {
+  it.each(['passed', 'failed', 'unavailable'] as const)('checks custom calls on Submit and handles %s simulation', async result => {
     const page = await mountWithdrawal(), { quote, actions } = actionFixture()
     // Import via the actual builder component's save event; the backend quote
     // has the same immutable action suffix used by the real preparation path.
@@ -252,27 +309,28 @@ describe('smart withdrawal page signing lifecycle', () => {
       }
       await nextTick(); (button(page.root, 'Add action')!.props.onClick as () => void)(); await nextTick()
     }
+    ;(button(page.root, 'Save & review actions')!.props.onClick as () => void)(); await nextTick()
+    expect(content(page.root)).toContain('Opaque contract call')
+    expect(button(page.root, 'Review & sign withdrawal')!.props.disabled).toBe(true)
+    expect(prepareSmartWithdrawal).not.toHaveBeenCalled()
+    await acknowledgeOpaqueActions(page.root)
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(quote)
-    vi.mocked(simulateSmartWithdrawal).mockResolvedValue({ status: result, hash: quote.signedHash, checkedAt: Date.now(), message: `Preview ${result}`, ...(result === 'unavailable' ? { availabilityReason: 'unsupported' as const } : {}) })
-    await (button(page.root, 'Review & simulate withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    vi.mocked(simulateSmartWithdrawal).mockImplementation(async (_q, _settings, _rpc, onExposure) => {
+      onExposure?.()
+      return { status: result, hash: quote.signedHash, checkedAt: Date.now(), message: `Preview ${result}`,
+        ...(result === 'unavailable' ? { availabilityReason: 'unsupported' as const } : {}) }
+    })
+    await (button(page.root, 'Review & sign withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
     await vi.waitFor(() => expect(button(page.root, 'Submit signed withdrawal')).toBeDefined())
     expect(prepareSmartWithdrawal).toHaveBeenCalledWith(expect.any(String), expect.anything(), expect.objectContaining({ calls: actions, callsHash: quote.scope.callsHash }), expect.anything(), expect.any(Function), expect.any(Function), expect.any(AbortSignal))
-    expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(result === 'failed')
-    expect(content(page.root)).toContain(result === 'passed' ? 'Full simulation passed' : result === 'failed' ? 'Simulation failed' : 'Detailed preview unavailable')
-    expect(submitSmartWithdrawal).not.toHaveBeenCalled()
-    if (result === 'failed') {
-      vi.mocked(simulateSmartWithdrawal).mockResolvedValue({ status: 'unavailable', availabilityReason: 'transport', hash: quote.signedHash, checkedAt: Date.now(), message: 'RPC unavailable' })
-      await recheckSimulation(page.root)
-      expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(true)
-      expect(content(page.root)).toContain('Preview failed')
-      vi.mocked(simulateSmartWithdrawal).mockResolvedValue({ status: 'passed', hash: quote.signedHash, checkedAt: Date.now(), message: 'Preview passed after fixing funding' })
-      await recheckSimulation(page.root)
-      expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(false)
-    }
-    ;(button(page.root, 'Edit actions')!.props.onClick as () => void)(); await nextTick()
-    ;(button(page.root, 'Save actions & return')!.props.onClick as () => void)(); await nextTick()
-    expect(button(page.root, 'Submit signed withdrawal')).toBeUndefined()
-    expect(content(page.root)).toContain('Draft')
+    expect(simulateSmartWithdrawal).not.toHaveBeenCalled()
+    expect(button(page.root, 'Submit signed withdrawal')!.props.disabled).toBe(false)
+    await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
+    expect(simulateSmartWithdrawal).toHaveBeenCalledOnce()
+    expect(submitSmartWithdrawal).toHaveBeenCalledTimes(result === 'failed' ? 0 : 1)
+    expect(quote.simulation?.status).toBe(result)
+    if (result === 'failed') expect(button(page.root, 'Submit signed withdrawal')).toBeUndefined()
+    if (result === 'failed') expect(button(page.root, 'Check submitted operation')).toBeDefined()
   })
 
   it('warns about supported-token balances on the smart account and controller even with no native activity', async () => {
@@ -383,65 +441,32 @@ describe('smart withdrawal page signing lifecycle', () => {
     expect(button(page.root, 'Back to review')).toBeUndefined()
     expect(button(page.root, 'Check submitted operation')).toBeDefined()
     expect(button(page.root, 'Download session & notes')).toBeDefined()
-    const link = descendants(page.root).find(node => node.tag === 'a' && content(node).includes('UserOperation'))!
-    expect(link.props.href).toBe(`${settings.chainId === 1 ? 'https://etherscan.io' : 'https://sepolia.etherscan.io'}/tx/${page.quote.signedHash}`)
+    const operation = descendants(page.root).find(node => node.tag === 'code' && content(node) === page.quote.signedHash)
+    expect(operation).toBeDefined()
+    expect(descendants(page.root).find(node => node.tag === 'a' && typeof node.props.href === 'string' && node.props.href.endsWith(`/tx/${page.quote.signedHash}`))).toBeUndefined()
     expect(content(page.root)).toContain('(awaiting on-chain confirmation)')
   })
-  it.each([{ context: 'unchanged', count: 1 }, { context: 'unchanged', count: 2 }, { context: 'network', count: 1 }])('restores $count notes and preserves calls only with the $context context', async ({ context, count }) => {
-    const page = await mountWithdrawal(), { quote, actions } = actionFixture(count)
-    const field = descendants(page.root).find(node => node.props.id === 'multi-notes')!
-    field.value = quote.notes.map(note => note.raw).join('\n'); field.events.get('input')!({ target: field }); await nextTick()
-    ;(button(page.root, 'Add contract calls')!.props.onClick as () => void)(); await nextTick()
-    const toggle = descendants(page.root).find(node => node.tag === 'input' && node.props.type === 'checkbox')!
-    toggle.checked = true; toggle.events.get('change')!({ target: toggle }); await nextTick()
-    for (const call of actions) {
-      for (const [id, value] of [['action-target', call.to], ['action-value', formatEther(call.value)], ['action-data', call.data]]) {
-        const field = descendants(page.root).find(node => node.props.id === id)!
-        field.value = value!; field.events.get('input')!({ target: field })
-      }
-      await nextTick(); (button(page.root, 'Add action')!.props.onClick as () => void)(); await nextTick()
-    }
-    ;(button(page.root, 'Save actions & return')!.props.onClick as () => void)(); await nextTick()
-    vi.mocked(prepareSmartWithdrawal).mockResolvedValueOnce(quote)
-    vi.mocked(simulateSmartWithdrawal).mockImplementation(async q => ({ status: 'passed', hash: q.signedHash, checkedAt: Date.now(), message: 'Passed' }))
+  it('keeps a minimum-fee rejection uncertain after the simulation RPC saw the signed operation', async () => {
+    const page = await mountWithdrawal()
+    vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
     vi.mocked(submitSmartWithdrawal).mockImplementation(async (q, _settings, _wallet, update) => {
-      update(q.id, { status: 'rejected', hash: q.signedHash }); throw new Error('The bundler rejected the minimum fee.')
+      update(q.id, { status: 'unknown', hash: q.signedHash })
+      throw new Error('The bundler rejected the minimum fee.')
     })
     await page.start(); await nextTick()
-    const previousScope = vi.mocked(prepareSmartWithdrawal).mock.calls[0]![2]
     await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
-    expect(button(page.root, 'Back to review')).toBeDefined()
-    expect(button(page.root, 'Check submitted operation')).toBeUndefined()
-    if (context === 'network') { page.connection.value = 'changed-rpc'; await nextTick() }
-    await (button(page.root, 'Back to review')!.props.onClick as () => Promise<void>)(); await nextTick()
-    expect(descendants(page.root).find(node => node.props.id === 'multi-notes')!.value).toBe(quote.notes.map(note => note.raw).join('\n'))
-    expect(prepareSmartWithdrawal).toHaveBeenCalledOnce() // Back does not sign or prepare automatically.
-    expect(button(page.root, 'Submit signed withdrawal')).toBeUndefined()
-    if (context === 'network') {
-      expect(button(page.root, 'Edit actions')).toBeUndefined()
-      expect(content(page.root)).toContain('Contract calls were cleared')
-      return
-    }
-    expect(button(page.root, 'Edit actions')).toBeDefined()
-    expect(content(page.root)).toContain('Draft')
+    expect(button(page.root, 'Back to review')).toBeUndefined()
+    expect(button(page.root, 'Recalculate fee & gas')).toBeUndefined()
+    expect(button(page.root, 'Start new withdrawal')).toBeUndefined()
+    expect(button(page.root, 'Check submitted operation')).toBeDefined()
+    expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
     ;(button(page.root, 'Download session & notes')!.props.onClick as () => void)()
     const saved = JSON.parse(vi.mocked(downloadText).mock.calls.at(-1)![1])
-    expect(saved.notes).toEqual(quote.notes.map(note => note.raw))
-    expect(saved.calls).toEqual(actions.map(({ to, value, data }) => ({ to, value: value.toString(), data })))
-    expect(saved.previousAttempts[0]).toMatchObject({ chainId: 1, userOperationHash: quote.signedHash, progress: [{ status: 'rejected' }] })
-    const next = actionFixture(count).quote
-    next.withdrawal.userOperation.maxFeePerGas = '0x2'; next.signedHash = hashTypedData(batchTypedData(next.withdrawal, settings))
-    vi.mocked(prepareSmartWithdrawal).mockResolvedValueOnce(next)
-    await vi.waitFor(() => expect(button(page.root, 'Review & simulate withdrawal')?.props.disabled).toBe(false))
-    await page.start(); await nextTick()
-    const retry = vi.mocked(prepareSmartWithdrawal).mock.calls[1]!
-    expect(retry[0]).toBe(quote.notes.map(note => note.raw).join('\n'))
-    expect(retry[2]).toEqual(previousScope)
-    expect(simulateSmartWithdrawal).toHaveBeenCalledTimes(2)
-    expect(vi.mocked(simulateSmartWithdrawal).mock.calls[1]![0].signedHash).not.toBe(quote.signedHash)
-    expect(submitSmartWithdrawal).toHaveBeenCalledOnce() // New review still needs a separate Submit.
+    expect(saved.userOperationHash).toBe(page.quote.signedHash)
+    expect(saved.notes).toEqual(page.quote.notes.map(note => note.raw))
+    expect(saved.progress).toMatchObject([{ status: 'unknown', hash: page.quote.signedHash }])
   })
-  it('keeps a custom recipient when returning from a rejected direct withdrawal', async () => {
+  it('keeps a custom recipient and its notes exportable after an exposed rejection', async () => {
     const page = await mountWithdrawal(), destination = '0x4444444444444444444444444444444444444444'
     const { quote } = smartFixture(1, 'eth', 'custom', false, destination)
     const notes = descendants(page.root).find(node => node.props.id === 'multi-notes')!
@@ -451,24 +476,29 @@ describe('smart withdrawal page signing lifecycle', () => {
     const recipient = descendants(page.root).find(node => node.props.id === 'multi-recipient')!
     recipient.value = destination; recipient.events.get('input')!({ target: recipient }); await nextTick()
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(quote)
-    vi.mocked(submitSmartWithdrawal).mockImplementation(async (q, _settings, _wallet, update) => { update(q.id, { status: 'rejected' }) })
+    vi.mocked(submitSmartWithdrawal).mockRejectedValueOnce(new Error('The bundler rejected the minimum fee.'))
     await page.start(); await nextTick()
     await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
-    await (button(page.root, 'Back to review')!.props.onClick as () => Promise<void>)(); await nextTick()
-    expect(descendants(page.root).find(node => node.props.id === 'multi-recipient')!.value).toBe(destination)
-    expect(descendants(page.root).find(node => node.props.id === 'multi-notes')!.value).toBe(quote.notes[0]!.raw)
-    expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
+    expect(button(page.root, 'Back to review')).toBeUndefined()
+    expect(button(page.root, 'Check submitted operation')).toBeDefined()
+    ;(button(page.root, 'Download session & notes')!.props.onClick as () => void)()
+    const saved = JSON.parse(vi.mocked(downloadText).mock.calls.at(-1)![1])
+    expect(saved.notes).toEqual([quote.notes[0]!.raw])
+    expect(saved.payout).toBe('custom')
+    expect(saved.recipient).toBe(destination)
+    expect(saved.progress).toMatchObject([{ status: 'unknown', hash: quote.signedHash }])
   })
-  it.each(['ready', 'failed', 'confirmed'] as const)('offers draft return only before any send or for a known fee rejection, not %s execution results', async status => {
+  it('keeps a pre-bundler error uncertain when the signed simulation was already dispatched', async () => {
     const page = await mountWithdrawal()
     vi.mocked(prepareSmartWithdrawal).mockResolvedValue(page.quote)
-    vi.mocked(submitSmartWithdrawal).mockImplementation(async (q, _settings, _wallet, update) => {
-      update(q.id, { status, ...(status === 'ready' ? {} : { transactionHash: `0x${'aa'.repeat(32)}` as const }) })
-      if (status === 'ready') throw new Error('Quote expired before submission.')
-    })
+    vi.mocked(submitSmartWithdrawal).mockRejectedValueOnce(new Error('Quote expired before bundler submission.'))
     await page.start(); await nextTick()
     await (button(page.root, 'Submit signed withdrawal')!.props.onClick as () => Promise<void>)(); await nextTick()
-    expect(!!button(page.root, 'Back to review')).toBe(status === 'ready')
+    expect(button(page.root, 'Back to review')).toBeUndefined()
+    expect(button(page.root, 'Start new withdrawal')).toBeUndefined()
+    expect(button(page.root, 'Check submitted operation')).toBeDefined()
+    expect(content(page.root)).toContain('unknown')
+    expect(prepareSmartWithdrawal).toHaveBeenCalledOnce()
   })
 
   it('imports only note strings from a backup and reports a seed-only file without replacing existing notes', async () => {

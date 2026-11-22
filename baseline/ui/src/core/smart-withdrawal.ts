@@ -4,7 +4,7 @@ import { createWalletClient, custom, type EIP1193Provider } from 'viem'
 import { mainnet, sepolia } from 'viem/chains'
 import { batchTypedData } from './batch-policy'
 import { parseBatchNotes, type ParsedNote } from './notes'
-import { EndpointRpcError, jsonRpc, publicClientFor, safeError, validateConnections, type ConnectionSettings } from './rpc'
+import { jsonRpc, publicClientFor, safeError, validateConnections, type ConnectionSettings } from './rpc'
 import { assertSmartAccount } from './smart-account'
 import { smartRecipient, validateSmartSigningRequest, validateSmartWithdrawal, type SmartWithdrawalScope } from './smart-withdrawal-policy'
 import { assertWithdrawalWallet, type ApproveSigning, type WithdrawalWallet } from './wallet-signer'
@@ -152,7 +152,8 @@ export async function reconcileSmartWithdrawal(quote: SmartWithdrawalQuote, sett
   const end = Date.now() + timeout
   let transactionHash: Hex | undefined
   const waiting = () => update(quote.id, { hash: quote.signedHash, ...(transactionHash ? { transactionHash } : {}), status: 'submitted',
-    message: 'Awaiting on-chain confirmation. View on Etherscan or check again before retrying.' })
+    message: transactionHash ? 'Awaiting on-chain confirmation. Open the transaction or check again before retrying.'
+      : 'No transaction receipt has been found yet. The signed operation may still land; preserve the notes and check again before retrying.' })
   waiting()
   do {
     const result = await jsonRpc<{ receipt: { transactionHash: Hex } } | null>(settings.bundlerUrl, 'eth_getUserOperationReceipt', [quote.signedHash])
@@ -205,21 +206,14 @@ export async function submitSmartWithdrawal(quote: SmartWithdrawalQuote, setting
   await assertSmartAccount(quote.scope.account, settings)
   await assertWithdrawalWallet(wallet, settings)
   update(quote.id, { status: 'submitted', hash: quote.signedHash })
-  let accepted = false
   try {
     const hash = await jsonRpc<Hex>(settings.bundlerUrl, 'eth_sendUserOperation', [quote.withdrawal.userOperation, quote.withdrawal.entryPointAddress])
-    accepted = true // Even an unexpected returned hash is an uncertain submission.
     if (!isHash(hash) || hash.toLowerCase() !== quote.signedHash.toLowerCase()) throw new Error('The bundler returned a different UserOperation hash. Check the locally computed hash before retrying.')
     await reconcileSmartWithdrawal(quote, settings, update)
   } catch (error) {
-    // Only a structured, pre-acceptance minimum-fee rejection permits returning
-    // to the same draft. Timeouts, malformed replies, arbitrary RPC errors and
-    // failures after acceptance must retain the uncertain/pending state.
-    const rejectedFee = !accepted && error instanceof EndpointRpcError && error.method === 'eth_sendUserOperation' && error.code === -32602 &&
-      /(?:maxFeePerGas|maxPriorityFeePerGas).*?(?:must be at least|too low|below)/i.test(error.message)
-    update(quote.id, { status: rejectedFee ? 'rejected' : 'unknown', message: rejectedFee
-      ? 'The bundler rejected this gas price. Return to review to refresh fees, regenerate proofs and request new signatures.'
-      : 'Check this UserOperation and the smart account before retrying. Keep the original notes.' })
+    // The active UI has already exposed the signed operation to a simulation
+    // RPC. A bundler rejection cannot prove that endpoint did not relay it.
+    update(quote.id, { status: 'unknown', message: 'Check this signed UserOperation and the smart account before retrying. The simulation RPC may have relayed it. Keep the original notes.' })
     throw error
   }
 }

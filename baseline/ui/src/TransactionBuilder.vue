@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { formatEther, toFunctionSignature, type Address } from 'viem'
 import Icon from './Icon.vue'
 import ActionBudget from './ActionBudget.vue'
@@ -15,7 +15,10 @@ const actions = ref<BuilderAction[]>(props.actions.map(call => ({ ...call }))), 
 const to = ref(''), value = ref('0'), data = ref('0x'), abiText = ref(''), method = ref(''), args = ref<string[]>([]), editing = ref<number | null>(null)
 const error = ref(''), rpc = ref(props.simulationRpc), importInput = ref<HTMLInputElement | null>(null), abiInput = ref<HTMLInputElement | null>(null)
 const panel = ref<HTMLElement | null>(null), title = ref<HTMLElement | null>(null)
+const addressCopyFeedback = ref<{ index: number; message: string } | null>(null)
+let addressCopyTimer: ReturnType<typeof setTimeout> | undefined
 onMounted(() => { panel.value?.scrollIntoView?.({ block: 'start' }); title.value?.focus({ preventScroll: true }) })
+onUnmounted(() => clearTimeout(addressCopyTimer))
 const abi = computed(() => { try { return { functions: abiText.value.trim() ? parseContractAbi(abiText.value) : [], error: '' } } catch (e) { return { functions: [], error: safeError(e) } } })
 const selected = computed(() => abi.value.functions.find(fn => toFunctionSignature(fn) === method.value))
 watch(abi, () => { method.value = abi.value.functions[0] ? toFunctionSignature(abi.value.functions[0]) : '' })
@@ -47,6 +50,16 @@ function duplicate(index: number) {
   try { const next = [...actions.value]; next.splice(index + 1, 0, { ...next[index]! }); canonicalCalls(next, props.account); actions.value = next }
   catch (e) { error.value = safeError(e) }
 }
+async function copyAddress(address: Address, index: number) {
+  try {
+    await navigator.clipboard.writeText(address)
+    addressCopyFeedback.value = { index, message: 'Copied' }
+  } catch {
+    addressCopyFeedback.value = { index, message: 'Copy failed' }
+  }
+  clearTimeout(addressCopyTimer)
+  addressCopyTimer = setTimeout(() => { addressCopyFeedback.value = null }, 2500)
+}
 async function importFile(event: Event, kind: 'abi' | 'batch') {
   const field = event.target as HTMLInputElement, file = field.files?.[0]
   if (!file) return
@@ -71,7 +84,7 @@ function save(simulate: boolean) {
   <section ref="panel" class="transaction-panel action-builder" aria-label="Transaction builder">
     <div class="multi-heading"><div><span class="feature-label feature-label-advanced">ADVANCED</span><h2 ref="title" tabindex="-1">Transaction builder</h2></div><button class="text-button" @click="emit('close')">← Back to withdrawal</button></div>
     <div class="panel-body">
-      <div class="builder-context"><b>Executing as your smart account</b><a v-if="account" :href="`${NETWORKS[chainId].explorer}/address/${account}`" target="_blank" rel="noopener noreferrer"><code>{{ account }}</code> ↗</a><span v-else>Connect your controller wallet on the withdrawal screen.</span><small>{{ NETWORKS[chainId].name }} · Controller {{ owner ? shorten(owner) : 'not connected' }} · {{ deployed ? 'Already deployed' : 'Deploys in this UserOperation' }}</small><p>Contracts see this smart account as the caller, not your connected wallet. Actions run in order after all withdrawals. Gas refunds arrive afterwards and cannot fund these actions.</p></div>
+      <div class="builder-context"><b>Executing as your smart account</b><button v-if="account" type="button" class="builder-account-copy" aria-label="Copy smart account address" @click="copyAddress(account, -1)"><code>{{ account }}</code><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg></button><small v-if="addressCopyFeedback?.index === -1" class="builder-address-feedback" role="status">{{ addressCopyFeedback.message }}</small><span v-else-if="!account">Connect your controller wallet on the withdrawal screen.</span><small>{{ NETWORKS[chainId].name }} · Controller {{ owner ? shorten(owner) : 'not connected' }} · {{ deployed ? 'Already deployed' : 'Deploys in this UserOperation' }}</small><p>Contracts see this smart account as the caller, not your connected wallet. Actions run in order after all withdrawals. Gas refunds arrive afterwards and cannot fund these actions.</p></div>
       <ActionBudget :asset="asset" :total="total" :balances="balances" :loading="balancesLoading" :eth-sent="totalEth" />
       <div class="builder-columns">
         <div class="builder-editor">
@@ -96,16 +109,15 @@ function save(simulate: boolean) {
           <div class="field-heading"><h3>Your batch</h3><span>{{ actions.length }} / {{ MAX_ACTIONS }} actions</span></div>
           <div class="builder-prefix"><span>01 · Locked</span><b>{{ noteCount || 'Selected' }} withdrawal{{ noteCount === 1 ? '' : 's' }} → smart account</b><small>The sponsoring note pays the fee during validation; remaining notes arrive before your actions.</small></div>
           <p v-if="!actions.length" class="builder-empty">Start building your batch.<br />Add an action or import a Safe batch JSON.</p>
-          <ol class="builder-actions"><li v-for="(call, i) in actions" :key="i" :class="{ editing: editing === i }"><div><span>Action {{ i + 1 }}</span><b>{{ callSummary(call) }}</b><a :href="`${NETWORKS[chainId].explorer}/address/${call.to}`" target="_blank" rel="noopener noreferrer">{{ shorten(call.to) }} ↗</a><small>{{ callEth(call) }} ETH · {{ (call.data.length - 2) / 2 }} bytes</small></div><div class="builder-tools"><button :disabled="editing !== null || i === 0" :aria-label="`Move action ${i + 1} up`" @click="move(i, -1)">↑</button><button :disabled="editing !== null || i === actions.length - 1" :aria-label="`Move action ${i + 1} down`" @click="move(i, 1)">↓</button><button :disabled="editing !== null" @click="edit(i)">Edit</button><button :disabled="editing !== null || actions.length >= MAX_ACTIONS" @click="duplicate(i)">Copy</button><button :disabled="editing !== null" :aria-label="`Delete action ${i + 1}`" @click="actions.splice(i, 1)">×</button></div><details><summary>View calldata</summary><code>{{ call.data }}</code></details></li></ol>
+          <ol class="builder-actions"><li v-for="(call, i) in actions" :key="i" :class="{ editing: editing === i }"><div><span>Action {{ i + 1 }}</span><b>{{ callSummary(call) }}</b><button type="button" class="builder-address-copy" :aria-label="`Copy contract address ${call.to}`" @click="copyAddress(call.to, i)">{{ shorten(call.to) }} <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="8" width="13" height="13" rx="2" /><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3" /></svg></button><small v-if="addressCopyFeedback?.index === i" class="builder-address-feedback" role="status">{{ addressCopyFeedback.message }}</small><small>{{ callEth(call) }} ETH · {{ (call.data.length - 2) / 2 }} bytes</small></div><div class="builder-tools"><button :disabled="editing !== null || i === 0" :aria-label="`Move action ${i + 1} up`" @click="move(i, -1)">↑</button><button :disabled="editing !== null || i === actions.length - 1" :aria-label="`Move action ${i + 1} down`" @click="move(i, 1)">↓</button><button :disabled="editing !== null" @click="edit(i)">Edit</button><button :disabled="editing !== null || actions.length >= MAX_ACTIONS" @click="duplicate(i)">Copy</button><button :disabled="editing !== null" :aria-label="`Delete action ${i + 1}`" @click="actions.splice(i, 1)">×</button></div><details><summary>View calldata</summary><code>{{ call.data }}</code></details></li></ol>
           <div class="builder-import"><button class="text-button" @click="importInput?.click()">Import Safe JSON</button><button class="text-button" :disabled="!actions.length" @click="downloadText('tornado-custom-actions.json', exportSafeBatch(actions, chainId))">Export actions</button><input ref="importInput" type="file" accept=".json,application/json" hidden @change="importFile($event, 'batch')" /></div>
           <p class="input-hint">Total ETH sent by actions: {{ formatEther(totalEth) }} ETH. Existing smart-account balances and approvals may also be used.</p>
         </div>
       </div>
       <div class="builder-risk"><Icon name="info" :size="16" /><p>If execution reverts, the sponsoring note can still be spent and its proceeds remain in your smart account. Recover them from Manage smart account. Other notes may stay unspent. A successful call does not guarantee the intended result; review amounts, approvals and recipients.</p></div>
-      <details class="builder-rpc"><summary>Advanced simulation settings</summary><label class="builder-field" for="simulation-rpc">Simulation RPC (optional)</label><input id="simulation-rpc" v-model.trim="rpc" class="text-input" placeholder="Use the configured website RPC" spellcheck="false" /><p class="input-hint">Full previews use eth_simulateV1. This endpoint sees the prepared operation, including public withdrawal proofs and calls. No note secrets are sent.</p></details>
-      <div class="builder-simulation-note"><Icon name="shield" :size="18" /><p><b>Simulate the whole withdrawal</b>Review &amp; simulate checks the complete operation, including the withdrawals and all contract calls. It generates proofs and may open typed-data wallet prompts as the gas estimate changes. You can run the final simulation again before clicking Submit.</p></div>
+      <details class="builder-rpc"><summary>Advanced simulation settings</summary><label class="builder-field" for="simulation-rpc">Simulation RPC (optional)</label><input id="simulation-rpc" v-model.trim="rpc" class="text-input" placeholder="Use the configured website RPC" spellcheck="false" /><p class="input-hint">After you click Submit, eth_simulateV1 sends this endpoint the signed withdrawal, including public proofs and calls, before the app broadcasts to the bundler. This RPC could broadcast it independently. No note secrets are sent.</p></details>
       <div v-if="error" class="error-banner" role="alert">{{ error }}</div>
-      <div class="builder-footer"><button class="button" @click="save(false)">Save actions &amp; return</button><button class="button primary" :disabled="!canPrepare || !actions.length" @click="save(true)">Review &amp; simulate withdrawal <Icon name="arrow" /></button></div>
+      <div class="builder-footer"><button class="button" @click="save(false)">Save actions &amp; return</button><button class="button primary" :disabled="!canPrepare || !actions.length" @click="save(true)">Save &amp; review actions <Icon name="arrow" /></button></div>
     </div>
   </section>
 </template>

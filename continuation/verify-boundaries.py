@@ -9,6 +9,8 @@ import z3 as z
 ROOT=Path(__file__).resolve().parents[1]
 facts=json.loads((ROOT/'artifacts/continuation/source-facts.json').read_text())
 p=facts['symbolicParameters']; results=[]
+for stale in (ROOT/'artifacts/continuation').glob('*.smt2'):
+    stale.unlink()
 caller={item['id']:item['value'] for item in facts['callerFacts']}
 assert caller['caller.run']['instructions']==['if_busy_return','clear_error','set_busy','invoke_work_and_suspend','redact_error','finally_clear_busy','finally_clear_status']
 assert caller['caller.send']['instructions']==['if_started_throw','if_no_quote_throw','capture_quote','initialize_progress','mark_started','set_status','dispatch_one_adapter_and_suspend']
@@ -53,11 +55,12 @@ cap=p['gasCaps']['verificationGasLimit']+p['gasCaps']['paymasterVerificationGasL
 prove('S05_direct_native_fee_envelope',[vg>=0,pg>=0,pvg>=0,post>=0,B>=0,P>=0,base>=0,tip>=0,
     vg<=p['gasCaps']['verificationGasLimit'],pg<=p['gasCaps']['paymasterVerificationGasLimit'],post<=100000,pvg<=700000+80*B,P<=base*3+tip],
     (Gsum*P*12)/10<=(cap*(base*3+tip)*12)/10)
-# Each direct refinement round has at most one bounded transport retry. This is
-# a count abstraction of the checked estimator/retry source, not a proof of a
-# particular third-party transport stack.
+# Each direct refinement round has at most one bounded transport retry. These
+# are non-executable dummy estimation probes, not signed operation releases.
+# This is a count abstraction of the checked estimator/retry source, not a
+# proof of a particular third-party transport stack.
 rounds,retries=z.Ints('refinementRounds retriesPerRound')
-prove('S06_direct_estimation_release_count',[rounds>=0,rounds<=3,retries>=0,retries<=1],rounds*(1+retries)<=6)
+prove('S06_direct_dummy_estimation_probe_count',[rounds>=0,rounds<=3,retries>=0,retries<=1],rounds*(1+retries)<=6)
 
 # Arbitrary-length inductive protocol proof for one captured quote. Every
 # continuation has a program counter; normal Promise settlement is single-use.
