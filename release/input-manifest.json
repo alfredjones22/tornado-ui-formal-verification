@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
+  "baselineDigest": "c35725f429a509211569d25a3079e34c224776afc59bb73d9397782f45eaafa7",
   "files": [
     {
       "path": "release/runtime-layout.json",
@@ -20,7 +20,7 @@
     },
     {
       "path": "release/deployment.json",
-      "sha256": "27a7a34dfcb396183d8657da01bb2427506b699a9c90de3d3de7e80c53093f96"
+      "sha256": "6493120d9e9b0e4c32dcafc52cad7eae3db02165ae94c082216da6329ba2691e"
     },
     {
       "path": "release/package-metadata/plugins.json",

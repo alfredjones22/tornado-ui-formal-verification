@@ -15,19 +15,19 @@
   "dependencies": {
     "@kohaku-eth/plugins": "0.0.1-alpha.20",
     "@kohaku-eth/provider": "0.1.0-alpha.14",
-    "@kohaku-eth/tornado-cash": "0.1.0-alpha.38",
+    "@kohaku-eth/tornado-cash": "0.1.0-alpha.40",
     "jspdf": "4.2.1",
     "micro-zk-proofs": "0.3.1",
     "viem": "2.55.19",
     "vue": "3.5.44"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
+    "@types/node": "22.20.5",
     "@vitejs/plugin-vue": "6.0.10",
-    "typescript": "~5.9.3",
+    "typescript": "5.9.3",
     "vite": "8.3.5",
     "vitest": "5.1.0",
-    "vue-tsc": "^3.1.0"
+    "vue-tsc": "3.3.14"
   },
   "engines": {
     "node": ">=22.18.0"

@@ -1,3 +1,15 @@
+## 0.1.0-alpha.40
+
+### Patch Changes
+
+- e633dda: Preserve leading zeros in pool addresses when reading their verifiers for paymaster gas estimation. Withdrawals involving a leading-zero pool, including Sepolia's 0.01 ETH pool, no longer fail with an RPC `Invalid params` error. This applies to both single-note and batched withdrawals.
+
+## 0.1.0-alpha.39
+
+### Patch Changes
+
+- b6a67fa: Reject an explicit zero or negative unshield amount instead of selecting every available note. Omitting the amount still selects all notes.
+
 ## 0.1.0-alpha.38
 
 ### Patch Changes

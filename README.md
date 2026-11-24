@@ -2,11 +2,11 @@
 
 > **Important:** This is best-effort formal verification of selected properties under explicit assumptions. It does **not** provide a 100% guarantee that the UI is bug-free or that funds cannot be lost.
 
-**Version 1 checks selected properties of the frozen basic single-note ERC-4337/paymaster withdrawal under explicit assumptions.** The current target is clean `tornado-ui-new-era` main commit `186059918186fb1e047586b45da41aab41268d78` with the published `@kohaku-eth/tornado-cash@0.1.0-alpha.38` package. Basic confirmation checks a host-RPC transaction receipt and matching EntryPoint and pool events; interpreting that RPC data as actual chain inclusion still trusts the selected chain source. The consumer command reruns scoped proofs, model checks, tests, exact build comparison and CID calculation.
+**Version 1 checks selected properties of the frozen basic single-note ERC-4337/paymaster withdrawal under explicit assumptions.** The current target is clean `tornado-ui-new-era` main commit `1da44cd3b0a66508f7bd19d25adcbe8c8f8963aa` with the published `@kohaku-eth/tornado-cash@0.1.0-alpha.40` package. Basic confirmation checks a host-RPC transaction receipt and matching EntryPoint and pool events; interpreting that RPC data as actual chain inclusion still trusts the selected chain source. The consumer command reruns scoped proofs, model checks, tests, exact build comparison and CID calculation.
 
 Expected release CID:
 
-    bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq
+    bafybeifhtg6uy25vunell43ocrxxers3c5pvst7qlxr77xlco3lqpbjxr4
 
 The publisher reported exactly this CID after publication, and the clean main `dist/` directory computed to it with the pinned UnixFS settings. The report is pinned in [release/deployment.json](release/deployment.json); gateway delivery is not checked. See [release correspondence](docs/release-correspondence.md).
 
@@ -59,9 +59,9 @@ The standalone baseline check is npm run baseline:check. The optional --live mai
 
 ## Frozen target and honest limits
 
-The immutable manifest records **412 entries / 63,820,762 bytes**. This is the logical target inventory, not the committed directory size. UI/SDK source, root metadata and exact offline asset inputs are retained. The 30 SDK artifact/package entries come from the integrity-locked npm install; the 23 generated UI-output entries are checked against captured hashes after rebuilding. Environment files are excluded. Target digest:
+The immutable manifest records **412 entries / 63,824,866 bytes**. This is the logical target inventory, not the committed directory size. UI/SDK source, root metadata and exact offline asset inputs are retained. The 30 SDK artifact/package entries come from the integrity-locked npm install; the 23 generated UI-output entries are checked against captured hashes after rebuilding. Environment files are excluded. Target digest:
 
-    059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8
+    c35725f429a509211569d25a3079e34c224776afc59bb73d9397782f45eaafa7
 
 All 14 retained SDK build artifacts must reproduce byte for byte and match the published SDK package. They cover every published `dist/` file. Package metadata and README are integrity-pinned inputs without a source-rebuild claim. The UI builds with the actual registry-installed package, and all 65 output files must reproduce exactly to the expected CID. See [release correspondence](docs/release-correspondence.md) for the complete import/build contract.
 

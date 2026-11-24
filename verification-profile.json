@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "basic-direct-withdrawal-v1",
   "status": "COMPLETE_WITH_EXPLICIT_ASSUMPTIONS",
-  "baselineDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
+  "baselineDigest": "c35725f429a509211569d25a3079e34c224776afc59bb73d9397782f45eaafa7",
   "scope": "Frozen basic single-note ERC-4337/paymaster withdrawal; excludes other UI routes.",
   "confirmation": {
     "option": "B",
@@ -137,16 +137,16 @@
   },
   "releaseCorrespondence": {
     "required": true,
-    "inputManifestSHA256": "43d7481f9fb81fbbd4ce78b6bb35df1d2965d4bee1083a219190150060a0b529",
-    "expectedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
+    "inputManifestSHA256": "71973bfe67e5e349bf221219e5113d54bec81f5851e2503524e238d02fedacc8",
+    "expectedCID": "bafybeifhtg6uy25vunell43ocrxxers3c5pvst7qlxr77xlco3lqpbjxr4",
     "deploymentStatus": "PUBLISHER_REPORTED_CID_MATCH",
     "deploymentRecord": "release/deployment.json"
   },
-  "releaseRevision": "REGISTRY_SDK_ALPHA_38_UI_MAIN_186059",
+  "releaseRevision": "REGISTRY_SDK_ALPHA_40_UI_MAIN_1DA44C",
   "registrySDK": {
-    "version": "0.1.0-alpha.38",
-    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.38.tgz",
-    "integrity": "sha512-uo1OFrIUh0ruXAxmVbA6anS8VQQLvL1n8CtUm2snntE/bySz2M1b41vNiVmWXkaKZuHAhQdNzPD2a98VJXDfVA==",
+    "version": "0.1.0-alpha.40",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.40.tgz",
+    "integrity": "sha512-eHUaLaHw+Sf4r9/rwOHxlf2V38TIOcH7IewR/JNnX+A2IdjrR8y2soTJfvFsoZwLFlNOEvMjfnzjUm5OTJWZMA==",
     "name": "@kohaku-eth/tornado-cash",
     "sourceRebuiltArtifacts": 14,
     "packageFileCount": 16,
@@ -154,6 +154,6 @@
   },
   "uiSourceRevision": {
     "manifest": "release/ui-source-revision.json",
-    "sha256": "36c80513a9991a8ee8203ba4220354573800abb15f48fe6bc253b023d3a240c8"
+    "sha256": "9f745daee5b93fb4165744d5821dc35d7dc6722b6fcc31ca96d50076a3d44a19"
   }
 }

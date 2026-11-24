@@ -2,7 +2,7 @@
 
 Expected and publisher-reported upload CID:
 
-    bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq
+    bafybeifhtg6uy25vunell43ocrxxers3c5pvst7qlxr77xlco3lqpbjxr4
 
 The pinned deployment record reports the publisher's independent upload. Gateway delivery/execution and availability are not checked by verification.
 
@@ -17,7 +17,7 @@ The verify:release script checks only the baseline/rebuild/CID evidence. The ful
 
 ## Exact source and package chain
 
-The immutable manifest records the 412-entry target with digest 059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8. Its 129 UI source files capture clean main commit `186059918186fb1e047586b45da41aab41268d78` exactly. The source revision allows no file exceptions.
+The immutable manifest records the 412-entry target with digest c35725f429a509211569d25a3079e34c224776afc59bb73d9397782f45eaafa7. Its 129 UI source files capture clean main commit `1da44cd3b0a66508f7bd19d25adcbe8c8f8963aa` exactly. The source revision allows no file exceptions.
 
 Every full verification run:
 

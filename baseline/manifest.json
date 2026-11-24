@@ -1,19 +1,19 @@
 {
   "schemaVersion": 1,
-  "capturedAtUTC": "2026-11-22T12:28:38.488302+00:00",
-  "releaseId": "registry-sdk-alpha.38-ui-main-2026-11-22",
-  "contentDigest": "059463d625adac900d3c1a73ebb39cd7c441b607870620642cffe06727dff2e8",
+  "capturedAtUTC": "2026-11-24T12:59:49.958301+00:00",
+  "releaseId": "registry-sdk-alpha.40-ui-main-2026-11-24",
+  "contentDigest": "c35725f429a509211569d25a3079e34c224776afc59bb73d9397782f45eaafa7",
   "cidCorrespondence": "NOT_CHECKED",
   "sourceBuildCorrespondence": "NOT_CHECKED",
   "ui": {
     "originalPath": "/Users/x/dev/personal/tornado-ui-new-era",
-    "commit": "186059918186fb1e047586b45da41aab41268d78",
+    "commit": "1da44cd3b0a66508f7bd19d25adcbe8c8f8963aa",
     "status": ""
   },
   "sdk": {
     "originalPath": "/Users/x/dev/personal/kohaku/packages/tornado-cash",
     "repositoryPath": "/Users/x/dev/personal/kohaku",
-    "commit": "1852494e902db7166ecd2eb48e2702cc09102f9b",
+    "commit": "80ab3b587178514f931dc367f341c73da928410b",
     "status": "",
     "sourceCapture": "Retained original source; every published SDK JavaScript artifact must reproduce byte for byte. The separate sdk-package namespace captures the registry package actually installed by the UI."
   },
@@ -35,9 +35,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/compliance-pdf-gM012RE0.js",
+      "path": "assets/compliance-pdf-Cg0dPOuh.js",
       "bytes": 402629,
-      "sha256": "f1def52ea994862a7f6902df26060847eee08d531975413558c0c6ba3d1e0bfd"
+      "sha256": "853adb5c77bf45bdce6b8b9243a891e4a5f119ea84abfe1c2430bd04497c7041"
     },
     {
       "namespace": "build",
@@ -47,9 +47,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/index.es-CPLXOVk-.js",
+      "path": "assets/index.es-hKK7aTx2.js",
       "bytes": 151426,
-      "sha256": "7a9abac6cd46f47e67489a53228ebae8bc3e3f60dcff9707a1ba486ff9e892e5"
+      "sha256": "f01534fe6c728f19f0b1db0eb3d7e8dca961a8d57e1aec5a6d46011efb6e987b"
     },
     {
       "namespace": "build",
@@ -65,9 +65,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/main-CswlbfZr.js",
+      "path": "assets/main-CUazUBbr.js",
       "bytes": 263572,
-      "sha256": "ef94830d2c2c4c19f02b33c3f54caee932e4b3635e1fe29715db9d627d992caf"
+      "sha256": "ec575947f83690fec571bf92c02c33739cc7319b7910bf90e661d9cdc9f5212a"
     },
     {
       "namespace": "build",
@@ -77,9 +77,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/relayers-cCIuLNna.js",
+      "path": "assets/relayers-D63Afxc8.js",
       "bytes": 346025,
-      "sha256": "05c4745303c309b64acefd017287754267b95198107bc5adef832fd84ba25d93"
+      "sha256": "5e4ddb6a380f82a5c2037599c140e0f0cf30d71f5fe05dc0ba8c3385a3372609"
     },
     {
       "namespace": "build",
@@ -89,9 +89,9 @@
     },
     {
       "namespace": "build",
-      "path": "assets/state-manager.worker-Cn_1Y-_X.js",
-      "bytes": 922928,
-      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
+      "path": "assets/state-manager.worker-BNn2CgfH.js",
+      "bytes": 923092,
+      "sha256": "b363fbdd79ffccdc8083c5955d1ac7da4159d9e635c6214d08b8c9c8749f93f9"
     },
     {
       "namespace": "build",
@@ -101,15 +101,15 @@
     },
     {
       "namespace": "build",
-      "path": "assets/withdraw-xV9eSErq.js",
+      "path": "assets/withdraw-BbVD7AFz.js",
       "bytes": 13995,
-      "sha256": "03444393c5655080e24f5ec42f7eaa465fcc0ab6e5a381c8aad66dd9343c2949"
+      "sha256": "d466a9991fdc4b946a8fe086ad650381fcd017dc6d3f6e544563fe8e1709ccc0"
     },
     {
       "namespace": "build",
       "path": "compliance/index.html",
       "bytes": 1014,
-      "sha256": "34e81b6ee34d308d0c36451be4b857854e82266bacb954a2d2c2dd0a4f1514bd"
+      "sha256": "b749a15e09bfb954c83f444836ff197c4db4bc3b755cade2529e566e42ff9912"
     },
     {
       "namespace": "build",
@@ -127,7 +127,7 @@
       "namespace": "build",
       "path": "index.html",
       "bytes": 1003,
-      "sha256": "2e59b97c141acfbc1aa6d4a3a6918a3d45603dbb8c0749483723c508e574d0b9"
+      "sha256": "6c1d85c1c0e0ee683b98d8c54ffd7e2bdccdf767b4a6b95515e4da55c37a4757"
     },
     {
       "namespace": "build",
@@ -402,20 +402,20 @@
     {
       "namespace": "build",
       "path": "sdk/state-manager.worker.js",
-      "bytes": 922928,
-      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
+      "bytes": 923092,
+      "sha256": "b363fbdd79ffccdc8083c5955d1ac7da4159d9e635c6214d08b8c9c8749f93f9"
     },
     {
       "namespace": "build",
       "path": "withdraw-frame.html",
       "bytes": 582,
-      "sha256": "a6ab1793959b7eec278559e207c08144ccfe655bee5eceac35b4add93dbd59f8"
+      "sha256": "ea00f97337da0a355df27c92bcdc983955560058d37cc1e7734c2db964c87598"
     },
     {
       "namespace": "sdk",
       "path": "CHANGELOG.md",
-      "bytes": 25663,
-      "sha256": "6757131b199c97f6201804af94d554416738a83417bbcc53248907e41f6f6f2d"
+      "bytes": 26190,
+      "sha256": "349c66d2671e7d7a1e9690eb44440564e117fda57b4ce950c8c0f37b0b60a531"
     },
     {
       "namespace": "sdk",
@@ -427,7 +427,7 @@
       "namespace": "sdk",
       "path": "package.json",
       "bytes": 4042,
-      "sha256": "8846cc31d2494f77b00cc739faac7d96a771367e4c7061ff5ed54c41bbc44584"
+      "sha256": "469902828da31d4191afcfa55fecf29984f5da977023545b96ac14b8e857f245"
     },
     {
       "namespace": "sdk",
@@ -852,8 +852,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/selectors/withdrawals.selector.ts",
-      "bytes": 6661,
-      "sha256": "9d6d1f75219e356a11259c14f995f2fd071f110b252d092ffc19d89cef571b72"
+      "bytes": 6820,
+      "sha256": "d1019f8d4b569a06bceddbb9599d153d806c7557a691f80643d58e0c491d535c"
     },
     {
       "namespace": "sdk",
@@ -972,8 +972,8 @@
     {
       "namespace": "sdk",
       "path": "src/state/thunks/paymasterWithdrawThunk.ts",
-      "bytes": 17229,
-      "sha256": "cdaa1331001f15c6c900df779c619e2282e4c5351a69bb7f8e6360e45c869283"
+      "bytes": 17243,
+      "sha256": "454cb0924b865fd0f3696039363687400b411169c3a44aa87b64ceb94a269d91"
     },
     {
       "namespace": "sdk",
@@ -1266,8 +1266,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/extended-eth-pools.test.ts",
-      "bytes": 14573,
-      "sha256": "7b53b5bf155fafdfeb06d1ff8af2fd9c2d0354793743841ad31e2a602feb8d16"
+      "bytes": 15218,
+      "sha256": "67273491c8ef203d13e9cd30f2eaa4ac17dc5ea4f07cc4bef005fc9799788ed1"
     },
     {
       "namespace": "sdk",
@@ -1302,8 +1302,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/merkle-tree-browser-fallback.test.ts",
-      "bytes": 2859,
-      "sha256": "6e04b067b742aeebd42c47083d27da79389f78cce66878b935c94f83f91e5a59"
+      "bytes": 3002,
+      "sha256": "754324126fffc9a4b1f49a60431506a9c589999512a85b9a1baff95b0163fc62"
     },
     {
       "namespace": "sdk",
@@ -1338,8 +1338,8 @@
     {
       "namespace": "sdk",
       "path": "tests/unit/paymaster-withdraw-estimation.test.ts",
-      "bytes": 44911,
-      "sha256": "b4686823cb168768706142ae2466a029149d3d059aa7ded42e49db0cb0c3674e"
+      "bytes": 46218,
+      "sha256": "7afe3c3a7a5882b8e922191919a4d249221303c4343cd1351d2ad5fc5bd448c7"
     },
     {
       "namespace": "sdk",
@@ -1578,14 +1578,14 @@
     {
       "namespace": "sdk-dist",
       "path": "state-manager.worker.js",
-      "bytes": 922928,
-      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
+      "bytes": 923092,
+      "sha256": "b363fbdd79ffccdc8083c5955d1ac7da4159d9e635c6214d08b8c9c8749f93f9"
     },
     {
       "namespace": "sdk-dist",
       "path": "state-manager.worker.node.js",
-      "bytes": 918770,
-      "sha256": "d5118b5e4c871c54cfe256abf80899dab4cd02126bbb52f3ffaf7834457dafa8"
+      "bytes": 918934,
+      "sha256": "9ab18f0caebe0d9d574dcef248b130cd99a1dd4c0c7777850a7ce7dc7ee9cd8d"
     },
     {
       "namespace": "sdk-dist",
@@ -1668,14 +1668,14 @@
     {
       "namespace": "sdk-package",
       "path": "dist/state-manager.worker.js",
-      "bytes": 922928,
-      "sha256": "18d19e93bab2ddba06d7a3146f49fd9d0a14cc123a521a273a5aa6b6cc39b908"
+      "bytes": 923092,
+      "sha256": "b363fbdd79ffccdc8083c5955d1ac7da4159d9e635c6214d08b8c9c8749f93f9"
     },
     {
       "namespace": "sdk-package",
       "path": "dist/state-manager.worker.node.js",
-      "bytes": 918770,
-      "sha256": "d5118b5e4c871c54cfe256abf80899dab4cd02126bbb52f3ffaf7834457dafa8"
+      "bytes": 918934,
+      "sha256": "9ab18f0caebe0d9d574dcef248b130cd99a1dd4c0c7777850a7ce7dc7ee9cd8d"
     },
     {
       "namespace": "sdk-package",
@@ -1705,7 +1705,7 @@
       "namespace": "sdk-package",
       "path": "package.json",
       "bytes": 4041,
-      "sha256": "007f0fe61815f2fa59736d62cf553e8fbb3e03b82b4a978024df99edf61d99b3"
+      "sha256": "9371916a9458b19a7ac2b015f87a38d5a51a8bf7e95b1feb5c09b1df91a2ed47"
     },
     {
       "namespace": "sdk-root",
@@ -1740,8 +1740,8 @@
     {
       "namespace": "ui",
       "path": "README.md",
-      "bytes": 33518,
-      "sha256": "8ec1de4bd892fa17da339caede47372ab56a6fc37bbe2ac522d25cb79d7f1c61"
+      "bytes": 33821,
+      "sha256": "acb35e6bdfb06fbdfae489ea34cd3a7654a0c26c12e0f91bde4b3405aedfad87"
     },
     {
       "namespace": "ui",
@@ -1758,14 +1758,14 @@
     {
       "namespace": "ui",
       "path": "package-lock.json",
-      "bytes": 96931,
-      "sha256": "ef21f9a25a9c93b793674fc022da097cbbe16b80c26528360a63baede7d12c34"
+      "bytes": 96954,
+      "sha256": "bfd4313f59b67a4c90f48244fb6d0438874bbc65c3ff993f635fff6c170d06a3"
     },
     {
       "namespace": "ui",
       "path": "package.json",
-      "bytes": 944,
-      "sha256": "790c88972f780195c54fe2c535b5476a22f50f3d731bb178afe12e7fd7db1ef7"
+      "bytes": 943,
+      "sha256": "8380eb531e5b05b028bc54eb9a8fc50ef4715bcd1a1eeab95f89210a3859c4fe"
     },
     {
       "namespace": "ui",
@@ -2494,12 +2494,12 @@
       "sha256": "dc616061a8784c0eba63b67d3551c1ee1bb16b7c1d199d6585f65c9fa0732ad4"
     }
   ],
-  "expectedCID": "bafybeihy3fhqgfsvkeaeocmm3oxhsqxlz3bba57al4pu2pf22u33fmmppq",
+  "expectedCID": "bafybeifhtg6uy25vunell43ocrxxers3c5pvst7qlxr77xlco3lqpbjxr4",
   "deploymentStatus": "PUBLISHER_REPORTED_CID_MATCH",
   "registrySDK": {
-    "version": "0.1.0-alpha.38",
-    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.38.tgz",
-    "integrity": "sha512-uo1OFrIUh0ruXAxmVbA6anS8VQQLvL1n8CtUm2snntE/bySz2M1b41vNiVmWXkaKZuHAhQdNzPD2a98VJXDfVA==",
+    "version": "0.1.0-alpha.40",
+    "resolved": "https://registry.npmjs.org/@kohaku-eth/tornado-cash/-/tornado-cash-0.1.0-alpha.40.tgz",
+    "integrity": "sha512-eHUaLaHw+Sf4r9/rwOHxlf2V38TIOcH7IewR/JNnX+A2IdjrR8y2soTJfvFsoZwLFlNOEvMjfnzjUm5OTJWZMA==",
     "name": "@kohaku-eth/tornado-cash",
     "sourceRebuiltArtifacts": 14,
     "packageFileCount": 16,

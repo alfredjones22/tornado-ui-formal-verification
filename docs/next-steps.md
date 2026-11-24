@@ -1,6 +1,6 @@
 # Current status and possible next steps
 
-The [current report](release-verification-v1.md), [Lean certification](lean-certification.md), and [continuation report](continuation-1-2.md) define the verification scope for the published alpha.38 UI release. Future work below does not expand the current verdict.
+The [current report](release-verification-v1.md), [Lean certification](lean-certification.md), and [continuation report](continuation-1-2.md) define the verification scope for the published alpha.40 UI release. Future work below does not expand the current verdict.
 
 ## Completed scoped evidence
 
